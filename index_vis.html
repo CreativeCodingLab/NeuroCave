@@ -13,8 +13,6 @@
                 .defer(setFolder,folderName)
                 .awaitAll( function() {
                     console.log(folder);
-
-                    //document.location.href = "visualization.html";
                 });
     }
 
@@ -30,9 +28,9 @@ switch quickly different topological spaces where the connectome is embedded.
 With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and focus on
 very specific area by switching on and off regions of the brain. Simple analytics such as nodal strength and shortest path
 trees can be computed on the fly. This tool has been developed with virtual reality in mind and it is compatible with
-Head Mounted Displays such as Oculus Rift (both DK1 and DK2).
+the Oculus Rift and requires the Oculus Touch input.
 
-<h3>Acknoledgement</h3>
+<h3>Acknowledgement</h3>
 The tool was entirely developed the <a href="https://www.evl.uic.edu/creativecoding/">Creative Coding Research Group</a>,
 directed by Prof. Angus Forbes. The research group is part of the <a href="https://www.evl.uic.edu">Electronic Visualization
 Lab (EVL)</a>  at University of Illinois at Chicago (UIC). This research is being done in collaboration with Alex Leow,
@@ -55,6 +53,15 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
 
 <div class = "menu" id  = 'full'>
     <h2>Use your own data:</h2>
+    In order to use your own data, follow these instructions:
+    <ul style="list-style-type:circle">
+        <li>Download <b>NeuroCave</b> to your local drive</li>
+        <li>Put the folder containing your data in <b>.\NeuroCave\data\</b> </li>
+        <li>Browse for the folder using the below <b>'Browse'</b> button</li>
+        <li>Choose an <b>Atlas</b></li>
+        <li>Press the <b>'Submit'</b> button</li>
+    </ul>
+
     <p></p>
     <input id = 'folderSelect' type = 'file' onchange="getfolder(event)" webkitdirectory directory multiple/>Choose data folder</input>
     <p></p>
@@ -62,15 +69,16 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
     <label>Choose Atlas</label>
     <p></p>
     <button type = 'button' id = 'submit'
-            onclick="location.href=this.href+'?dataset=user&load=0&lut=baltimore';
-            return false;" href="visualization.html">Submit</button>
+            onclick="location.href='visualization.html'+'?dataset='+folder+'&load=0&lut='+option">Submit</button>
     <br>
 </div>
 
 <script type="text/Javascript">
     // populate the Atlas dropdown menu
     var options = ['fsl', 'baltimore', 'mni'];
+    var option = options[0];
     var menu = document.getElementById("atlas");
+    var folder = '';
     for(var i = 0; i < 3; i++) {
         var el = document.createElement("option");
         el.textContent = options[i];
@@ -78,6 +86,7 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
         el.selected = (i==0);
         menu.appendChild(el);
     }
+    menu.onchange = function () { option = options[this.selectedIndex]; };
 
     // get user selected folder info
     getfolder = function (e) {
@@ -85,45 +94,14 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
         var files = e.target.files;
         if (files) {
             if (files.length == 0) {
-                console.log("Empty directory!!!")
+                alert("Empty directory!!!")
             } else {
-                queue()
-                    .defer(uploadFolder, files)
-                    .awaitAll( function () {
-                        console.log("Done")
-                    });
-
-
+                folder = files[0].webkitRelativePath.split('/')[0];
+                console.log(folder)
             }
         }
     };
 
-    function uploadFolder(files, callback) {
-        for (var i = 0; i < files.length; ++i) {
-            if (i == files.length -1)
-                uploadFile(files[i], callback)
-            else
-                uploadFile(files[i], null)
-        }
-    }
-
-    function uploadFile(file, callback) {
-        console.log(file)
-
-        var reader = new FileReader();
-        if (callback) {
-            reader.onload = function (e) {
-                console.log(e)
-                callback(null,null);
-            };
-        } else {
-            reader.onload = function (e) {
-                console.log(e)
-            };
-        }
-        reader.readAsArrayBuffer(file);
-
-    }
 </script>
 
 </body>
