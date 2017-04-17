@@ -1,0 +1,3 @@
+subjectID,network,topology
+left,NWLeft.csv,topologyLeft.csv
+right,NWRight.csv,topologyRight.csv

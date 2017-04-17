@@ -1,0 +1,245 @@
+body {
+    margin: 0;
+    font-family: 'Fjord', sans-serif;
+}
+
+button {
+    background-color: #3498db; /*rgb(197, 239, 247) ;*/
+    border-width: 1px;
+    text-align: center;
+    -webkit-border-radius: 2px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 15px;
+    color: floralwhite;
+    font-weight: 400;
+}
+
+button:hover {
+    background: #BDC3C7; /*rgb(82, 179, 217);*/
+}
+
+button:disabled {
+    opacity : .6;
+    background-color: grey;
+}
+input:disabled {
+    opacity : .3;
+}
+
+input:disabled+label {
+    color: #4c4c4c;
+}
+
+input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: solid 2px #c9c9c9;
+    background-color: red;
+    transition: border 0.3s;
+    /*-webkit-border-radius: 5;*/
+    /*-moz-border-radius: 5;*/
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+    opacity: 0;
+}
+
+
+button > input[type="checkbox"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: solid 2px #c9c9c9;
+    background-color: red;
+    transition: border 0.3s;
+    /*-webkit-border-radius: 5;*/
+    /*-moz-border-radius: 5;*/
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+    opacity: 0;
+}
+
+.dhtmlx_button {
+    margin-top:10px;
+}
+
+.menu {
+    background-color:  rgba(46,36,33, 0.0);
+    font-family: 'Open Sans', sans-serif;
+    color: floralwhite;
+}
+
+.menu > button {
+    position: relative;
+    width : 95px;
+    height: 40px;
+    margin: 4px;
+    font-size: 11px;
+}
+
+.load{
+    background-color: green;
+}
+
+#canvasLeft {
+    width: 49.5%;
+    height: 100%;
+    float: left;
+    z-index: 1;
+}
+
+#canvasRight {
+    width: 50%;
+    height: 100%;
+    float: right;
+    z-index: 1;
+}
+
+#canvas {
+     width: 100%;
+     height: 100%;
+     z-index: 1;
+ }
+
+#legend {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    bottom: 10px;
+    right: 10px;
+    z-index: 2
+}
+
+#uploadLeft {
+    width: 150px;
+    height: 200px;
+    float: left;
+}
+
+#uploadRight {
+    width: 150px;
+    height: 200px;
+    float: right;
+}
+
+#upload{
+    position: absolute;
+    width: 150px;
+    height: 280px;
+    top: 20px;
+    left: 20px
+}
+
+#subjectMenuLeft {
+    position: absolute;
+    width: 180px;
+    height: 25px;
+    top: 5px;
+    left: 400px;
+    color: black;
+}
+
+#subjectMenuRight {
+    position: absolute;
+    width: 180px;
+    height: 25px;
+    top: 5px;
+    right: 400px;
+    color: black;
+}
+
+#shortestPath {
+    position: absolute;
+    width: 175px;
+    height: 100px;
+    top: 200px;
+    right: 30px
+}
+
+#topologyLeft {
+    position: absolute;
+    width: 175px;
+    height: 150px;
+    top: 400px;
+    left: 20px
+}
+
+#topologyRight {
+    position: absolute;
+    width: 175px;
+    height: 150px;
+    top: 400px;
+    right: 30px
+}
+
+#nodeInfoPanel {
+    position: absolute;
+    width: 300px;
+    height: 130px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+    color: antiquewhite;
+}
+
+#nodeInfoPanel > p {
+    text-align:center;
+    vertical-align: middle;
+}
+
+#edgeInfoPanel {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    top: 10px;
+    right: 10px;
+    z-index: 2
+}
+
+#rightFslLabels {
+    overflow:auto;
+    position: absolute;
+    width: 200px;
+    height: 100%;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    display: none;
+}
+
+#leftFslLabels {
+    overflow:auto;
+    position: absolute;
+    width: 200px;
+    height: 100%;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: none;
+}
+
+#search {
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    top: 10px;
+    right:300px;
+    z-index: 2;
+    display: none;
+}
+
+#full {
+    height: 100%;
+    min-height: 100%;
+    top:0; right:0;
+    bottom:0; left:0;
+    background-color: white;
+}
+
+/*.label{*/
+    /*color: black;*/
+/*}*/

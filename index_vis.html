@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Brain Vis</title>
+</head>
+<script type="text/javascript" src="js/utils/parsingData.js"></script>
+<script src="js/external-libraries/queue.js"></script>
+<script>
+
+    loadVisualization = function (folderName) {
+        queue()
+                .defer(setFolder,folderName)
+                .awaitAll( function() {
+                    console.log(folder);
+
+                    //document.location.href = "visualization.html";
+                });
+    }
+
+</script>
+
+<body>
+
+<h2>NeuroCave</h2>
+NeuroCave is a tool allows to visualize brain networks also called the <a href="https://en.wikipedia.org/wiki/Connectome">
+Connectome</a> which is the network that describes how the different regions of the brain are interconnected.
+Particularly, the tools enable to perform the exploration of the intrinsic geometry of the brain, by letting the user
+switch quickly different topological spaces where the connectome is embedded.
+With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and focus on
+very specific area by switching on and off regions of the brain. Simple analytics such as nodal strength and shortest path
+trees can be computed on the fly. This tool has been developed with virtual reality in mind and it is compatible with
+Head Mounted Displays such as Oculus Rift (both DK1 and DK2).
+
+<h3>Acknoledgement</h3>
+The tool was entirely developed the <a href="https://www.evl.uic.edu/creativecoding/">Creative Coding Research Group</a>,
+directed by Prof. Angus Forbes. The research group is part of the <a href="https://www.evl.uic.edu">Electronic Visualization
+Lab (EVL)</a>  at University of Illinois at Chicago (UIC). This research is being done in collaboration with Alex Leow,
+Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
+
+<h2>Demo</h2>
+
+<ul>
+    <a onclick="location.href=this.href+'?dataset=Demo1&load=0&lut=fsl';return false;" href="visualization.html">Demo 1</a>
+    <p></p>
+    <a onclick="location.href=this.href+'?dataset=Demo2&load=0&lut=baltimore';return false;" href="visualization.html">Demo 2: F1000, female vs male</a>
+    <p></p>
+    <a onclick="location.href=this.href+'?dataset=Demo4&load=0&lut=mni';return false;" href="visualization.html">Demo 4: 2514 X 2514 </a>
+    <p></p>
+    <a onclick="location.href=this.href+'?dataset=Demo6&load=0&lut=baltimore';return false;" href="visualization.html">Demo 6: F1000, 7 groups of age</a>
+    <p></p>
+    <a onclick="location.href=this.href+'?dataset=Demo7&load=0&lut=baltimore';return false;" href="visualization.html">Demo 7: F1000, female vs male, age: 20-30</a>
+    <p></p>
+</ul>
+
+<div class = "menu" id  = 'full'>
+    <h2>Use your own data:</h2>
+    <p></p>
+    <input id = 'folderSelect' type = 'file' onchange="getfolder(event)" webkitdirectory directory multiple/>Choose data folder</input>
+    <p></p>
+    <select id = "atlas" class = "jumpmenu"></select>
+    <label>Choose Atlas</label>
+    <p></p>
+    <button type = 'button' id = 'submit'
+            onclick="location.href=this.href+'?dataset=user&load=0&lut=baltimore';
+            return false;" href="visualization.html">Submit</button>
+    <br>
+</div>
+
+<script type="text/Javascript">
+    // populate the Atlas dropdown menu
+    var options = ['fsl', 'baltimore', 'mni'];
+    var menu = document.getElementById("atlas");
+    for(var i = 0; i < 3; i++) {
+        var el = document.createElement("option");
+        el.textContent = options[i];
+        el.value = options[i];
+        el.selected = (i==0);
+        menu.appendChild(el);
+    }
+
+    // get user selected folder info
+    getfolder = function (e) {
+        console.log("Select folder")
+        var files = e.target.files;
+        if (files) {
+            if (files.length == 0) {
+                console.log("Empty directory!!!")
+            } else {
+                queue()
+                    .defer(uploadFolder, files)
+                    .awaitAll( function () {
+                        console.log("Done")
+                    });
+
+
+            }
+        }
+    };
+
+    function uploadFolder(files, callback) {
+        for (var i = 0; i < files.length; ++i) {
+            if (i == files.length -1)
+                uploadFile(files[i], callback)
+            else
+                uploadFile(files[i], null)
+        }
+    }
+
+    function uploadFile(file, callback) {
+        console.log(file)
+
+        var reader = new FileReader();
+        if (callback) {
+            reader.onload = function (e) {
+                console.log(e)
+                callback(null,null);
+            };
+        } else {
+            reader.onload = function (e) {
+                console.log(e)
+            };
+        }
+        reader.readAsArrayBuffer(file);
+
+    }
+</script>
+
+</body>
+</html>

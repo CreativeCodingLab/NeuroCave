@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Connectome</title>
+
+
+    <!-- Fonts -->
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- Styles -->
+    <link href="style/style.css" rel="stylesheet" type="text/css">
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="js/external-libraries/three.min.js"></script>
+    <script type="text/javascript" src="js/external-libraries/MeshLine.js"></script>
+    <script type="text/javascript" src="js/external-libraries/TrackballControls.js"></script>
+    <script type="text/javascript" src="js/external-libraries/papaparse.min.js"></script>
+    <script type="text/javascript" src="js/external-libraries/Projector.js"></script>
+    <script type="text/javascript" src="js/external-libraries/queue.js"></script>
+    <script type="text/javascript" src="js/external-libraries/d3.min.js" ></script>
+    <script type="text/javascript" src="js/external-libraries/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="js/external-libraries/colorbrewer.js"></script>
+    <script type="text/javascript" src="js/external-libraries/math.min.js"></script>
+
+    <script type="text/javascript" src="js/utils/Dijkstra.js"></script>
+    <script type="text/javascript" src="js/utils/scale.js"></script>
+    <script type="text/javascript" src="js/utils/parsingData.js"></script>
+    <script type="text/javascript" src="js/utils/gpu-forcebundling.js"></script>
+    <script type="text/javascript" src="js/utils/GPGPUtility.js"></script>
+    <script type="text/javascript" src="js/utils/arrayUtilities.js"></script>
+
+
+    <script type="text/javascript" src="js/GUI.js"></script>
+    <script type="text/javascript" src="js/atlas.js"></script>
+    <script type="text/javascript" src="js/model.js"></script>
+    <script type="text/javascript" src="js/graphicsUtils.js"></script>
+    <script type="text/javascript" src="js/polyhedron.js"></script>
+    <script type="text/javascript" src="js/drawing.js"></script>
+    <script type="text/javascript" src="js/previewArea.js"></script>
+
+    <!--all VR related scripts-->
+    <script src="js/external-libraries/vr/VRControls.js"></script>
+    <script src="js/external-libraries/vr/VREffect.js"></script>
+    <script src="js/external-libraries/vr/ViveController.js"></script>
+    <script src="js/external-libraries/vr/OBJLoader.js"></script>
+
+    <script src="js/main.js"></script>
+
+</head>
+<body>
+
+
+
+<div id = "canvas">
+    <div id = "canvasLeft"></div>
+    <div id = "canvasRight"></div>
+</div>
+
+<svg class = "menu" id="legend"></svg>
+<div class ="menu" id="upload">
+    <div class ="menu" id = "uploadLeft"></div>
+    <div class ="menu" id = "uploadRight"></div>
+</div>
+
+<select id = "subjectMenuLeft" class = "jumpmenu"></select>
+<select id = "subjectMenuRight" class = "jumpmenu"></select>
+<div class = "menu" id ="shortestPath"></div>
+<div class = "menu" id ="topologyLeft"></div>
+<div class = "menu" id ="topologyRight"></div>
+<div class = "menu" id ="rightFslLabels"></div>
+<div class = "menu" id = "nodeInfoPanel"></div>
+<div class = "menu" id = "edgeInfoPanel"></div>
+<div class = 'menu' id = 'leftFslLabels'></div>
+<div class = 'menu' id = 'search'></div>
+</body>
+</html>
