@@ -43,6 +43,7 @@ to UIC Department of Psychiatry. BRAINtrinsic is an integral research component 
 the understanding of brain connectivity.
 
 #References
+
 **[1]** - Ye, A. Q., Zhan, L., Conrin, S., GadElKarim, J., Zhang, A., Yang, S., Feusner, J.D., Kumar, A., Ajilore, 
 O. and Leow, A. (2015). Measuring embeddedness: Hierarchical scale‐dependent information exchange efficiency of the human brain connectome. Human Brain Mapping.
 
