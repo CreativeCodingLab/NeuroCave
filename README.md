@@ -23,13 +23,17 @@ expected to be an integer number starting with 1.
 # Virtual Reality instruction
 NeuroCave is fully compatible with [Oculus Rift device](https://www.oculus.com/).
 
-#Color coding
+# Color coding
 NeuroCave allows different color coding schemas, such as:
 - Anatomy - nodes are grouped according to their neuroanatomical locations.
 - Embeddedness - nodes that have been shown to be highly embedded in the human structural connectome [1] are 
 highlighted.
 - Rich-club - Rich-club nodes as defined in [2] are highlighted. Note that the Rich-club regions form a subset of 
 highly-embedded nodes.
+
+# Testing
+
+NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/index.html) for online testing.
 
 # Acknowledgment
 
