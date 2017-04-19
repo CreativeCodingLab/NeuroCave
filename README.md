@@ -9,7 +9,7 @@ and shortest path trees can be computed on the fly. This tool has been developed
 compatible with the Oculus Rift headset and it requires the existence of the Oculus Touch input accessory for nodal
 selection. A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
-#How to use it
+# How to use it
 NeuroCave is accessible [here](https://github.com/CreativeCodingLab/NeuroCave/) and there is no need of 
 installation since it is a web-based application. Users can upload data and visualize them. The user has to point
 to the folder containing all data. The folder should contain 3 types of files:
@@ -20,7 +20,7 @@ expected to be an integer number starting with 1.
 - index.txt: this file lists the available network and topology pair files and associate them to the subject ID.
 
 
-#Virtual Reality instruction
+# Virtual Reality instruction
 NeuroCave is fully compatible with [Oculus Rift device](https://www.oculus.com/).
 
 #Color coding
@@ -31,7 +31,7 @@ highlighted.
 - Rich-club - Rich-club nodes as defined in [2] are highlighted. Note that the Rich-club regions form a subset of 
 highly-embedded nodes.
 
-#Acknowledgment
+# Acknowledgment
 
 The tool was developed by Johnson Keiriz based on Giorgio Conte's BRAINtrinsic tool. The tool belongs to the 
 [Creative Coding Research Group](https://www.evl.uic.edu/creativecoding/), directed by Prof.
@@ -42,7 +42,7 @@ to UIC Department of Psychiatry. BRAINtrinsic is an integral research component 
 [CoNECt@UIC](http://conect.brain.uic.edu), an interdisciplinary team of researchers and clinicians devoted to improving
 the understanding of brain connectivity.
 
-#References
+# References
 
 **[1]** - Ye, A. Q., Zhan, L., Conrin, S., GadElKarim, J., Zhang, A., Yang, S., Feusner, J.D., Kumar, A., Ajilore, 
 O. and Leow, A. (2015). Measuring embeddedness: Hierarchical scale‐dependent information exchange efficiency of the human brain connectome. Human Brain Mapping.
