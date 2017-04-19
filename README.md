@@ -10,6 +10,7 @@ compatible with the Oculus Rift headset and it requires the existence of the Ocu
 selection. A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
 # How to use it
+
 NeuroCave is accessible [here](https://github.com/CreativeCodingLab/NeuroCave/) and there is no need of 
 installation since it is a web-based application. Users can upload data and visualize them. The user has to point
 to the folder containing all data. The folder should contain 3 types of files:
@@ -21,9 +22,11 @@ expected to be an integer number starting with 1.
 
 
 # Virtual Reality instruction
+
 NeuroCave is fully compatible with [Oculus Rift device](https://www.oculus.com/).
 
 # Color coding
+
 NeuroCave allows different color coding schemas, such as:
 - Anatomy - nodes are grouped according to their neuroanatomical locations.
 - Embeddedness - nodes that have been shown to be highly embedded in the human structural connectome [1] are 
@@ -33,7 +36,7 @@ highly-embedded nodes.
 
 # Testing
 
-NeuroCave is available [here](index.html) for online testing.
+NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing.
 
 # Acknowledgment
 
