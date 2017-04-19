@@ -33,7 +33,7 @@ highly-embedded nodes.
 
 # Testing
 
-NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/index.html) for online testing.
+NeuroCave is available [here](index.html) for online testing.
 
 # Acknowledgment
 
