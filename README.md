@@ -1,6 +1,6 @@
 # NeuroCave
 
-![alt text](readme_images/controls.png "NeuroCave")
+![alt text](readme_images/f2500.png "NeuroCave")
 
 
 ![alt text](readme_images/case1_1.png "NeuroCave")
