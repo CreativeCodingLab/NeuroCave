@@ -28,6 +28,8 @@ region. Topological information are expected to be an (x,y,z) vector for each la
 expected to be an integer number starting with 1.
 - Configuration file: a "index.txt" file that lists the available network and topology pair files and associates them to the subject ID.
 
+Please contact Johnson Keiriz at jgadel2@uic.edu (or create an issue on this GitHub repo) if you have any questions. 
+
 # VR instructions
 
 NeuroCave is fully compatible with the [Oculus Rift](https://www.oculus.com/).
