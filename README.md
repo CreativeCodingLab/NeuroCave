@@ -16,11 +16,11 @@ selection.
 
 # Video documentation 
 
-A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
+A short video presentation introducing the main features of NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
 # How to use it
 
-NeuroCave is accessible [here](https://github.com/CreativeCodingLab/NeuroCave/). There is no need of 
+The NeuroCave software is accessible [online](https://creativecodinglab.github.io/NeuroCave/). There is no need of 
 installation since it is a web-based application. Users can upload and visualize their own data by pointed to a folder containing the data. The folder should contain 3 types of files:
 - Network files: a ".csv" file per subject containing the adjacency matrix of the connectome.
 - Topology files: a ".csv" file per subject containing the different topological and clustering information for each 
@@ -53,7 +53,7 @@ Johnson Keiriz, Angus Forbes, Morris Chukhman, Olu Ajilore, and Alex D. Leow (Un
 
 
 The software development of NeuroCave was lead by Johnson Keiriz, based on Conte et al.'s BRAINtrinsic tool [3,4]. Dr. Keirez is a member of the [Creative Coding Research Group](https://www.evl.uic.edu/creativecoding/), directed by Dr.
-Angus Forbes. The research group is part of the [Electronic Visualization Lab](https://www.evl.uic.edu) (EVL) at University of Illinois at Chicago (UIC).
+Angus Forbes. The research group is part of the [Electronic Visualization Laboratory](https://www.evl.uic.edu) (EVL) at University of Illinois at Chicago (UIC).
 This research is a collaboration with Dr. Alex Leow, Dr. Olusola Ajilore, and Dr. Allen Ye, all belonging 
 to UIC Department of Psychiatry. NeuroCave has been used to support researchers at [CoNECt@UIC](http://conect.brain.uic.edu), an interdisciplinary team of researchers and clinicians devoted to improving
 the understanding of brain connectivity.
