@@ -9,9 +9,8 @@
 ![alt text](readme_images/case2.png "NeuroCave")
 
 
-NeuroCave is a web-based tool allows to visualize connectome data that describes how the regions of the brain are interconnected. NeuroCave enables researchers to explore and analyze the intrinsic geometry of the brain by letting the user switch quickly between different topological spaces where the connectome is embedded. It supports multiple, side-by-side viewing of one or more connectomes, facilitating group study analysis. With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and 
-focus on very specific area by switching on and off regions of the brain. Simple analytics such as nodal strength 
-and shortest path trees can be computed on the fly. This tool has been developed to support explorations using VR techniques, and it is
+NeuroCave is a web-based tool that allows researchers to visualize connectome data in order to more effectively observe how the regions of the brain are interconnected. NeuroCave helps researchers to explore and analyze the intrinsic geometry of the brain by letting the user switch quickly between different topological spaces where the connectome is embedded. Our tool supports multiple, side-by-side viewing of one or more connectomes, facilitating group study analysis. With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and to focus on very specific areas by toggling on and off regions of the brain as desired. Simple analytics such as nodal strength 
+and shortest path trees can be computed on the fly. Our tool support explorations using VR techniques, and it is
 compatible with the Oculus Rift headset and the Oculus Touch input accessory for nodal
 selection. A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
