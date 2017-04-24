@@ -54,7 +54,7 @@ NeuroCave Project members:
 Johnson Keiriz, Angus Forbes, Morris Chukhman, Olu Ajilore, and Alex D. Leow (University of Illinois at Chicago); Liang Zhan (University of Wisconsin-Stout). 
 
 
-The software development of NeuroCave was lead by Johnson Keiriz, based on Conte et al.'s BRAINtrinsic tool [3,4]. Dr. Keirez is a member of the [Creative Coding Research Group](https://www.evl.uic.edu/creativecoding/), directed by Dr.
+The software development of NeuroCave was led by Johnson Keiriz, based on Conte et al.'s BRAINtrinsic tool [3,4]. Dr. Keirez is a member of the [Creative Coding Research Group](https://www.evl.uic.edu/creativecoding/), directed by Dr.
 Angus Forbes. The research group is part of the [Electronic Visualization Laboratory](https://www.evl.uic.edu) (EVL) at University of Illinois at Chicago (UIC).
 This research is a collaboration with Dr. Alex Leow, Dr. Olusola Ajilore, and Dr. Allen Ye, all belonging 
 to UIC Department of Psychiatry. NeuroCave has been used to support researchers at [CoNECt@UIC](http://conect.brain.uic.edu), an interdisciplinary team of researchers and clinicians devoted to improving
