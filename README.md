@@ -9,10 +9,14 @@
 ![alt text](readme_images/case2.png "NeuroCave")
 
 
-NeuroCave is a web-based tool that allows researchers to visualize connectome data in order to more effectively observe how the regions of the brain are interconnected. NeuroCave helps researchers to explore and analyze the intrinsic geometry of the brain by letting the user switch quickly between different topological spaces where the connectome is embedded. Our tool supports multiple, side-by-side viewing of one or more connectomes, facilitating group study analysis. With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and to focus on very specific areas by toggling on and off regions of the brain as desired. Simple analytics such as nodal strength 
+NeuroCave is a web-based tool that enables researchers to visualize connectome data in order to more effectively observe how the regions of the brain are interconnected. NeuroCave helps researchers to explore and analyze the intrinsic geometry of the brain by letting the user switch quickly between different topological spaces where the connectome is embedded. Our tool supports multiple, side-by-side viewing of one or more connectomes, facilitating group study analysis. With a simple and easy-to-use interface, users can explore all the connections with a edge-on-demand technique and to focus on very specific areas by toggling on and off regions of the brain as desired. Simple analytics such as nodal strength 
 and shortest path trees can be computed on the fly. Our tool support explorations using VR techniques, and it is
 compatible with the Oculus Rift headset and the Oculus Touch input accessory for nodal
-selection. A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
+selection. 
+
+# Video documentation 
+
+A presentation for NeuroCave can be found [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
 # How to use it
 
@@ -39,7 +43,7 @@ highlighted;
 
 # Testing
 
-NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing.
+NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing. A paper introdcuing NeuroCave is currently under submission.
 
 # Acknowledgment
 
@@ -56,14 +60,13 @@ the understanding of brain connectivity.
 
 # References
 
-**[1]** - Ye, A. Q., Zhan, L., Conrin, S., GadElKarim, J., Zhang, A., Yang, S., Feusner, J.D., Kumar, A., Ajilore, 
-O. and Leow, A. D. (2015). Measuring embeddedness: Hierarchical scale‐dependent information exchange efficiency of the human brain connectome. Human Brain Mapping, 36(9): 3653-3665.
+**[1]** - Ye, A.Q., Zhan, L., Conrin, S., GadElKarim, J., Zhang, A., Yang, S., Feusner, J.D., Kumar, A., Ajilore, O.A., and Leow, A.D. (2015). Measuring embeddedness: Hierarchical scale‐dependent information exchange efficiency of the human brain connectome. Human Brain Mapping, 36(9): 3653-3665.
 
-**[2]** - van den Heuvel, M. P., & Sporns, O. (2011). Rich-club organization of the human connectome. The Journal of Neuroscience, 31(44): 15775-15786.
+**[2]** - van den Heuvel, M.P. and Sporns, O. (2011). Rich-club organization of the human connectome. The Journal of Neuroscience, 31(44): 15775-15786.
 
-**[3]** - Conte, G., Ye, A. Q., Forbes, A. G., Ajilore, O., and Leow, A. D. (2015). BRAINtrinsic: A virtual reality-compatible tool for exploring intrinsic topologies of the human brain connectome. In Y. Guo, K. Friston, A. Faisal, S. Hill, and H. Peng, editors, Brain Informatics and Health, volume 9250 of Lecture Notes in Artificial Intelligence, chapter 7, pages 67–76. Springer.
+**[3]** - Conte, G., Ye, A.Q., Forbes, A.G., Ajilore, O.A., and Leow, A.D. (2015). BRAINtrinsic: A virtual reality-compatible tool for exploring intrinsic topologies of the human brain connectome. In Y. Guo, K. Friston, A. Faisal, S. Hill, and H. Peng, editors, Brain Informatics and Health, volume 9250 of Lecture Notes in Artificial Intelligence, chapter 7, pages 67–76. Springer.
 
-**[4]** - Allen, Q. Y., Ajilore, O. A., Conte, G., GadElkarim, J., Thomas-Ramos, G., Zhan, L., Yang, S., Kumar, A., Magin, R.L., Forbes, A.G. and Leow, A.D. (2015). The intrinsic geometry of the human brain connectome. Brain informatics, 2(4), 197-210.
+**[4]** - Ye, A.Q., Ajilore, O.A., Conte, G., GadElkarim, J., Thomas-Ramos, G., Zhan, L., Yang, S., Kumar, A., Magin, R.L., Forbes, A.G., and Leow, A.D. (2015). The intrinsic geometry of the human brain connectome. Brain informatics, 2(4), 197-210.
 
 
 
