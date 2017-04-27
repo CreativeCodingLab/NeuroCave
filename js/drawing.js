@@ -200,6 +200,10 @@ function onMouseUp(model, event) {
 
 function onKeyPress(event) {
     if (event.key === 'v' || event.keyCode === 118) {
+        if (!previewAreaLeft.isVRAvailable()) {
+            alert("No VR Hardware found!!!");
+            return;
+        }
         updateVRStatus('enable');
     }
     if (vr && (event.key === 's' || event.keyCode === 115)) {

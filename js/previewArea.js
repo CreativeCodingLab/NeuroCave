@@ -21,7 +21,7 @@ function PreviewArea(canvas_, model_) {
     var controllerLeft = null, controllerRight = null;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
 
-    var enableVR = false;
+    var VREnabled = false;
     var activeVR = false;
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -63,8 +63,11 @@ function PreviewArea(canvas_, model_) {
                 .catch(function () {
 
                 });
+            VREnabled = true;
+        } else {
+            console.log("No VR Hardware found!");
+            VREnabled = false;
         }
-        enableVR = true;
 
         initOculusTouch();
     };
@@ -73,6 +76,9 @@ function PreviewArea(canvas_, model_) {
     // not supported in Firefox, only Google chromium
     // check https://webvr.info/get-chrome/
     var initOculusTouch = function () {
+        if (!VREnabled)
+            return;
+
         controllerLeft = new THREE.ViveController( 0 );
         controllerRight = new THREE.ViveController( 1 );
 
@@ -318,7 +324,7 @@ function PreviewArea(canvas_, model_) {
     };
 
     this.animateVR = function () {
-        if (enableVR && activeVR) {
+        if (VREnabled && activeVR) {
             controllerLeft.update();
             controllerRight.update();
 
@@ -328,6 +334,8 @@ function PreviewArea(canvas_, model_) {
             effect.render(scene, camera);
         }
     };
+
+    this.isVRAvailable = function () { return VREnabled; };
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
