@@ -49,7 +49,7 @@ added later.
 - In order to enter VR mode, the user presses the letter 'v'. 
 - The user then must choose which side to navigate: 's' for the left side and 'd' for the right side.
 - The letter 'e' is used to exit VR mode.
-- In VR mode, the user can use the thubstick axes to zoom, pan and rotate. Pressing the grip button will speed up the
+- In VR mode, the user can use the thumbstick axes to zoom, pan and rotate. Pressing the grip button will speed up the
   navigation.
 - In VR mode, the user can points to a node using the trigger button. In order to select a node, the user needs to press
   the grip button while pressing the trigger button.
