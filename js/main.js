@@ -79,9 +79,13 @@ var dataFiles = {};
 
 var labelLUT = getQueryVariable("lut");
 var isLoaded = parseInt(getQueryVariable("load"));
-metric = stringToBoolean(getQueryVariable("metric"));
+var metric = stringToBoolean(getQueryVariable("metric"));
 if( metric == undefined){
     metric = false;
+}
+var mobile = stringToBoolean(getQueryVariable("mobile"));
+if( mobile == undefined){
+    mobile = false;
 }
 
 if(isLoaded == 0) {

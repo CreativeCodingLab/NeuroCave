@@ -302,6 +302,12 @@ initCanvas = function () {
         previewAreaRight.resizeScene();
     });
     animate();
+
+    if (mobile) {
+        console.log("Mobile VR requested");
+        updateVRStatus('enable');
+        updateVRStatus('left');
+    }
 };
 
 // set the threshold for both models
