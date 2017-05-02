@@ -1,8 +1,8 @@
 subjectID,network,topology
-g1,NWg1.csv,topologyg1.csv
-g2,NWg1.csv,topologyg2.csv
-g3,NWg1.csv,topologyg3.csv
-g4,NWg1.csv,topologyg4.csv
-g5,NWg1.csv,topologyg5.csv
-g6,NWg1.csv,topologyg6.csv
-g7,NWg1.csv,topologyg7.csv
+g1 < 20,NWg1.csv,topologyg1.csv
+g2 20 - 24,NWg1.csv,topologyg2.csv
+g3 24 - 29,NWg1.csv,topologyg3.csv
+g4 29 - 39,NWg1.csv,topologyg4.csv
+g5 39 - 49,NWg1.csv,topologyg5.csv
+g6 49 - 59,NWg1.csv,topologyg6.csv
+g7 > 59,NWg1.csv,topologyg7.csv
