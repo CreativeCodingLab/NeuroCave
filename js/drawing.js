@@ -280,6 +280,15 @@ initCanvas = function () {
     // create visualization
     previewAreaLeft = new PreviewArea(document.getElementById('canvasLeft'), modelLeft);
     previewAreaRight = new PreviewArea(document.getElementById('canvasRight'), modelRight);
+
+    // Get the button, and when the user clicks on it, execute myFunction
+    document.getElementById("syncLeft").onclick = function() {
+        previewAreaLeft.syncCameraWith(previewAreaRight.getCamera());
+    };
+    document.getElementById("syncRight").onclick = function() {
+        previewAreaRight.syncCameraWith(previewAreaLeft.getCamera());
+    };
+
     glyphNodeDictionary = {};
     // create left and right canvas
     previewAreaLeft.createCanvas();

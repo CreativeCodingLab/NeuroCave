@@ -54,7 +54,7 @@ function PreviewArea(canvas_, model_) {
         // effect.setSize(window.innerWidth, window.innerHeight);
 
         var navigator = window.navigator;
-        if (navigator.getVRDisplays) {
+        if (navigator.getVRDisplays().length >0) {
             navigator.getVRDisplays()
                 .then(function (displays) {
                     effect.setVRDisplay(displays[0]);
@@ -811,4 +811,8 @@ function PreviewArea(canvas_, model_) {
         nodeLabelSprite.position.set( 0, 0, 0 );
         brain.add(nodeLabelSprite);
     };
+
+    this.getCamera = function() { return camera; };
+
+    this.syncCameraWith = function(cam) { camera.copy(cam); };
 }

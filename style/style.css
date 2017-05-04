@@ -168,6 +168,14 @@ button > input[type="checkbox"] {
     left: 20px
 }
 
+#syncLeft {
+    height: 25px;
+}
+
+#syncRight {
+    height: 25px;
+}
+
 #topologyRight {
     position: absolute;
     width: 175px;
