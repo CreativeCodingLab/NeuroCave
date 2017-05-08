@@ -54,7 +54,7 @@ function PreviewArea(canvas_, model_) {
         // effect.setSize(window.innerWidth, window.innerHeight);
 
         var navigator = window.navigator;
-        if (navigator.getVRDisplays().length >0) {
+        if (navigator.getVRDisplays && navigator.getVRDisplays().length >0) {
             navigator.getVRDisplays()
                 .then(function (displays) {
                     effect.setVRDisplay(displays[0]);
@@ -814,5 +814,14 @@ function PreviewArea(canvas_, model_) {
 
     this.getCamera = function() { return camera; };
 
-    this.syncCameraWith = function(cam) { camera.copy(cam); };
+    this.syncCameraWith = function(cam) {
+        camera.copy(cam);
+        camera.position.copy(cam.position);
+        camera.rotation.copy(cam.rotation);
+        camera.zoom = cam.zoom;
+        // camera.quaternion.copy(cam.quaternion);
+        // camera.updateMatrix();
+        console.log(camera)
+        console.log(cam)
+    };
 }
