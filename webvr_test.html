@@ -9,15 +9,15 @@
     <!--<meta name="apple-mobile-web-app-capable" content="yes" />-->
     <!--<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />-->
     <style>
-        body {
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            color: #fff;
-            margin: 0px;
-            padding: 0;
-            overflow: hidden;
-        }
+        /*body {*/
+            /*width: 100%;*/
+            /*height: 100%;*/
+            /*background-color: #000;*/
+            /*color: #fff;*/
+            /*margin: 0px;*/
+            /*padding: 0;*/
+            /*overflow: hidden;*/
+        /*}*/
 
         /* Position the button on the bottom of the page. */
         #ui {
@@ -30,11 +30,11 @@
             z-index: 1;
         }
 
-        a#magic-window {
-            display: block;
-            color: white;
-            margin-top: 1em;
-        }
+        /*a#magic-window {*/
+            /*display: block;*/
+            /*color: white;*/
+            /*margin-top: 1em;*/
+        /*}*/
     </style>
 </head>
 
@@ -82,34 +82,14 @@
     };
 </script>
 
-<!--
-  A polyfill for Promises. Needed for IE and Edge.
--->
-<!--<script src="node_modules/es6-promise/dist/es6-promise.min.js"></script>-->
-
-<!--
-  three.js 3d library
--->
 <script src="js/external-libraries/three.min.js"></script>
-
-<!--
-  VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
--->
+<!--VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.-->
 <script src="js/external-libraries/vr/VRControls.js"></script>
-
-<!--
-  VREffect.js handles stereo camera setup and rendering.
--->
+<!--VREffect.js handles stereo camera setup and rendering.-->
 <script src="js/external-libraries/vr/VREffect.js"></script>
-
-<!--
-  A polyfill for WebVR using the Device{Motion,Orientation}Event API.
--->
+<!--A polyfill for WebVR using the Device{Motion,Orientation}Event API.-->
 <script src="js/external-libraries/vr/webvr-polyfill.min.js"></script>
-
-<!--
-  A set of UI controls for entering VR mode.
--->
+<!--A set of UI controls for entering VR mode.-->
 <script src="js/external-libraries/vr/webvr-ui.min.js"></script>
 
 
@@ -253,7 +233,8 @@
                 if (vrDisplay.stageParameters) {
                     setStageDimensions(vrDisplay.stageParameters);
                 }
-                vrDisplay.requestAnimationFrame(animate);
+                // vrDisplay.requestAnimationFrame(animate);
+                effect.requestAnimationFrame(animate);
             }
         });
     }
