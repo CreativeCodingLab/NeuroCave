@@ -173,6 +173,8 @@
 //        document.getElementById('magic-window').addEventListener('click', function() {
 //            vrButton.requestEnterFullscreen();
 //        });
+
+        effect.requestAnimationFrame(animate);
     }
 
     function onTextureLoaded(texture) {
@@ -194,7 +196,7 @@
 
         // For high end VR devices like Vive and Oculus, take into account the stage
         // parameters provided.
-        setupStage();
+        // setupStage();
     }
 
 
