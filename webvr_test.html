@@ -41,7 +41,7 @@
 <body>
 <div id="ui">
     <div id="vr-button"></div>
-    <a id="magic-window" href="#">Try it without a headset</a>
+    <!--<a id="magic-window" href="#">Try it without a headset</a>-->
 </div>
 </body>
 
@@ -170,9 +170,9 @@
             document.getElementById('ui').style.display = 'inherit';
         });
         document.getElementById('vr-button').appendChild(vrButton.domElement);
-        document.getElementById('magic-window').addEventListener('click', function() {
-            vrButton.requestEnterFullscreen();
-        });
+//        document.getElementById('magic-window').addEventListener('click', function() {
+//            vrButton.requestEnterFullscreen();
+//        });
     }
 
     function onTextureLoaded(texture) {
