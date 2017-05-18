@@ -122,7 +122,7 @@ function PreviewArea(canvas_, model_, name_) {
     var initWebVRForMobile = function () {
         // Initialize the WebVR UI.
         var uiOptions = {
-            color: 'white',
+            color: 'black',
             background: 'white',
             corners: 'round',
             height: 40,

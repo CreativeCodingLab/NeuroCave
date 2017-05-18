@@ -251,7 +251,7 @@ button > input[type="checkbox"] {
 #vrLeft {
     position: absolute;
     bottom: 10px;
-    left: 550px;
+    left: 20%;
     text-align: center;
     z-index: 1;
 }
@@ -259,7 +259,7 @@ button > input[type="checkbox"] {
 #vrRight {
     position: absolute;
     bottom: 10px;
-    right: 550px;
+    right: 20%;
     text-align: center;
     z-index: 1;
 }
