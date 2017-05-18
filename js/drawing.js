@@ -306,24 +306,24 @@ initCanvas = function () {
     previewAreaLeft.drawRegions();
     previewAreaRight.drawRegions();
     $(window).resize(function(e){
-        e.preventDefault();
+        //e.preventDefault();
         console.log("on resize event");
         previewAreaLeft.resizeScene();
         previewAreaRight.resizeScene();
     });
 
     window.addEventListener('vrdisplaypresentchange', function(e){
-            e.preventDefault();
+            //e.preventDefault();
             console.log("on resize event");
             previewAreaLeft.resizeScene();
             previewAreaRight.resizeScene();}
         , true);
 
-    animate();
-
     if (mobile) {
         console.log("Mobile VR requested");
     }
+
+    animate();
 };
 
 // set the threshold for both models
@@ -371,19 +371,16 @@ redrawEdges = function () {
 // animate scenes and capture control inputs
 animate = function () {
     if (!vr) {
-        requestAnimationFrame(animate);
         previewAreaLeft.animate();
         previewAreaRight.animate();
-        // console.log("animate")
+        requestAnimationFrame(animate);
     } else { // VR
         if (activeVR == 'left') {
-            previewAreaLeft.requestAnimate(animate);
             previewAreaLeft.animate();
-            // console.log("animateVRLeft")
+            previewAreaLeft.requestAnimate(animate);
         } else if (activeVR == 'right') {
-            previewAreaRight.requestAnimate(animate);
             previewAreaRight.animate();
-            // console.log("animateVRRight")
+            previewAreaRight.requestAnimate(animate);
         } else { // need to be recalled continuously in case user reactivate VR
             requestAnimationFrame(animate);
         }
