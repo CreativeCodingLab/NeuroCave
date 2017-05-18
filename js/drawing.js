@@ -217,6 +217,7 @@ function onKeyPress(event) {
     }
 }
 
+// update VR status for desktop
 updateVRStatus = function (status) {
     switch (status)
     {
@@ -278,8 +279,8 @@ initCanvas = function () {
 
     createLegend(modelLeft);
     // create visualization
-    previewAreaLeft = new PreviewArea(document.getElementById('canvasLeft'), modelLeft);
-    previewAreaRight = new PreviewArea(document.getElementById('canvasRight'), modelRight);
+    previewAreaLeft = new PreviewArea(document.getElementById('canvasLeft'), modelLeft, 'Left');
+    previewAreaRight = new PreviewArea(document.getElementById('canvasRight'), modelRight, 'Right');
 
     // Get the button, and when the user clicks on it, execute myFunction
     document.getElementById("syncLeft").onclick = function() {
@@ -310,12 +311,18 @@ initCanvas = function () {
         previewAreaLeft.resizeScene();
         previewAreaRight.resizeScene();
     });
+
+    window.addEventListener('vrdisplaypresentchange', function(e){
+            e.preventDefault();
+            console.log("on resize event");
+            previewAreaLeft.resizeScene();
+            previewAreaRight.resizeScene();}
+        , true);
+
     animate();
 
     if (mobile) {
         console.log("Mobile VR requested");
-        updateVRStatus('enable');
-        updateVRStatus('left');
     }
 };
 
@@ -367,13 +374,16 @@ animate = function () {
         requestAnimationFrame(animate);
         previewAreaLeft.animate();
         previewAreaRight.animate();
+        // console.log("animate")
     } else { // VR
         if (activeVR == 'left') {
             previewAreaLeft.requestAnimate(animate);
-            previewAreaLeft.animateVR();
+            previewAreaLeft.animate();
+            // console.log("animateVRLeft")
         } else if (activeVR == 'right') {
             previewAreaRight.requestAnimate(animate);
-            previewAreaRight.animateVR();
+            previewAreaRight.animate();
+            // console.log("animateVRRight")
         } else { // need to be recalled continuously in case user reactivate VR
             requestAnimationFrame(animate);
         }

@@ -10,19 +10,20 @@
  * @constructor
  */
 
-function PreviewArea(canvas_, model_) {
+function PreviewArea(canvas_, model_, name_) {
+    var name = name_;
     var model = model_;
     var canvas = canvas_;
     var camera = null, renderer = null, controls = null, scene = null, raycaster = null;
     var nodeLabelSprite = null, nodeNameMap = null, nspCanvas = null;
 
     // VR stuff
-    var oculusControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null;
+    var vrControl = null, effect = null;
+    var controllerLeft = null, controllerRight = null, oculusTouchExist = false;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
 
-    var VREnabled = false;
-    var activeVR = false;
+    var enableVR = false;
+    var activateVR = false;
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
     var glyphs = [];
@@ -32,11 +33,14 @@ function PreviewArea(canvas_, model_) {
 
     var edgeOpacity = 1.0;
 
+    var vrButton = null;
+
+    // request VR activation - desktop case
     this.activateVR = function (activate) {
-        if (activate == activeVR)
+        if (activate == activateVR)
             return;
-        activeVR = activate;
-        if (activeVR) {
+        activateVR = activate;
+        if (activateVR) {
             effect.requestPresent();
         }
         else
@@ -45,7 +49,7 @@ function PreviewArea(canvas_, model_) {
 
     // init Oculus Rift
     this.initOculusRift = function () {
-        oculusControl = new THREE.VRControls(camera, function (message) {
+        vrControl = new THREE.VRControls(camera, function (message) {
             console.log("VRControls: ", message);
         });
         effect = new THREE.VREffect(renderer, function (message) {
@@ -57,26 +61,32 @@ function PreviewArea(canvas_, model_) {
         if (navigator.getVRDisplays && navigator.getVRDisplays().length >0) {
             navigator.getVRDisplays()
                 .then(function (displays) {
-                    effect.setVRDisplay(displays[0]);
-                    oculusControl.setVRDisplay(displays[0]);
+                    if (!mobile) {
+                        effect.setVRDisplay(displays[0]);
+                        vrControl.setVRDisplay(displays[0]);
+                    }
                 })
                 .catch(function () {
 
                 });
-            VREnabled = true;
+            enableVR = true;
         } else {
             console.log("No VR Hardware found!");
-            VREnabled = false;
+            enableVR = mobile;
         }
 
-        initOculusTouch();
+
+        if (mobile)
+            initWebVRForMobile();
+        else
+            initOculusTouch();
     };
 
     // init Oculus Touch controllers
     // not supported in Firefox, only Google chromium
     // check https://webvr.info/get-chrome/
     var initOculusTouch = function () {
-        if (!VREnabled)
+        if (!enableVR)
             return;
 
         controllerLeft = new THREE.ViveController( 0 );
@@ -96,8 +106,8 @@ function PreviewArea(canvas_, model_) {
             controllerLeft.add( object.clone() );
             controllerRight.add( object.clone() );
 
-            controllerLeft.standingMatrix = oculusControl.getStandingMatrix();
-            controllerRight.standingMatrix = oculusControl.getStandingMatrix();
+            controllerLeft.standingMatrix = vrControl.getStandingMatrix();
+            controllerRight.standingMatrix = vrControl.getStandingMatrix();
 
             scene.add(controllerLeft);
             scene.add(controllerRight);
@@ -106,7 +116,43 @@ function PreviewArea(canvas_, model_) {
         // controllerLeft.addEventListener('gripsup', function(e) { updateVRStatus('left'); }, true);
         // controllerRight.addEventListener('gripsup', function(e) { updateVRStatus('right'); }, true);
 
+        oculusTouchExist = true;
+
         console.log("Init Oculus Touch done")
+    };
+
+    var initWebVRForMobile = function () {
+        // Initialize the WebVR UI.
+        var uiOptions = {
+            color: 'black',
+            background: 'white',
+            corners: 'square'
+        };
+        var this_ = this;
+        vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
+        vrButton.on('exit', exitMobileVR);
+        vrButton.on('hide', function() {
+            document.getElementById('vr'+name).style.display = 'none';
+        });
+        vrButton.on('show', function() {
+            document.getElementById('vr'+name).style.display = 'inherit';
+        });
+        document.getElementById('vrButton'+name).appendChild(vrButton.domElement);
+        document.getElementById('magicWindow'+name).addEventListener('click', function() {
+            vr = true;
+            activateVR = true;
+            activeVR = name.toLowerCase();
+            console.log("Active VR = " + activeVR);
+            vrButton.requestEnterFullscreen();
+        });
+    };
+
+    var exitMobileVR = function () {
+        vr = false;
+        activeVR = 'none';
+        activateVR = false;
+        // previewArea.resetCamera();
+        // previewArea.resetBrainPosition();
     };
 
     // scan the Oculus Touch for controls
@@ -157,7 +203,7 @@ function PreviewArea(canvas_, model_) {
             }
         }
 
-        var isLeft = (activeVR == 'left');
+        var isLeft = (activateVR == 'left');
         if(controllerLeft.getButtonState('trigger')) {
             pointedNodeIdx = (closestNodeDistanceLeft < 2.0) ? closestNodeIndexLeft : -1;
 
@@ -315,8 +361,19 @@ function PreviewArea(canvas_, model_) {
     };
 
     this.animate = function () {
-        controls.update();
-        renderer.render(scene, camera);
+        if (enableVR && activateVR) {
+            if (oculusTouchExist) {
+                controllerLeft.update();
+                controllerRight.update();
+                scanOculusTouch();
+            }
+            vrControl.update();
+        }
+        else {
+            controls.update();
+        }
+        //renderer.render(scene, camera);
+        effect.render(scene, camera);
     };
 
     this.requestAnimate = function (animate) {
@@ -324,18 +381,21 @@ function PreviewArea(canvas_, model_) {
     };
 
     this.animateVR = function () {
-        if (VREnabled && activeVR) {
-            controllerLeft.update();
-            controllerRight.update();
+        if (enableVR && activateVR) {
+            if (oculusTouchExist) {
+                controllerLeft.update();
+                controllerRight.update();
+                scanOculusTouch();
+            }
 
-            scanOculusTouch();
-
-            oculusControl.update();
+            vrControl.update();
             effect.render(scene, camera);
         }
     };
 
-    this.isVRAvailable = function () { return VREnabled; };
+    this.isVRAvailable = function () { return enableVR; };
+
+    this.isPresenting = function () { vrButton.isPresenting(); };
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
@@ -653,9 +713,16 @@ function PreviewArea(canvas_, model_) {
 
     // callback when window is resized
     this.resizeScene = function(){
-        camera.aspect = window.innerWidth/2.0 / window.innerHeight;
+        if (vrButton.isPresenting()) {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            console.log("Resize for VR");
+        } else {
+            camera.aspect = window.innerWidth / 2.0 / window.innerHeight;
+            renderer.setSize(window.innerWidth / 2.0, window.innerHeight);
+            console.log("Resize");
+        }
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth/2.0, window.innerHeight);
     };
 
     // compute shortest path info for a node
@@ -821,7 +888,5 @@ function PreviewArea(canvas_, model_) {
         camera.zoom = cam.zoom;
         // camera.quaternion.copy(cam.quaternion);
         // camera.updateMatrix();
-        console.log(camera)
-        console.log(cam)
     };
 }

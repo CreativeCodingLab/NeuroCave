@@ -2,6 +2,29 @@
  * Created by giorgioconte on 31/01/15.
  */
 
+var stringToBoolean = function (s) {
+    switch (s){
+        case '1': return true;
+        case '0': return false;
+    }
+};
+
+var atlas = null;
+var folder = getQueryVariable("dataset");
+var dataFiles = {};
+
+var labelLUT = getQueryVariable("lut");
+var isLoaded = parseInt(getQueryVariable("load"));
+var metric = stringToBoolean(getQueryVariable("metric"));
+if( metric == undefined){
+    metric = false;
+}
+var mobile = stringToBoolean(getQueryVariable("mobile"));
+if( mobile == undefined){
+    mobile = false;
+}
+console.log('This is ' + ((mobile)?'Mobile':'Desktop') + ' version');
+
 init = function () {
 
     console.log("Init ... ");
@@ -47,12 +70,7 @@ function getQueryVariable(variable) {
     return undefined;
 }
 
-var stringToBoolean = function (s) {
-    switch (s){
-        case 'true': return true;
-        case 'false': return false;
-    }
-};
+
 
 var parse = function(callback){
 
@@ -73,20 +91,7 @@ var parse = function(callback){
     callback(null,null);
 };
 
-var atlas = null;
-var folder = getQueryVariable("dataset");
-var dataFiles = {};
 
-var labelLUT = getQueryVariable("lut");
-var isLoaded = parseInt(getQueryVariable("load"));
-var metric = stringToBoolean(getQueryVariable("metric"));
-if( metric == undefined){
-    metric = false;
-}
-var mobile = stringToBoolean(getQueryVariable("mobile"));
-if( mobile == undefined){
-    mobile = false;
-}
 
 if(isLoaded == 0) {
     console.log("Loading data ... ");

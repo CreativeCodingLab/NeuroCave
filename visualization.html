@@ -30,7 +30,6 @@
     <script type="text/javascript" src="js/utils/GPGPUtility.js"></script>
     <script type="text/javascript" src="js/utils/arrayUtilities.js"></script>
 
-
     <script type="text/javascript" src="js/GUI.js"></script>
     <script type="text/javascript" src="js/atlas.js"></script>
     <script type="text/javascript" src="js/model.js"></script>
@@ -42,8 +41,13 @@
     <!--all VR related scripts-->
     <script src="js/external-libraries/vr/VRControls.js"></script>
     <script src="js/external-libraries/vr/VREffect.js"></script>
+    <!--Required for the Oculus Touch-->
     <script src="js/external-libraries/vr/ViveController.js"></script>
     <script src="js/external-libraries/vr/OBJLoader.js"></script>
+    <!--A polyfill for WebVR using the Device{Motion,Orientation}Event API.-->
+    <script src="js/external-libraries/vr/webvr-polyfill.min.js"></script>
+    <!--A set of UI controls for entering VR mode.-->
+    <script src="js/external-libraries/vr/webvr-ui.min.js"></script>
 
     <script src="js/main.js"></script>
 
@@ -71,6 +75,14 @@
 </div>
 <div class = "menu" id ="topologyRight">
     <button type = 'button' id = 'syncRight' >Sync</button>
+</div>
+<div id="vrLeft">
+    <div id="vrButtonLeft"></div>
+    <a id="magicWindowLeft" href="#">Try it without a headset</a>
+</div>
+<div id="vrRight">
+    <div id="vrButtonRight"></div>
+    <a id="magicWindowRight" href="#">Try it without a headset</a>
 </div>
 <div class = "menu" id ="rightFslLabels"></div>
 <div class = "menu" id = "nodeInfoPanel"></div>
