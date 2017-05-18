@@ -248,6 +248,7 @@ function PreviewArea(canvas_, model_, name_) {
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     var initScene = function () {
         renderer.setSize(canvas.clientWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         canvas.appendChild(renderer.domElement);
         raycaster = new THREE.Raycaster();
         camera.position.z = 50;
@@ -361,7 +362,9 @@ function PreviewArea(canvas_, model_, name_) {
             vrControl.update();
         }
         else {
-            if (!mobile)
+            if (mobile)
+                vrControl.update();
+            else
                 controls.update();
         }
 
