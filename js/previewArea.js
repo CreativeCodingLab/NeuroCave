@@ -40,11 +40,13 @@ function PreviewArea(canvas_, model_, name_) {
         if (activate == activateVR)
             return;
         activateVR = activate;
-        if (activateVR) {
-            effect.requestPresent();
+        if (!mobile) {
+            if (activateVR) {
+                effect.requestPresent();
+            }
+            else
+                effect.exitPresent();
         }
-        else
-            effect.exitPresent();
     };
 
     // init Oculus Rift
@@ -55,26 +57,22 @@ function PreviewArea(canvas_, model_, name_) {
         effect = new THREE.VREffect(renderer, function (message) {
             console.log("VREffect ", message);
         });
-        // effect.setSize(window.innerWidth, window.innerHeight);
+        effect.setSize(window.innerWidth/2., window.innerHeight);
 
-        var navigator = window.navigator;
-        if (navigator.getVRDisplays && navigator.getVRDisplays().length >0) {
+        if (navigator.getVRDisplays) {
             navigator.getVRDisplays()
                 .then(function (displays) {
-                    if (!mobile) {
+                    if (displays.length > 0) {
+                        console.log("VR Display found");
                         effect.setVRDisplay(displays[0]);
                         vrControl.setVRDisplay(displays[0]);
                     }
-                })
-                .catch(function () {
-
                 });
             enableVR = true;
         } else {
             console.log("No VR Hardware found!");
-            enableVR = mobile;
+            enableVR = false;
         }
-
 
         if (mobile)
             initWebVRForMobile();
@@ -128,9 +126,8 @@ function PreviewArea(canvas_, model_, name_) {
             background: 'white',
             corners: 'square'
         };
-        var this_ = this;
         vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
-        vrButton.on('exit', exitMobileVR);
+        vrButton.on('exit', function () { updateVRStatus('disable'); });
         vrButton.on('hide', function() {
             document.getElementById('vr'+name).style.display = 'none';
         });
@@ -145,14 +142,6 @@ function PreviewArea(canvas_, model_, name_) {
             console.log("Active VR = " + activeVR);
             vrButton.requestEnterFullscreen();
         });
-    };
-
-    var exitMobileVR = function () {
-        vr = false;
-        activeVR = 'none';
-        activateVR = false;
-        // previewArea.resetCamera();
-        // previewArea.resetBrainPosition();
     };
 
     // scan the Oculus Touch for controls
@@ -297,8 +286,10 @@ function PreviewArea(canvas_, model_, name_) {
         renderer = new THREE.WebGLRenderer({antialias: true});
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
-        controls = new THREE.TrackballControls(camera, renderer.domElement);
-        controls.rotateSpeed = 0.5;
+        if (!mobile) {
+            controls = new THREE.TrackballControls(camera, renderer.domElement);
+            controls.rotateSpeed = 0.5;
+        }
         addSkybox();
     };
 
@@ -370,9 +361,10 @@ function PreviewArea(canvas_, model_, name_) {
             vrControl.update();
         }
         else {
-            controls.update();
+            if (!mobile)
+                controls.update();
         }
-        //renderer.render(scene, camera);
+
         effect.render(scene, camera);
     };
 
