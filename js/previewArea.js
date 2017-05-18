@@ -122,9 +122,11 @@ function PreviewArea(canvas_, model_, name_) {
     var initWebVRForMobile = function () {
         // Initialize the WebVR UI.
         var uiOptions = {
-            color: 'black',
+            color: 'white',
             background: 'white',
-            corners: 'square'
+            corners: 'round',
+            height: 40,
+            disabledOpacity: 0.9
         };
         vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
         vrButton.on('exit', function () { updateVRStatus('disable'); });
