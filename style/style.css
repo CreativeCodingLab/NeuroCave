@@ -256,6 +256,14 @@ button > input[type="checkbox"] {
     z-index: 1;
 }
 
+#vrRight {
+    position: absolute;
+    bottom: 10px;
+    right: 550px;
+    text-align: center;
+    z-index: 1;
+}
+
 a#magicWindowLeft {
     display: block;
     color: white;
@@ -268,13 +276,7 @@ a#magicWindowRight {
     margin-top: 1em;
 }
 
-#vrRight {
-    position: absolute;
-    bottom: 10px;
-    right: 550px;
-    text-align: center;
-    z-index: 1;
-}
+
 
 /*.label{*/
     /*color: black;*/
