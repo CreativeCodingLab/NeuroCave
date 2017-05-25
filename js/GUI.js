@@ -456,7 +456,7 @@ addColorGroupList = function() {
 };
 
 addColorClusteringSlider = function () {
-    var menu = d3.select("#upload");
+    var menu = d3.select("#colorCoding");
     menu.append("br");
     menu.append("label")
         .attr("for", "colorClusteringSlider")
