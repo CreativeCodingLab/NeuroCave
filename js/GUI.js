@@ -102,10 +102,6 @@ addThresholdSlider = function () {
     thresholdMultiplier = (max < 1.0) ? 100.0 : 1.0;
     max *= thresholdMultiplier;
     var menu = d3.select("#edgeInfoPanel");
-    menu.append("label")
-        .attr("for", "thresholdSlider")
-        .attr("id", "thresholdSliderLabel")
-        .text("Threshold @ " + max/2/thresholdMultiplier);
     menu.append("input")
         .attr("type", "range")
         .attr("value", max/2)
@@ -119,7 +115,10 @@ addThresholdSlider = function () {
             redrawEdges();
             document.getElementById("thresholdSliderLabel").innerHTML = "Threshold @ " + this.value/thresholdMultiplier;
         });
-
+    menu.append("label")
+        .attr("for", "thresholdSlider")
+        .attr("id", "thresholdSliderLabel")
+        .text("Threshold @ " + max/2/thresholdMultiplier);
     modelLeft.setThreshold(max/2/thresholdMultiplier);
     modelRight.setThreshold(max/2/thresholdMultiplier);
 };
@@ -177,11 +176,6 @@ removeThresholdSlider = function () {
 addTopNSlider = function () {
     var menu = d3.select("#edgeInfoPanel");
 
-    menu.append("label")
-        .attr("for", "topNThresholdSlider")
-        .attr("id", "topNThresholdSliderLabel")
-        .text("Number of Edges: " + modelLeft.getNumberOfEdges());
-
     menu.append("input")
         .attr("type", "range")
         .attr("value", modelLeft.getNumberOfEdges())
@@ -195,6 +189,10 @@ addTopNSlider = function () {
             redrawEdges();
             document.getElementById("topNThresholdSliderLabel").innerHTML = "Number of Edges: " + modelLeft.getNumberOfEdges();
         });
+    menu.append("label")
+        .attr("for", "topNThresholdSlider")
+        .attr("id", "topNThresholdSliderLabel")
+        .text("Number of Edges: " + modelLeft.getNumberOfEdges());
 };
 
 // remove top N edges slider and its labels
@@ -686,6 +684,18 @@ enableShortestPathFilterButton = function (status) {
     // affecting the sliders
     enableDistanceSlider(status && shortestPathVisMethod == SHORTEST_DISTANCE);
     enableShortestPathHopsSlider(status && shortestPathVisMethod == NUMBER_HOPS);
+};
+
+enableThresholdControls = function (status) {
+    var elem = document.getElementById('changeModalityBtn');
+    if(elem)
+        elem.disabled = !status;
+    elem = document.getElementById('thresholdSlider');
+    if(elem)
+        elem.disabled = !status;
+    elem = document.getElementById('topNThresholdSlider');
+    if(elem)
+        elem.disabled = !status;
 };
 
 hideVRMaximizeButtons = function () {

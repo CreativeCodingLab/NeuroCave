@@ -110,6 +110,7 @@ function onMiddleClick(event) {
         }
         updateScenes();
         enableShortestPathFilterButton(spt);
+        enableThresholdControls(!spt);
     }
 }
 
