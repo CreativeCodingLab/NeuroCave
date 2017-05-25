@@ -697,7 +697,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // callback when window is resized
     this.resizeScene = function(){
-        if (vrButton.isPresenting()) {
+        if (vrButton && vrButton.isPresenting()) {
             camera.aspect = window.innerWidth / window.innerHeight;
             renderer.setSize(window.innerWidth, window.innerHeight);
             console.log("Resize for VR");
