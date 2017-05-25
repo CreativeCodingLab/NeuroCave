@@ -45,11 +45,8 @@ init = function () {
                 .defer(loadSubjectTopology, dataFiles[idRight], modelRight)
                 .awaitAll( function () {
                     console.log("Loading data done.");
-
                     modelLeft.createGroups();
                     modelRight.createGroups();
-
-                    //initGUI();
                     initCanvas();
                 })
             ;
