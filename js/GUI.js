@@ -223,16 +223,16 @@ addModalityButton = function () {
         .text("Change Modality")
         .attr("id", "changeModalityBtn")
         .on("click", function () {
-            var input = d3.select("input#changeModalityInput").node();
-            input.checked = !input.checked;
-            changeModality(input.checked);
+            var input = $('#changeModalityBtn');
+            var checked = input.data("checked");
+            input.data("checked", !checked);
+            changeModality(!checked);
             updateScenes();
-        })
-        .append("input")
-        .attr("type","checkbox")
-        .attr("id","changeModalityInput")
-        .attr("checked", true);
+        });
+
     menu.append("br");
+
+    $('#changeModalityBtn').data("checked", true);
 };
 
 // change modality callback
