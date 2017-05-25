@@ -146,10 +146,11 @@ addOpacitySlider = function () {
 
 addEdgeBundlingCheck = function () {
     var menu = d3.select("#edgeInfoPanel");
+    menu.append("br");
     menu.append("label")
         .attr("for", "enableEBCheck")
         .attr("id", "enableEBCheckLabel")
-        .text("Enable EB:");
+        .text("Bundle Edges");
     menu.append("input")
         .attr("type", "checkbox")
         .attr("checked", true)
@@ -220,7 +221,7 @@ addModalityButton = function () {
     var menu = d3.select("#edgeInfoPanel");
 
     menu.append("button")
-        .text("Change Modality")
+        .text("Threshold Mode")
         .attr("id", "changeModalityBtn")
         .on("click", function () {
             var input = $('#changeModalityBtn');
@@ -500,7 +501,7 @@ addTopologyRadioButtons = function (model, side) {
 
     menu.append("label")
         .attr("for","geometry" + side)
-        .text("Topological Space:");
+        .text("Coordinate Space:");
     menu.append("br");
 
     for (var i = 0; i <topologies.length; i++) {

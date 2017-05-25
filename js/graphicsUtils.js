@@ -7,7 +7,7 @@ var sphereResolution = 12;
 var dimensionFactor = 1;
 
 var sphereNormal = new THREE.SphereGeometry( shpereRadius, sphereResolution, sphereResolution);
-var boxNormal = new THREE.BoxGeometry( shpereRadius, shpereRadius, shpereRadius);
+var boxNormal = new THREE.BoxGeometry( 1.5*shpereRadius, 1.5*shpereRadius, 1.5*shpereRadius);
 
 // create normal edge geometry: sphere or cube
 getNormalGeometry = function(hemisphere) {
