@@ -114,19 +114,7 @@ button > input[type="checkbox"] {
     z-index: 2
 }
 
-#uploadLeft {
-    width: 150px;
-    height: 200px;
-    float: left;
-}
-
-#uploadRight {
-    width: 150px;
-    height: 200px;
-    float: right;
-}
-
-#upload{
+#colorCoding{
     position: absolute;
     width: 150px;
     height: 280px;
@@ -139,7 +127,7 @@ button > input[type="checkbox"] {
     width: 180px;
     height: 25px;
     top: 5px;
-    left: 400px;
+    left: 20%;
     color: black;
 }
 
@@ -148,7 +136,7 @@ button > input[type="checkbox"] {
     width: 180px;
     height: 25px;
     top: 5px;
-    right: 400px;
+    right: 20%;
     color: black;
 }
 

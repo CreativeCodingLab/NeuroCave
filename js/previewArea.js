@@ -377,19 +377,6 @@ function PreviewArea(canvas_, model_, name_) {
         effect.requestAnimationFrame(animate);
     };
 
-    this.animateVR = function () {
-        if (enableVR && activateVR) {
-            if (oculusTouchExist) {
-                controllerLeft.update();
-                controllerRight.update();
-                scanOculusTouch();
-            }
-
-            vrControl.update();
-            effect.render(scene, camera);
-        }
-    };
-
     this.isVRAvailable = function () { return enableVR; };
 
     this.isPresenting = function () { vrButton.isPresenting(); };

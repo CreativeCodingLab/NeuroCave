@@ -49,7 +49,7 @@ init = function () {
                     modelLeft.createGroups();
                     modelRight.createGroups();
 
-                    initGUI();
+                    //initGUI();
                     initCanvas();
                 })
             ;

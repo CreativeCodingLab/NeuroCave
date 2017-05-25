@@ -192,7 +192,7 @@ function onMouseUp(model, event) {
             break;
         case 2:
             if (click)
-                toggleFslMenu();
+                toggleMenus();
             break;
     }
     click = false;
@@ -252,9 +252,6 @@ updateVRStatus = function (status) {
 
 // init the canvas where we render the brain
 initCanvas = function () {
-    // remove start page buttons
-    removeStartButton();
-    removeUploadButtons();
     // add controls
     addOpacitySlider();
     addEdgeBundlingCheck();
@@ -321,6 +318,8 @@ initCanvas = function () {
 
     if (mobile) {
         console.log("Mobile VR requested");
+    } else {
+        hideVRMaximizeButtons();
     }
 
     animate();

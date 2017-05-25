@@ -7,198 +7,6 @@ var SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
 
-// TODO create uploadData function and prevent code repetition
-// init the GUI by creating all the data upload buttons
-initGUI = function () {
-    var uploadMenu = d3.select("#upload");
-    var uploadMenuLeft = d3.select("#uploadLeft");
-    var uploadMenuRight = d3.select("#uploadRight");
-
-    uploadMenuLeft.append("button")
-        .text("Upload Left Topology")
-        .attr("id", "topologyUploadBtnLeft")
-        .append("input")
-        .attr("type", "file")
-        .attr("id", "topologyLeft")
-        .on("change", function () {
-            var f = document.getElementById("topologyLeft");
-            if (f.files && f.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    var v = e.target.result;
-                    Papa.parse(v, {
-                            download: true,
-                            delimiter: ",",
-                            dynamicTyping: true,
-                            complete: function (results) {
-                                console.log("Complete uploading topology");
-                                modelLeft.setTopology(results.data);
-                            }
-                        }
-                    )};
-                reader.readAsDataURL(f.files[0]);
-            }
-        });
-
-    /*
-     uploadMenu.append("button")
-     .text("Upload LookUpTable")
-     .attr("id", "groupUploadButton")
-     .append("input")
-     .attr("type","file")
-     .attr("id","lookUpTable")
-     .on("change", function(){
-     console.log("on Change Event look up table");
-
-     var f = document.getElementById("lookUpTable");
-
-     if(f.files && f.files[0]){
-     var reader = new FileReader();
-     reader.onload = function(e){
-     console.log("On load event LookUpTable");
-     v = e.target.result;
-
-     console.log("Parsing LookUpTable");
-     Papa.parse(v, {
-     download: true,
-     delimiter: ",",
-     dynamicTyping: true,
-     header: false,
-     complete: function(results){
-     setLookUpTable(results);
-     console.log("look Up Table Uploaded");
-     }
-     })
-
-     };
-     reader.readAsDataURL(f.files[0]);
-     }
-     });*/
-
-    /*uploadMenu.append("button")
-     .text("Upload Regions Group")
-     .attr("id", "groupUploadButton")
-     .append("input")
-     .attr("type", "file")
-     .attr("id", "group")
-     .on("change", function () {
-     var f = document.getElementById("group");
-
-     if(f.files && f.files[0]){
-     var reader = new FileReader();
-     reader.onload = function (e) {
-     var v = e.target.result;
-     Papa.parse(v, {
-     download: true,
-     delimiter: ',',
-     dynamicTyping: true,
-     header: false,
-     complete: function(results){
-     setGroup(results);
-     }
-     })
-     }
-     reader.readAsDataURL(f.files[0]);
-     };
-
-     });*/
-
-    uploadMenuLeft.append("button")
-        .text("Upload Left Connections")
-        .attr("id","uploadConnectionsButtonLeft")
-        .append("input")
-        .attr("type","file")
-        .attr("id","connectionsLeft")
-        .on("change", function() {
-            f = document.getElementById("connectionsLeft");
-            if (f.files && f.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    var v = e.target.result;
-                    Papa.parse(v, {
-                        download: true,
-                        delimiter:',',
-                        dynamicTyping: true,
-                        header: false,
-                        complete: function (results) {
-                            console.log("Connection Matrix uploaded");
-                            modelLeft.setConnectionMatrix(results);
-                        }
-                    })
-                };
-                reader.readAsDataURL(f.files[0]);
-            }
-        });
-
-    uploadMenuRight.append("button")
-        .text("Upload Right Topology")
-        .attr("id", "topologyUploadBtnRight")
-        .append("input")
-        .attr("type", "file")
-        .attr("id", "topologyRight")
-        .on("change", function () {
-            var f = document.getElementById("topologyRight");
-            if (f.files && f.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    var v = e.target.result;
-                    Papa.parse(v, {
-                            download: true,
-                            delimiter: ",",
-                            dynamicTyping: true,
-                            complete: function (results) {
-                                console.log("complete uploading centroids");
-                                modelRight.setTopology(results.data);
-                            }
-                        }
-                    )};
-                reader.readAsDataURL(f.files[0]);
-            }
-        });
-
-    uploadMenuRight.append("button")
-        .text("Upload Left Connections")
-        .attr("id","uploadConnectionsButtonRight")
-        .append("input")
-        .attr("type","file")
-        .attr("id","connectionsRight")
-        .on("change", function() {
-            var f = document.getElementById("connectionsRight");
-            if (f.files && f.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    var v = e.target.result;
-                    Papa.parse(v, {
-                        download: true,
-                        delimiter:',',
-                        dynamicTyping: true,
-                        header: false,
-                        complete: function (results) {
-                            console.log("Connection Matrix uploaded");
-                            modelLeft.setConnectionMatrix(results);
-                        }
-                    })
-                };
-                reader.readAsDataURL(f.files[0]);
-            }
-        });
-
-    uploadMenu.append("button")
-        .text("Start Visualization")
-        .attr("id", "startVisualization")
-        .on("click", function() {
-            if(modelLeft.ready() && modelRight.ready()){
-                initCanvas();
-            } else {
-                console.log("data are missing");
-            }
-        });
-};
-
 // initialize subject selection drop down menus
 initSubjectMenu = function (side) {
 
@@ -213,40 +21,15 @@ initSubjectMenu = function (side) {
     switch (side) {
         case 'Left':
             select.onchange = function () {
-                // changeSceneToSubject(this.selectedIndex, modelLeft, sceneLeft, glyphsLeft, displayedEdgesLeft, side);
                 changeSceneToSubject(this.selectedIndex, modelLeft, previewAreaLeft, side);
                 };
             break;
         case 'Right':
             select.onchange = function () {
-                // changeSceneToSubject(this.selectedIndex, modelRight, sceneRight, glyphsRight, displayedEdgesRight, side);
                 changeSceneToSubject(this.selectedIndex, modelRight, previewAreaRight, side);
             };
             break;
     }
-};
-
-
-// remove the start visualization button to allow only one scene and renderer
-removeStartButton = function () {
-    var elem = document.getElementById('startVisualization');
-    if (elem) {
-        elem.parentNode.removeChild(elem);
-    }
-};
-
-// remove all upload buttons
-removeUploadButtons= function () {
-    var menu = document.getElementById("uploadLeft");
-    while(menu.hasChildNodes()){
-        menu.removeChild(menu.children[0]);
-    }
-    menu.remove();
-    menu = document.getElementById("uploadRight");
-    while(menu.hasChildNodes()){
-        menu.removeChild(menu.children[0]);
-    }
-    menu.remove();
 };
 
 /* Node stuff at nodeInfoPanel */
@@ -468,30 +251,6 @@ changeModality = function (modality) {
     }
 };
 
-
-
-// never used !!
-// setInfoLabel = function(regionName, index){
-//
-//     var body = document.body;
-//     var canvas = document.getElementsByTagName("canvas");
-//     var label = document.createElement("div");
-//
-//     label.setAttribute("width", "100px");
-//     label.setAttribute("height", "100px");
-//     label.setAttribute("background-color", "white");
-//     label.setAttribute("position", "fixed");
-//     label.setAttribute("left", "100px");
-//     label.setAttribute("z-index", "9");
-//     label.setAttribute("bottom", "200px");
-//
-//     var para = document.createElement("p");
-//     var node = document.createTextNode("CIAO");
-//
-//     body.appendChild(label).appendChild(para).appendChild(node);
-// };
-
-
 /* Edges legend */
 // create legend panel containing different groups
 // the state of each group can be either: active, transparent or inactive
@@ -639,7 +398,7 @@ createLegend = function(model) {
 /* Color coding area at upload */
 // add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
 addColorGroupList = function() {
-    var menu = d3.select("#upload");
+    var menu = d3.select("#colorCoding");
 
     menu.append("label")
         .attr("for","colorGroup")
@@ -928,6 +687,10 @@ enableShortestPathFilterButton = function (status) {
     enableShortestPathHopsSlider(status && shortestPathVisMethod == NUMBER_HOPS);
 };
 
+hideVRMaximizeButtons = function () {
+    document.getElementById("magicWindowLeft").style.visibility = "hidden";
+    document.getElementById("magicWindowRight").style.visibility = "hidden";
+};
 
 
 // add labels check boxes, appear/disappear on right click
@@ -1006,15 +769,17 @@ searchElement = function(index) {
 };
 
 // toggle labels check boxes on right click
-toggleFslMenu = function (e) {
+toggleMenus = function (e) {
     $('#shortestPath').toggle();
     $('#topologyLeft').toggle();
     $('#topologyRight').toggle();
     $('#legend').toggle();
     $('#nodeInfoPanel').toggle();
-    $('#upload').toggle();
+    $('#colorCoding').toggle();
     $('#edgeInfoPanel').toggle();
     $('#search').toggle();
     $("#rightFslLabels").toggle();
     $('#leftFslLabels').toggle();
+    $('#vrLeft').toggle();
+    $('#vrRight').toggle();
 };
