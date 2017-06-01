@@ -24,24 +24,24 @@
             position: absolute;
             bottom: 10px;
             left: 50%;
-            transform: translate(-50%, -50%);
+            /*transform: translate(-50%, -50%);*/
             text-align: center;
-            font-family: 'Karla', sans-serif;
+            /*font-family: 'Karla', sans-serif;*/
             z-index: 1;
         }
 
-        /*a#magic-window {*/
-            /*display: block;*/
-            /*color: white;*/
-            /*margin-top: 1em;*/
-        /*}*/
+        a#magic-window {
+            display: block;
+            color: white;
+            margin-top: 1em;
+        }
     </style>
 </head>
 
 <body>
 <div id="ui">
     <div id="vr-button"></div>
-    <!--<a id="magic-window" href="#">Try it without a headset</a>-->
+    <a id="magic-window" href="#">Try it without a headset</a>
 </div>
 </body>
 
@@ -49,40 +49,41 @@
     /*
      * Debug parameters.
      */
-    WebVRConfig = {
-        /**
-         * webvr-polyfill configuration
-         */
-
-        // Forces availability of VR mode.
-        //FORCE_ENABLE_VR: true, // Default: false.
-        // Complementary filter coefficient. 0 for accelerometer, 1 for gyro.
-        //K_FILTER: 0.98, // Default: 0.98.
-        // How far into the future to predict during fast motion.
-        //PREDICTION_TIME_S: 0.040, // Default: 0.040 (in seconds).
-        // Flag to disable touch panner. In case you have your own touch controls
-        //TOUCH_PANNER_DISABLED: true, // Default: false.
-        // Enable yaw panning only, disabling roll and pitch. This can be useful for
-        // panoramas with nothing interesting above or below.
-        //YAW_ONLY: true, // Default: false.
-        // Enable the deprecated version of the API (navigator.getVRDevices).
-        //ENABLE_DEPRECATED_API: true, // Default: false.
-        // Scales the recommended buffer size reported by WebVR, which can improve
-        // performance. Making this very small can lower the effective resolution of
-        // your scene.
-        BUFFER_SCALE: 0.5, // default: 1.0
-        // Allow VRDisplay.submitFrame to change gl bindings, which is more
-        // efficient if the application code will re-bind it's resources on the
-        // next frame anyway.
-        // Dirty bindings include: gl.FRAMEBUFFER_BINDING, gl.CURRENT_PROGRAM,
-        // gl.ARRAY_BUFFER_BINDING, gl.ELEMENT_ARRAY_BUFFER_BINDING,
-        // and gl.TEXTURE_BINDING_2D for texture unit 0
-        // Warning: enabling this might lead to rendering issues.
-        //DIRTY_SUBMIT_FRAME_BINDINGS: true // default: false
-    };
+//    WebVRConfig = {
+//        /**
+//         * webvr-polyfill configuration
+//         */
+//
+//        // Forces availability of VR mode.
+//        //FORCE_ENABLE_VR: true, // Default: false.
+//        // Complementary filter coefficient. 0 for accelerometer, 1 for gyro.
+//        //K_FILTER: 0.98, // Default: 0.98.
+//        // How far into the future to predict during fast motion.
+//        //PREDICTION_TIME_S: 0.040, // Default: 0.040 (in seconds).
+//        // Flag to disable touch panner. In case you have your own touch controls
+//        //TOUCH_PANNER_DISABLED: true, // Default: false.
+//        // Enable yaw panning only, disabling roll and pitch. This can be useful for
+//        // panoramas with nothing interesting above or below.
+//        //YAW_ONLY: true, // Default: false.
+//        // Enable the deprecated version of the API (navigator.getVRDevices).
+//        //ENABLE_DEPRECATED_API: true, // Default: false.
+//        // Scales the recommended buffer size reported by WebVR, which can improve
+//        // performance. Making this very small can lower the effective resolution of
+//        // your scene.
+//        BUFFER_SCALE: 0.5, // default: 1.0
+//        // Allow VRDisplay.submitFrame to change gl bindings, which is more
+//        // efficient if the application code will re-bind it's resources on the
+//        // next frame anyway.
+//        // Dirty bindings include: gl.FRAMEBUFFER_BINDING, gl.CURRENT_PROGRAM,
+//        // gl.ARRAY_BUFFER_BINDING, gl.ELEMENT_ARRAY_BUFFER_BINDING,
+//        // and gl.TEXTURE_BINDING_2D for texture unit 0
+//        // Warning: enabling this might lead to rendering issues.
+//        //DIRTY_SUBMIT_FRAME_BINDINGS: true // default: false
+//    };
 </script>
 
 <script src="js/external-libraries/three.min.js"></script>
+<script src="js/external-libraries/TrackballControls.js"></script>
 <!--VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.-->
 <script src="js/external-libraries/vr/VRControls.js"></script>
 <!--VREffect.js handles stereo camera setup and rendering.-->
@@ -103,12 +104,25 @@
     // Various global THREE.Objects.
     var scene;
     var cube;
-    var controls;
+    var vrControls, vrPointer;
     var effect;
     var camera;
     // EnterVRButton for rendering enter/exit UI.
     var vrButton;
 
+    // scan the Oculus Touch for controls
+    var scanPointer = function () {
+        var thumbpadPressed = vrPointer.getButtonState('thumbpad');
+        var triggerPressed = vrPointer.getButtonState('trigger');
+        var gripsPressed = vrPointer.getButtonState('grips');
+
+        if (thumbpadPressed)
+            alert("Thumbpad pressed");
+        if (triggerPressed)
+            alert("Trigger pressed");
+        if (gripsPressed)
+            alert("Grips pressed");
+    };
 
     function onLoad() {
         // Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
@@ -126,13 +140,15 @@
         var aspect = window.innerWidth / window.innerHeight;
         camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 10000);
 
-        controls = new THREE.VRControls(camera);
-        controls.standing = true;
-        camera.position.y = controls.userHeight;
+        vrControls = new THREE.VRControls(camera);
+        vrControls.standing = true;
+        camera.position.y = vrControls.userHeight;
 
         // Apply VR stereo rendering to renderer.
         effect = new THREE.VREffect(renderer);
         effect.setSize(window.innerWidth, window.innerHeight);
+
+        vrPointer = new THREE.ViveController( 0 );
 
         // Add a repeating grid as a skybox.
         var loader = new THREE.TextureLoader();
@@ -144,7 +160,7 @@
         cube = new THREE.Mesh(geometry, material);
 
         // Position cube mesh to be right in front of you.
-        cube.position.set(0, controls.userHeight, -1);
+        cube.position.set(0, vrControls.userHeight, -1);
 
         // Add cube mesh to your three.js scene
         scene.add(cube);
@@ -156,12 +172,13 @@
         var uiOptions = {
             color: 'black',
             background: 'white',
-            corners: 'square'
+            corners: 'round',
+            height: 30
         };
         vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
         vrButton.on('exit', function() {
-            camera.quaternion.set(0, 0, 0, 1);
-            camera.position.set(0, controls.userHeight, 0);
+            //camera.quaternion.set(0, 0, 0, 1);
+            //camera.position.set(0, controls.userHeight, 0);
         });
         vrButton.on('hide', function() {
             document.getElementById('ui').style.display = 'none';
@@ -170,9 +187,9 @@
             document.getElementById('ui').style.display = 'inherit';
         });
         document.getElementById('vr-button').appendChild(vrButton.domElement);
-//        document.getElementById('magic-window').addEventListener('click', function() {
-//            vrButton.requestEnterFullscreen();
-//        });
+        document.getElementById('magic-window').addEventListener('click', function() {
+            vrButton.requestEnterFullscreen();
+        });
 
         effect.requestAnimationFrame(animate);
     }
@@ -196,23 +213,23 @@
 
         // For high end VR devices like Vive and Oculus, take into account the stage
         // parameters provided.
-         setupStage();
+//         setupStage();
     }
 
 
 
     // Request animation frame loop function
     function animate(timestamp) {
+        scanPointer();
+
         var delta = Math.min(timestamp - lastRenderTime, 500);
         lastRenderTime = timestamp;
 
         // Apply rotation to cube mesh
         cube.rotation.y += delta * 0.0006;
 
-        // Only update controls if we're presenting.
-        if (vrButton.isPresenting()) {
-            controls.update();
-        }
+        vrControls.update();
+
         // Render the scene.
         effect.render(scene, camera);
 
@@ -231,10 +248,15 @@
     function setupStage() {
         navigator.getVRDisplays().then(function(displays) {
             if (displays.length > 0) {
-                vrDisplay = displays[0];
-                if (vrDisplay.stageParameters) {
+//                vrDisplay = displays[0];
+                /*if (vrDisplay.stageParameters) {
                     setStageDimensions(vrDisplay.stageParameters);
-                }
+                    console.log("I am here")
+                }*/
+                //effect.setVRDisplay(displays[0]);
+                //controls.setVRDisplay(displays[0]);
+                console.log("Found VR!!")
+
                 // vrDisplay.requestAnimationFrame(animate);
                 // effect.requestAnimationFrame(animate);
             }
@@ -255,7 +277,7 @@
         scene.add(skybox);
 
         // Place the cube in the middle of the scene, at user height.
-        cube.position.set(0, controls.userHeight, 0);
+        cube.position.set(0, vrControls.userHeight, 0);
     }
 
     window.addEventListener('load', onLoad);
