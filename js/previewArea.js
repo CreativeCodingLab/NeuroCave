@@ -162,6 +162,15 @@ function PreviewArea(canvas_, model_, name_) {
 
     // scan Gear VR controller
     var scanGearVRController = function () {
+
+        var thumbpadPressed = controllerLeft.getButtonState('thumbpad');
+        var triggerPressed = controllerLeft.getButtonState('trigger');
+
+        if (thumbpadPressed)
+            console.log("Thumbpad pressed");
+        if (triggerPressed)
+            console.log("Trigger pressed");
+
         var rotate = controllerLeft.getButtonState('thumbpad');
         var angleX = null, angleY = null;
         var gamePadRight = controllerRight.getGamepad();
