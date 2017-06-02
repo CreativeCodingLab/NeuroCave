@@ -88,7 +88,7 @@
 <script src="js/external-libraries/vr/VRControls.js"></script>
 <!--VREffect.js handles stereo camera setup and rendering.-->
 <script src="js/external-libraries/vr/VREffect.js"></script>
-<script src="js/external-libraries/vr/ViveController.js"></script>
+<script src="js/external-libraries/vr/GearVRController.js"></script>
 <!--A polyfill for WebVR using the Device{Motion,Orientation}Event API.-->
 <script src="js/external-libraries/vr/webvr-polyfill.min.js"></script>
 <!--A set of UI controls for entering VR mode.-->
@@ -115,14 +115,13 @@
     var scanPointer = function () {
         var thumbpadPressed = vrPointer.getButtonState('thumbpad');
         var triggerPressed = vrPointer.getButtonState('trigger');
-        var gripsPressed = vrPointer.getButtonState('grips');
 
         if (thumbpadPressed)
-            alert("Thumbpad pressed");
+            console.log("Thumbpad pressed");
         if (triggerPressed)
-            alert("Trigger pressed");
-        if (gripsPressed)
-            alert("Grips pressed");
+            console.log("Trigger pressed");
+
+        console.log(vrPointer.axes);
     };
 
     function onLoad() {
@@ -149,7 +148,7 @@
         effect = new THREE.VREffect(renderer);
         effect.setSize(window.innerWidth, window.innerHeight);
 
-        vrPointer = new THREE.ViveController( 0 );
+        vrPointer = new THREE.GearVRController( 0 );
 
         // Add a repeating grid as a skybox.
         var loader = new THREE.TextureLoader();
