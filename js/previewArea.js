@@ -130,6 +130,19 @@ function PreviewArea(canvas_, model_, name_) {
         // assume right handed user
         controllerRight = new THREE.GearVRController(0);
 
+        var loader = new THREE.OBJLoader();
+        loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
+        loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+            var loader = new THREE.TextureLoader();
+            loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
+            var controller = object.children[ 0 ];
+            controller.material.map = loader.load( 'onepointfive_texture.png' );
+            controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+            controllerRight.add( object.clone() );
+            controllerRight.standingMatrix = vrControl.getStandingMatrix();
+            scene.add(controllerRight);
+        } );
+
         gearVRControllerExist = true;
 
         console.log("Init Gear VR Controller done");
