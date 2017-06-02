@@ -164,22 +164,22 @@ function PreviewArea(canvas_, model_, name_) {
 
     // scan Gear VR controller
     var scanGearVRController = function () {
-        var rotate = controllerRight.getButtonState('thumbpad');
+        var thumbPad = controllerRight.getButtonState('thumbpad');
+        var trigger =  controllerRight.getButtonState('trigger');
         var angleX = null, angleY = null;
         var gamePadRight = controllerRight.getGamepad();
-        if(gamePadRight) {
+        if(gamePadRight && !trigger) {
             angleX = gamePadRight.axes[0];
             angleY = gamePadRight.axes[1];
-            if (rotate) {
-                brain.rotateX(0.1 * angleX);
-                brain.rotateZ(0.1 * angleY);
+            if (thumbPad) {
+                brain.rotateX(0.2 * angleX);
+                brain.rotateZ(0.2 * angleY);
             } else {
                 brain.position.z += 5 * angleX;
                 brain.position.x += 5 * angleY;
             }
             brain.matrixWorldNeedsUpdate = true;
         }
-        /*
         var v3Origin = new THREE.Vector3(0,0,0);
         var v3UnitUp = new THREE.Vector3(0,0,-100.0);
 
@@ -194,12 +194,12 @@ function PreviewArea(canvas_, model_, name_) {
         }
 
         var isLeft = (activateVR == 'left');
-        if(controllerRight.getButtonState('trigger')) {
+        if(trigger) {
             pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
 
             if (pointerRight) {
                 // Touch Controller pointer already on! scan for selection
-                if (controllerRight.getButtonState('grips')) {
+                if (thumbPad) {
                     updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
                 }
             } else {
@@ -213,7 +213,6 @@ function PreviewArea(canvas_, model_, name_) {
             }
             pointerRight = null;
         }
-        */
     };
 
     // scan the Oculus Touch for controls
