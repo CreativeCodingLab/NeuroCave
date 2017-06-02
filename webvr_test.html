@@ -124,7 +124,9 @@
         if (triggerPressed)
             console.log("Trigger pressed");
 
-        console.log(vrPointer.getGamepad().axes);
+        var gamePad = vrPointer.getGamepad();
+        if(gamePad)
+            console.log(gamePad.axes);
     };
 
     function onLoad() {
