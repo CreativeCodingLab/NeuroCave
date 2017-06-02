@@ -19,7 +19,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // VR stuff
     var vrControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false;
+    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false, enableRender = true;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
 
     var enableVR = false;
@@ -42,9 +42,11 @@ function PreviewArea(canvas_, model_, name_) {
         activateVR = activate;
         if (!mobile) {
             if (activateVR) {
+                console.log("Activate VR for PV: " + name);
                 effect.requestPresent();
             }
             else
+                console.log("Disable VR for PV: " + name);
                 effect.exitPresent();
         }
     };
@@ -420,7 +422,7 @@ function PreviewArea(canvas_, model_, name_) {
         shortestPathEdges = [];
     };
 
-    this.animate = function () {
+    var animatePV = function () {
         if (enableVR && activateVR) {
             if (oculusTouchExist) {
                 controllerLeft.update();
@@ -440,12 +442,17 @@ function PreviewArea(canvas_, model_, name_) {
                 controls.update();
         }
 
-        effect.render(scene, camera);
+        if (enableRender)
+            effect.render(scene, camera);
+
+        effect.requestAnimationFrame(animatePV);
     };
 
-    this.requestAnimate = function (animate) {
-        effect.requestAnimationFrame(animate);
+    this.requestAnimate = function () {
+        effect.requestAnimationFrame(animatePV);
     };
+
+    this.enableRender = function (state) { enableRender = state; };
 
     this.isVRAvailable = function () { return enableVR; };
 
@@ -770,7 +777,7 @@ function PreviewArea(canvas_, model_, name_) {
         if (vrButton && vrButton.isPresenting()) {
             camera.aspect = window.innerWidth / window.innerHeight;
             renderer.setSize(window.innerWidth, window.innerHeight);
-            console.log("Resize for VR");
+            console.log("Resize for Mobile VR");
         } else {
             camera.aspect = window.innerWidth / 2.0 / window.innerHeight;
             renderer.setSize(window.innerWidth / 2.0, window.innerHeight);

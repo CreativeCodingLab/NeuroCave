@@ -206,15 +206,19 @@ function onKeyPress(event) {
             return;
         }
         updateVRStatus('enable');
+        console.log("Enter VR mode");
     }
     if (vr && (event.key === 's' || event.keyCode === 115)) {
         updateVRStatus('left');
+        console.log("VR Active for left preview area");
     }
     if (vr && (event.key === 'd' || event.keyCode === 100)) {
-        updateVRStatus('right')
+        updateVRStatus('right');
+        console.log("VR Active for right preview area");
     }
     if (event.key === 'e' || event.keyCode === 101) {
         updateVRStatus('disable');
+        console.log("Exit VR mode");
     }
 }
 
@@ -230,12 +234,16 @@ updateVRStatus = function (status) {
             activeVR = 'left';
             previewAreaLeft.activateVR(false);
             previewAreaRight.activateVR(false);
+            previewAreaLeft.enableRender(true);
+            previewAreaRight.enableRender(false);
             setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
             break;
         case 'right':
             activeVR = 'right';
             previewAreaLeft.activateVR(false);
             previewAreaRight.activateVR(false);
+            previewAreaLeft.enableRender(false);
+            previewAreaRight.enableRender(true);
             setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
             break;
         case 'disable':
@@ -247,6 +255,8 @@ updateVRStatus = function (status) {
             previewAreaRight.resetCamera();
             previewAreaLeft.resetBrainPosition();
             previewAreaRight.resetBrainPosition();
+            previewAreaLeft.enableRender(true);
+            previewAreaRight.enableRender(true);
             break;
     }
 };
@@ -323,7 +333,8 @@ initCanvas = function () {
         hideVRMaximizeButtons();
     }
 
-    animate();
+    previewAreaLeft.requestAnimate();
+    previewAreaRight.requestAnimate();
 };
 
 // set the threshold for both models
@@ -366,25 +377,6 @@ updateNodesVisiblity = function () {
 redrawEdges = function () {
     previewAreaLeft.redrawEdges();
     previewAreaRight.redrawEdges();
-};
-
-// animate scenes and capture control inputs
-animate = function () {
-    if (!vr) {
-        previewAreaLeft.animate();
-        previewAreaRight.animate();
-        requestAnimationFrame(animate);
-    } else { // VR
-        if (activeVR == 'left') {
-            previewAreaLeft.animate();
-            previewAreaLeft.requestAnimate(animate);
-        } else if (activeVR == 'right') {
-            previewAreaRight.animate();
-            previewAreaRight.requestAnimate(animate);
-        } else { // need to be recalled continuously in case user reactivate VR
-            requestAnimationFrame(animate);
-        }
-    }
 };
 
 updateOpacity = function (opacity) {
