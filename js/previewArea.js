@@ -128,7 +128,7 @@ function PreviewArea(canvas_, model_, name_) {
             return;
 
         // assume right handed user
-        controllerRight = new THREE.GearVRController(1);
+        controllerRight = new THREE.GearVRController(0);
 
         gearVRControllerExist = true;
 
@@ -444,11 +444,11 @@ function PreviewArea(canvas_, model_, name_) {
         }
         else {
             if (mobile) {
-                vrControl.update();
                 if (gearVRControllerExist) {
                     controllerRight.update();
                     scanGearVRController();
                 }
+                vrControl.update();
             }
             else
                 controls.update();
