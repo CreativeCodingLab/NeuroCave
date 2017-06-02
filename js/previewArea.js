@@ -429,15 +429,16 @@ function PreviewArea(canvas_, model_, name_) {
                 controllerRight.update();
                 scanOculusTouch();
             }
-            if (gearVRControllerExist) {
-                controllerRight.update();
-                scanGearVRController();
-            }
             vrControl.update();
         }
         else {
-            if (mobile)
+            if (mobile) {
                 vrControl.update();
+                if (gearVRControllerExist) {
+                    controllerRight.update();
+                    scanGearVRController();
+                }
+            }
             else
                 controls.update();
         }
