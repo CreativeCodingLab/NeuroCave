@@ -19,7 +19,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // VR stuff
     var vrControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null, oculusTouchExist = false;
+    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
 
     var enableVR = false;
@@ -50,7 +50,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     // init Oculus Rift
-    this.initOculusRift = function () {
+    this.initVR = function () {
         vrControl = new THREE.VRControls(camera, function (message) {
             console.log("VRControls: ", message);
         });
@@ -74,8 +74,10 @@ function PreviewArea(canvas_, model_, name_) {
             enableVR = false;
         }
 
-        if (mobile)
+        if (mobile) {
             initWebVRForMobile();
+            initGearVRController();
+        }
         else
             initOculusTouch();
     };
@@ -116,7 +118,17 @@ function PreviewArea(canvas_, model_, name_) {
 
         oculusTouchExist = true;
 
-        console.log("Init Oculus Touch done")
+        console.log("Init Oculus Touch done");
+    };
+
+    var initGearVRController = function () {
+        if (!enableVR || !mobile)
+            return;
+        controllerRight = new THREE.GearVRController(1);
+
+        gearVRControllerExist = true;
+
+        console.log("Init Gear VR Controller done");
     };
 
     var initWebVRForMobile = function () {
@@ -144,6 +156,60 @@ function PreviewArea(canvas_, model_, name_) {
             console.log("Active VR = " + activeVR);
             vrButton.requestEnterFullscreen();
         });
+    };
+
+    // scan Gear VR controller
+    var scanGearVRController = function () {
+        var rotate = controllerLeft.getButtonState('thumbpad');
+        var angleX = null, angleY = null;
+        var gamePadRight = controllerRight.getGamepad();
+        if(gamePadRight) {
+            angleX = gamePadRight.axes[0];
+            angleY = gamePadRight.axes[1];
+            if (rotate) {
+                brain.rotateX(0.05 * angleX);
+                brain.rotateZ(0.05 * angleY);
+            } else {
+                brain.position.z += 2.5 * angleX;
+                brain.position.x += 2.5 * angleY;
+            }
+            brain.matrixWorldNeedsUpdate = true;
+        }
+        /*
+        var v3Origin = new THREE.Vector3(0,0,0);
+        var v3UnitUp = new THREE.Vector3(0,0,-100.0);
+
+        // Find all nodes within 0.1 distance from left Touch Controller
+        var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
+        for (var i = 0; i < brain.children.length; i++) {
+            var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
+            if ( (distToNodeIRight < closestNodeDistanceRight ) ) {
+                closestNodeDistanceRight = distToNodeIRight;
+                closestNodeIndexRight = i;
+            }
+        }
+
+        var isLeft = (activateVR == 'left');
+        if(controllerRight.getButtonState('trigger')) {
+            pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
+
+            if (pointerRight) {
+                // Touch Controller pointer already on! scan for selection
+                if (controllerRight.getButtonState('grips')) {
+                    updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
+                }
+            } else {
+                pointerRight = drawPointer(v3Origin, v3UnitUp);
+                controllerRight.add(pointerRight);
+            }
+            updateNodeMoveOver(model, getPointedObject(controllerRight));
+        } else {
+            if (pointerRight) {
+                controllerRight.remove(pointerRight);
+            }
+            pointerRight = null;
+        }
+        */
     };
 
     // scan the Oculus Touch for controls
@@ -360,6 +426,10 @@ function PreviewArea(canvas_, model_, name_) {
                 controllerLeft.update();
                 controllerRight.update();
                 scanOculusTouch();
+            }
+            if (gearVRControllerExist) {
+                controllerRight.update();
+                scanGearVRController();
             }
             vrControl.update();
         }

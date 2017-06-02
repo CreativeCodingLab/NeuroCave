@@ -295,8 +295,8 @@ initCanvas = function () {
     previewAreaRight.createCanvas();
     previewAreaRight.setEventListeners(onMouseDown, onMouseUp, onDocumentMouseMove);
     // prepare Occulus rift
-    previewAreaLeft.initOculusRift();
-    previewAreaRight.initOculusRift();
+    previewAreaLeft.initVR();
+    previewAreaRight.initVR();
     window.addEventListener("keypress", onKeyPress, true);
 
     visibleNodes = new Array(modelLeft.getConnectionMatrixDimension()).fill(true);
