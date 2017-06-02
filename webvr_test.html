@@ -105,7 +105,7 @@
     // Various global THREE.Objects.
     var scene;
     var cube;
-    var vrControls, vrPointer;
+    var vrControls, vrPointer = null;
     var effect;
     var camera;
     // EnterVRButton for rendering enter/exit UI.
@@ -113,6 +113,9 @@
 
     // scan the Oculus Touch for controls
     var scanPointer = function () {
+
+        vrPointer.update();
+
         var thumbpadPressed = vrPointer.getButtonState('thumbpad');
         var triggerPressed = vrPointer.getButtonState('trigger');
 
@@ -147,8 +150,6 @@
         // Apply VR stereo rendering to renderer.
         effect = new THREE.VREffect(renderer);
         effect.setSize(window.innerWidth, window.innerHeight);
-
-        vrPointer = new THREE.GearVRController( 0 );
 
         // Add a repeating grid as a skybox.
         var loader = new THREE.TextureLoader();
@@ -190,7 +191,8 @@
         document.getElementById('magic-window').addEventListener('click', function() {
             vrButton.requestEnterFullscreen();
         });
-        alert("loaded")
+
+        vrPointer = new THREE.GearVRController( 0 );
         effect.requestAnimationFrame(animate);
     }
 
