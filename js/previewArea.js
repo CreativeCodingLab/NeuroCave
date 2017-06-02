@@ -164,15 +164,6 @@ function PreviewArea(canvas_, model_, name_) {
 
     // scan Gear VR controller
     var scanGearVRController = function () {
-
-        var thumbpadPressed = controllerRight.getButtonState('thumbpad');
-        var triggerPressed = controllerRight.getButtonState('trigger');
-
-        if (thumbpadPressed)
-            console.log("Thumbpad pressed");
-        if (triggerPressed)
-            console.log("Trigger pressed");
-
         var rotate = controllerRight.getButtonState('thumbpad');
         var angleX = null, angleY = null;
         var gamePadRight = controllerRight.getGamepad();
@@ -180,11 +171,11 @@ function PreviewArea(canvas_, model_, name_) {
             angleX = gamePadRight.axes[0];
             angleY = gamePadRight.axes[1];
             if (rotate) {
-                brain.rotateX(0.05 * angleX);
-                brain.rotateZ(0.05 * angleY);
+                brain.rotateX(0.1 * angleX);
+                brain.rotateZ(0.1 * angleY);
             } else {
-                brain.position.z += 2.5 * angleX;
-                brain.position.x += 2.5 * angleY;
+                brain.position.z += 5 * angleX;
+                brain.position.x += 5 * angleY;
             }
             brain.matrixWorldNeedsUpdate = true;
         }
