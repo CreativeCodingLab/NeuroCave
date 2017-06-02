@@ -126,6 +126,8 @@ function PreviewArea(canvas_, model_, name_) {
     var initGearVRController = function () {
         if (!enableVR || !mobile)
             return;
+
+        // assume right handed user
         controllerRight = new THREE.GearVRController(1);
 
         gearVRControllerExist = true;
@@ -163,15 +165,15 @@ function PreviewArea(canvas_, model_, name_) {
     // scan Gear VR controller
     var scanGearVRController = function () {
 
-        var thumbpadPressed = controllerLeft.getButtonState('thumbpad');
-        var triggerPressed = controllerLeft.getButtonState('trigger');
+        var thumbpadPressed = controllerRight.getButtonState('thumbpad');
+        var triggerPressed = controllerRight.getButtonState('trigger');
 
         if (thumbpadPressed)
             console.log("Thumbpad pressed");
         if (triggerPressed)
             console.log("Trigger pressed");
 
-        var rotate = controllerLeft.getButtonState('thumbpad');
+        var rotate = controllerRight.getButtonState('thumbpad');
         var angleX = null, angleY = null;
         var gamePadRight = controllerRight.getGamepad();
         if(gamePadRight) {
