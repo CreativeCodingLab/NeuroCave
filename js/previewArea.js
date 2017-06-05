@@ -193,7 +193,7 @@ function PreviewArea(canvas_, model_, name_) {
             }
             brain.matrixWorldNeedsUpdate = true;
         }
-        var v3Origin = new THREE.Vector3(50,50,0);
+        var v3Origin = new THREE.Vector3(10,10,-10);
         var v3UnitUp = new THREE.Vector3(0,0,-100.0);
 
         // Find all nodes within 0.1 distance from left Touch Controller
