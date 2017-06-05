@@ -60,6 +60,7 @@ THREE.GearVRController = function ( id ) {
             //  Position and orientation.
 
             var pose = gamepad.pose;
+            console.log(pose)
 
             if ( pose.position !== null ) scope.position.fromArray( pose.position );
             if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
