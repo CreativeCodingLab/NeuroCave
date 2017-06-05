@@ -234,6 +234,7 @@ updateVRStatus = function (status) {
             activeVR = 'left';
             previewAreaLeft.activateVR(false);
             previewAreaRight.activateVR(false);
+            // VR allows only one canvas to perform the rendering
             previewAreaLeft.enableRender(true);
             previewAreaRight.enableRender(false);
             setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
@@ -242,6 +243,7 @@ updateVRStatus = function (status) {
             activeVR = 'right';
             previewAreaLeft.activateVR(false);
             previewAreaRight.activateVR(false);
+            // VR allows only one canvas to perform the rendering
             previewAreaLeft.enableRender(false);
             previewAreaRight.enableRender(true);
             setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
