@@ -141,7 +141,6 @@ function PreviewArea(canvas_, model_, name_) {
             controllerRight.add( object.clone() );
             controllerRight.standingMatrix = vrControl.getStandingMatrix();
             scene.add(controllerRight);
-            console.log("Model added")
         } );
 
         gearVRControllerExist = true;
