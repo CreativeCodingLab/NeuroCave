@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <title>NeuroCave</title>
 </head>
-<script type="text/javascript" src="js/utils/parsingData.js"></script>
+<script type="text/javascript" src="js/external-libraries/queue.js"></script>
+<script type="text/javascript" src="js/external-libraries/papaparse.min.js"></script>
+<script type="text/javascript" src="js/external-libraries/jquery-3.1.1.min.js"></script>
 <script src="js/external-libraries/queue.js"></script>
 <script>
 
@@ -67,9 +69,10 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
         <li><a href="https://github.com/CreativeCodingLab/NeuroCave/archive/master.zip">Download</a> <b>NeuroCave</b> to
             your local drive</li>
         <li>Put the folder containing your data in <b>.\NeuroCave\data\</b>. Your data should follow the description in
-            <a href="https://github.com/CreativeCodingLab/neurocave#how-to-use-it">here</a>. </li>
+            <a href="https://github.com/CreativeCodingLab/NeuroCave#how-to-use-it">here</a>. </li>
         <li>Browse for the folder using the below <b>'Browse'</b> button</li>
-        <li>Choose an <b>Atlas</b></li>
+        <li>Choose an <b>Atlas</b>. You could create your own Atlas following the instructions in
+            <a href="https://github.com/CreativeCodingLab/NeuroCave#creating-an-atlas">here</a>. </li>
         <li>Press the <b>'Submit'</b> button</li>
     </ul>
 
@@ -84,20 +87,39 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
     <br>
 </div>
 
+<!--<div id='fileNames'></div>-->
+
 <script type="text/Javascript">
-    // populate the Atlas dropdown menu
-    var options = ['freesurfer', 'baltimore', 'mni'];
-    var option = options[0];
-    var menu = document.getElementById("atlas");
-    var folder = '';
-    for(var i = 0; i < 3; i++) {
-        var el = document.createElement("option");
-        el.textContent = options[i];
-        el.value = options[i];
-        el.selected = (i==0);
-        menu.appendChild(el);
-    }
-    menu.onchange = function () { option = options[this.selectedIndex]; };
+    var list = null;
+    // it is assumed all data folder should have an index.txt file describing its contents
+    var lookForAtlases = function (callback) {
+        Papa.parse("data/index.txt", {
+            download: true,
+            delimiter: ",",
+            dynamicTyping: true,
+            header: false,
+            skipEmptyLines: true,
+            complete: function (results) {
+                list = results.data[0];
+                console.log("Look-up Table list loaded ... ");
+                callback(null, null);
+            }
+        });
+    };
+
+    init = function () {
+        var option = list[0];
+        var menu = document.getElementById("atlas");
+        var folder = '';
+        for(var i = 0; i < 3; i++) {
+            var el = document.createElement("option");
+            el.textContent = list[i];
+            el.value = list[i];
+            el.selected = (i==0);
+            menu.appendChild(el);
+        }
+        menu.onchange = function () { option = list[this.selectedIndex]; };
+    };
 
     // get user selected folder info
     getfolder = function (e) {
@@ -112,6 +134,13 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
             }
         }
     };
+
+    // populate the Atlas dropdown menu
+    queue()
+        .defer(lookForAtlases)
+        .awaitAll(function () {
+            init();
+        });
 
 </script>
 
