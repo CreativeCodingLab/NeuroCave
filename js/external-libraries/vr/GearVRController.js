@@ -64,7 +64,7 @@ THREE.GearVRController = function ( id ) {
             if ( pose.position !== null )
                 scope.position.fromArray( pose.position );
             else
-                scope.position = THREE.Vector3(10,0,0);
+                scope.position = THREE.Vector3(0,-20,20);
             if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
             scope.matrix.compose( scope.position, scope.quaternion, scope.scale );
             scope.matrix.multiplyMatrices( scope.standingMatrix, scope.matrix );
