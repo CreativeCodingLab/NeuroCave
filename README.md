@@ -52,7 +52,7 @@ Freesurfer comes with 4 [Atlases](https://surfer.nmr.mgh.harvard.edu/fswiki/Cort
 Other Atlases can be found [here](http://www.lead-dbs.org/?page_id=1004). Most Atlases consist of less than 100 
 bi-hemispheric brain regions, a recent Atlas: the HCP MMP (2016) consists of 180 areas per hemisphere. Higher 
 resolution Atlases can be self-made. The Atlas filename starts with the name prefix "LookupTable_", so for example:
-the freesurfer Atlas filename is: "lookupTable_freesurfer.csv". The Atlas file contains a header with 4 essential 
+the freesurfer Atlas filename is: "LookupTable_freesurfer.csv". The Atlas file contains a header with 4 essential 
 columns: label, Anatomy, region_name and hemisphere.
  
  - The label is an integer number.
