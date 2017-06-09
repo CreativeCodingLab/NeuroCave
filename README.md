@@ -38,6 +38,32 @@ containing the data. The folder should contain 3 types of files:
 
 Please contact Johnson Keiriz at jgadel2@uic.edu (or create an issue on this GitHub repo) if you have any questions. 
 
+# Creating an Atlas
+
+The Atlas is a look-up-table csv file containing labels information about a specific segmentation regime. There exist
+many famous Atlases for human brains such the Desikan-Killiany which is the default Atlas used in Freesurfer. Generally, 
+Freesurfer comes with 4 [Atlases](https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation): 
+
+  - 'Desikan-Killiany' cortical atlas (default)
+  - 'Destrieux' cortical atlas
+  -	'DKTatlas40' atlas
+  -	'Brodmann Areas' atlas
+  
+Other Atlases can be found [here](http://www.lead-dbs.org/?page_id=1004). Most Atlases consist of less than 100 
+bi-hemispheric brain regions, a recent Atlas: the HCP MMP (2016) consists of 180 areas per hemisphere. Higher 
+resolution Atlases can be self-made. The Atlas filename starts with the name prefix "LookupTable_", so for example:
+the freesurfer Atlas filename is: "lookupTable_freesurfer.csv". The Atlas file contains a header with 4 essential 
+columns: label, Anatomy, region_name and hemisphere.
+ 
+ - The label is an integer number.
+ - The Anatomy is the lobar affiliation: Frontal, Parietal, Temporal, Occipital and Subcortical with left or right prefix.
+ - The region_name is the region name.
+ - the hemisphere can be left or right
+
+Other columns can be added and used as an additional color coding scheme such as "Rich Club" or "Embeddness". The data
+are semi-column separated. The user can create his/her own Atlas following the above rules. The Atlases must be listed 
+in the "index.txt" file in order to be discovered.  
+
 # VR instructions
 
 ![alt text](readme_images/touch1.png "Oculus Touch")
