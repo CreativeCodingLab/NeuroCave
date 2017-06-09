@@ -62,7 +62,7 @@ columns: label, Anatomy, region_name and hemisphere.
 
 Other columns can be added and used as an additional color coding scheme such as "Rich Club" or "Embeddness". The data
 are semi-column separated. The user can create his/her own Atlas following the above rules. The Atlases must be listed 
-in the "index.txt" file in order to be discovered.  
+in the "index.txt" file located in the data folder in order to be discovered.  
 
 # VR instructions
 
