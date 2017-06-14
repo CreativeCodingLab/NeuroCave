@@ -105,8 +105,8 @@
         function filter_self_loops(edgelist) {
             var filtered_edge_list = [];
             for (var e = 0; e < edgelist.length; e++) {
-                if (nodes[edgelist[e].source].x != nodes[edgelist[e].target].x ||
-                    nodes[edgelist[e].source].y != nodes[edgelist[e].target].y) { //or smaller than eps
+                if (nodes[edgelist[e].source].x !== nodes[edgelist[e].target].x ||
+                    nodes[edgelist[e].source].y !== nodes[edgelist[e].target].y) { //or smaller than eps
                     filtered_edge_list.push(edgelist[e]);
                 }
             }
@@ -162,10 +162,12 @@
             }
             // console.log("Input pixels");
             // console.log(pixels);
-            textures[writeTex]  = gpgpuUility.makeSizedTexture(nColumns, nRows, gl.RGBA, gl.FLOAT, null); // target
-            textures[readTex]   = gpgpuUility.makeSizedTexture(nColumns, nRows, gl.RGBA, gl.FLOAT, pixels); // source
+            var internalformat = (gpgpuUility.isWebGL2()) ? gl.RGBA32F : gl.RGBA;
 
-            compatibilityTexture = gpgpuUility.makeSizedTexture(nTiles*maxNCompatibleEdges, nRows, gl.RGBA, gl.FLOAT, null);
+            textures[writeTex] = gpgpuUility.makeSizedTexture(nColumns, nRows, internalformat, gl.RGBA, gl.FLOAT, null); // target
+            textures[readTex] = gpgpuUility.makeSizedTexture(nColumns, nRows, internalformat, gl.RGBA, gl.FLOAT, pixels); // source
+
+            compatibilityTexture = gpgpuUility.makeSizedTexture(nTiles * maxNCompatibleEdges, nRows, internalformat, gl.RGBA, gl.FLOAT, null);
         }
 
         function initCompatibilityTexture() {
@@ -181,7 +183,8 @@
             }
             console.log(compatibility_list);
 
-            compatibilityTexture3 = gpgpuUility.makeSizedTexture(nTiles*maxNCompatibleEdges, nRows, gl.RGBA, gl.FLOAT, pixels);
+            var internalformat = (gpgpuUility.isWebGL2()) ? gl.RGBA32F : gl.RGBA;
+            compatibilityTexture3 = gpgpuUility.makeSizedTexture(nTiles*maxNCompatibleEdges, nRows, internalformat, gl.RGBA, gl.FLOAT, pixels);
         }
 
 
@@ -226,7 +229,7 @@
             gpgpuUility.useProgram(programCompatibility);
             setUniformsCompatibility();
             setUniformTexture("Compatibility");
-            gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, compatibilityTexture);
+            gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, 'draw', compatibilityTexture);
             var bufferStatus = gpgpuUility.frameBufferIsComplete();
             if(!bufferStatus.isComplete) {
                 console.log(bufferStatus.message);
@@ -243,7 +246,7 @@
                 setUniformTexture("Subdivision");
                 // The framebuffer when bound, would render all WebGL draw commands given into colorTexture
                 // instead of the WebGL canvas.
-                gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, textures[writeTex]);
+                gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, 'draw', textures[writeTex]);
                 /*var bufferStatus = gpgpuUility.frameBufferIsComplete();
                 if(!bufferStatus.isComplete) {
                     console.log(bufferStatus.message);
@@ -258,7 +261,7 @@
                 for (var it = 0; it < I; it++) {
                     setUniformTexture("Update");
                     setUniformsUpdate();
-                    gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, textures[writeTex]);
+                    gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, 'draw', textures[writeTex]);
                     gpgpuUility.executeProgram(programUpdate);
 
                     // swap Tin <-> Tout
@@ -277,7 +280,12 @@
             if (!keepPrograms)
                 deletePrograms();
             deleteTexture();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            if (gpgpuUility.isWebGL2()) {
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+                gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
+            } else {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            }
             gl.deleteFramebuffer(frameBuffer);
             frameBuffer = null;
             gpgpuUility.setProblemSize(1,1);
@@ -303,7 +311,7 @@
             gl.finish();
             // console.timeEnd("GPU Time taken ");
 
-            gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, textures[readTex]);
+            gpgpuUility.attachFrameBuffer(frameBuffer, gl.COLOR_ATTACHMENT0, 'read', textures[readTex]);
             var data = gpgpuUility.downloadTexture(textures[readTex], nColumns, nRows, gl.FLOAT, true);
 
             // console.log("Output pixels");
