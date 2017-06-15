@@ -907,7 +907,7 @@ function PreviewArea(canvas_, model_, name_) {
             var ray = new THREE.Raycaster(controller.position, v3orientation);
             var objectsIntersected = ray.intersectObjects(glyphs);
             if (objectsIntersected[0]) {
-                console.log(objectsIntersected[0]);
+                //console.log(objectsIntersected[0]);
                 return objectsIntersected[0];
             }
         }
