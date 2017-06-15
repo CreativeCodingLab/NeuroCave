@@ -9,6 +9,7 @@ THREE.GearVRController = function ( id ) {
     var axes = [ 0, 0 ];
     var thumbpadIsPressed = false;
     var triggerIsPressed = false;
+    var angularVelocity = new THREE.Vector3();
 
 
     function findGamepad( id ) {
@@ -55,11 +56,12 @@ THREE.GearVRController = function ( id ) {
 
         if ( gamepad !== undefined && gamepad.pose !== undefined ) {
 
-            if ( gamepad.pose === null ) return; // No user action yet
-
-            //  Position and orientation.
-
             var pose = gamepad.pose;
+
+            if ( pose === null ) return; // No user action yet
+
+            /*
+            //  Position and orientation.
 
             if ( pose.position !== null )
                 scope.position.fromArray( pose.position );
@@ -70,6 +72,22 @@ THREE.GearVRController = function ( id ) {
             scope.matrix.multiplyMatrices( scope.standingMatrix, scope.matrix );
             scope.matrixWorldNeedsUpdate = true;
             scope.visible = true;
+            */
+
+            //  orientation
+
+            if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
+
+            scope.updateMatrix();
+            scope.visible = true;
+
+            // angular velocity
+
+            if ( pose.angularVelocity !== null && ! angularVelocity.equals( pose.angularVelocity ) ) {
+
+                angularVelocity.fromArray( pose.angularVelocity );
+                scope.dispatchEvent( { type: 'angularvelocitychanged', angularVelocity: angularVelocity } );
+            }
 
             //  Thumbpad and Buttons.
 
@@ -78,7 +96,6 @@ THREE.GearVRController = function ( id ) {
                 axes[ 0 ] = gamepad.axes[ 0 ]; //  X axis: -1 = Left, +1 = Right.
                 axes[ 1 ] = gamepad.axes[ 1 ]; //  Y axis: -1 = Bottom, +1 = Top.
                 scope.dispatchEvent( { type: 'axischanged', axes: axes } );
-
             }
 
             if ( thumbpadIsPressed !== gamepad.buttons[ 0 ].pressed ) {
