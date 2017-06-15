@@ -119,9 +119,9 @@ window.vizit.utility = window.vizit.utility || {};
 
                 isWebGL2 = !!gl;
                 if(isWebGL2) {
-                    console.log("WebGL 2 is available.");
+                    console.log("GPGPUtility: WebGL 2 is available.");
                 } else {
-                    console.log("WebGL 2 is not available, trying WebGL 1.");
+                    console.log("GPGPUtility: WebGL 2 is not available, using WebGL 1.");
                     gl = canvas.getContext("webgl", attributes) || canvas.getContext('experimental-webgl', attributes);
                 }
             }
@@ -144,9 +144,9 @@ window.vizit.utility = window.vizit.utility || {};
             // Sets of x,y,z(=0),s,t coordinates.
             //                            X     Y    Z    S    T
             return new Float32Array([   -1.0,  1.0, 0.0, 0.0, 1.0,  // upper left
-                                        -1.0, -1.0, 0.0, 0.0, 0.0,  // lower left
-                                         1.0,  1.0, 0.0, 1.0, 1.0,  // upper right
-                                         1.0, -1.0, 0.0, 1.0, 0.0]);// lower right
+                -1.0, -1.0, 0.0, 0.0, 0.0,  // lower left
+                1.0,  1.0, 0.0, 1.0, 1.0,  // upper right
+                1.0, -1.0, 0.0, 1.0, 0.0]);// lower right
         };
 
         /**
@@ -223,22 +223,22 @@ window.vizit.utility = window.vizit.utility || {};
         };
 
         /*this.getComputeContext = function ()
-        {
-            if (problemWidth != canvasWidth || problemHeight != canvasHeight)
-            {
-                gl.viewport(0, 0, problemWidth, problemHeight);
-            }
-            return gl;
-        };
+         {
+         if (problemWidth != canvasWidth || problemHeight != canvasHeight)
+         {
+         gl.viewport(0, 0, problemWidth, problemHeight);
+         }
+         return gl;
+         };
 
-        this.getRenderingContext = function ()
-        {
-            if (problemWidth != canvasWidth || problemHeight != canvasHeight)
-            {
-                gl.viewport(0, 0, canvasWidth, canvasHeight);
-            }
-            return gl;
-        };*/
+         this.getRenderingContext = function ()
+         {
+         if (problemWidth != canvasWidth || problemHeight != canvasHeight)
+         {
+         gl.viewport(0, 0, canvasWidth, canvasHeight);
+         }
+         return gl;
+         };*/
 
         /**
          * Refresh the data in a preexisting texture using texSubImage2D() to avoiding repeated allocation of texture memory.
@@ -254,14 +254,14 @@ window.vizit.utility = window.vizit.utility || {};
 
             // Replace the texture data
             gl.texSubImage2D(   gl.TEXTURE_2D, // Target, matches bind above.
-                                0,             // Level of detail.
-                                0,             // xOffset
-                                0,             // yOffset
-                                problemWidth,  // Width - normalized to s.
-                                problemHeight, // Height - normalized to t.
-                                gl.RGBA,       // Format for each pixel.
-                                type,          // Data type for each chanel.
-                                data);         // Image data in the described format, or null.
+                0,             // Level of detail.
+                0,             // xOffset
+                0,             // yOffset
+                problemWidth,  // Width - normalized to s.
+                problemHeight, // Height - normalized to t.
+                gl.RGBA,       // Format for each pixel.
+                type,          // Data type for each chanel.
+                data);         // Image data in the described format, or null.
 
             // Unbind the texture.
             gl.bindTexture(gl.TEXTURE_2D, null);
@@ -277,7 +277,7 @@ window.vizit.utility = window.vizit.utility || {};
         this.getResults = function ()
         {
             if (!outputTexture) {
-                console.log("Output texture not defined, please call makeTexture()");
+                console.log("GPGPUtility: Output texture not defined, please call makeTexture()");
                 return null;
             }
 
@@ -309,12 +309,12 @@ window.vizit.utility = window.vizit.utility || {};
             var data = create2DArray(height,width,4);
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.readPixels(  0,                  // x-coord of lower left corner
-                            0,                  // y-coord of lower left corner
-                            width,              // width of the block
-                            height,             // height of the block
-                            gl.RGBA,            // Format of pixel data.
-                            type,               // Data type of the pixel data, must match makeTexture
-                            data);              // Load pixel data into buffer
+                0,                  // y-coord of lower left corner
+                width,              // width of the block
+                height,             // height of the block
+                gl.RGBA,            // Format of pixel data.
+                type,               // Data type of the pixel data, must match makeTexture
+                data);              // Load pixel data into buffer
             gl.bindTexture(gl.TEXTURE_2D, null);
 
             if (!textureBoundToBuffer)
@@ -340,7 +340,7 @@ window.vizit.utility = window.vizit.utility || {};
         this.makeSizedTexture = function (width, height, internalformat, format, type, data)
         {
             if (width > maxTextureSize || height > maxTextureSize) {
-                console.error("Texture dimensions exceeds GPU capabilities. Check max texture size.");
+                console.error("GPGPUtility: Texture dimensions exceeds GPU capabilities. Check max texture size.");
             }
             // Create the texture
             var texture = gl.createTexture();
@@ -352,14 +352,14 @@ window.vizit.utility = window.vizit.utility || {};
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             // Pixel format and data for the texture
             gl.texImage2D(  gl.TEXTURE_2D, // Target, matches bind above.
-                            0,             // Level of detail.
-                            internalformat,// Internal format.
-                            width,         // Width - normalized to s.
-                            height,        // Height - normalized to t.
-                            0,             // Border Always 0 in OpenGL ES.
-                            format,        // Format for each pixel.
-                            type,          // Data type for each chanel.
-                            data);         // Image data in the described format, or null.
+                0,             // Level of detail.
+                internalformat,// Internal format.
+                width,         // Width - normalized to s.
+                height,        // Height - normalized to t.
+                0,             // Border Always 0 in OpenGL ES.
+                format,        // Format for each pixel.
+                type,          // Data type for each chanel.
+                data);         // Image data in the described format, or null.
             // Unbind the texture.
             gl.bindTexture(gl.TEXTURE_2D, null);
 
@@ -419,10 +419,10 @@ window.vizit.utility = window.vizit.utility || {};
             // Make it the target for framebuffer operations - including rendering.
             gl.bindFramebuffer(target, frameBuffer);
             gl.framebufferTexture2D(target,                 // The target draw or read.
-                                    attachment,             // We are providing the color buffer.
-                                    gl.TEXTURE_2D,          // This is a 2D image texture.
-                                    texture,                // The texture.
-                                    0);                     // 0, we aren't using MIPMAPs
+                attachment,             // We are providing the color buffer.
+                gl.TEXTURE_2D,          // This is a 2D image texture.
+                texture,                // The texture.
+                0);                     // 0, we aren't using MIPMAPs
         };
 
         /**
@@ -506,17 +506,17 @@ window.vizit.utility = window.vizit.utility || {};
             if (!standardVertexShader)
             {
                 vertexShaderSource = "attribute vec3 position;"
-                                    + "attribute vec2 textureCoord;"
-                                    + ""
-                                    + "varying highp vec2 vTextureCoord;"
-                                    + ""
-                                    + "void main()"
-                                    + "{"
-                                    + "  gl_Position = vec4(position, 1.0);"
-                                    + "  vTextureCoord = textureCoord;"
-                                    + "}";
+                    + "attribute vec2 textureCoord;"
+                    + ""
+                    + "varying highp vec2 vTextureCoord;"
+                    + ""
+                    + "void main()"
+                    + "{"
+                    + "  gl_Position = vec4(position, 1.0);"
+                    + "  vTextureCoord = textureCoord;"
+                    + "}";
 
-                //console.log("Using default vertex shader");
+                //console.log("GPGPUtility: Using default vertex shader");
             }
 
             return vertexShaderSource;
@@ -547,7 +547,7 @@ window.vizit.utility = window.vizit.utility || {};
             var vertexShader = this.compileShader(vertexShaderSource, gl.VERTEX_SHADER);
             var compiled = gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS);
             if (compiled) {
-                //console.log('Vertex shader compiled successfully');
+                //console.log('GPGPUtility: Vertex shader compiled successfully');
             }
             else {
                 console.log('Vertex shader compiler log: ' + gl.getShaderInfoLog(vertexShader));
@@ -555,10 +555,10 @@ window.vizit.utility = window.vizit.utility || {};
             var fragmentShader = this.compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
             compiled = gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS);
             if (compiled) {
-                //console.log('Fragment shader compiled successfully');
+                //console.log('GPGPUtility: Fragment shader compiled successfully');
             }
             else {
-                console.log('Fragment shader compiler log: ' + gl.getShaderInfoLog(fragmentShader));
+                console.log('GPGPUtility: Fragment shader compiler log: ' + gl.getShaderInfoLog(fragmentShader));
             }
             // The program consists of our shaders
             gl.attachShader(program, vertexShader);
@@ -569,7 +569,7 @@ window.vizit.utility = window.vizit.utility || {};
             // Shaders are checked for consistency.
             gl.linkProgram(program);
             if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-                console.error('ERROR linking program!', gl.getProgramInfoLog(program));
+                console.error('GPGPUtility: ERROR linking program!', gl.getProgramInfoLog(program));
             }
 
             // Shaders are no longer needed as separate objects
@@ -596,7 +596,7 @@ window.vizit.utility = window.vizit.utility || {};
 
             gl.validateProgram(program);
             if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
-                console.error('ERROR validating program!', gl.getProgramInfoLog(program));
+                console.error('GPGPUtility: ERROR validating program!', gl.getProgramInfoLog(program));
                 return false;
             }
             return true;
