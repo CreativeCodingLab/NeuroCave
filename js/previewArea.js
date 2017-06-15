@@ -129,8 +129,10 @@ function PreviewArea(canvas_, model_, name_) {
 
         // assume right handed user
         controllerRight = new THREE.GearVRController(0);
+        controllerRight.position.set( 0.25, - 0.5, 0 );
 
-        var loader = new THREE.OBJLoader();
+
+        /*var loader = new THREE.OBJLoader();
         loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
         loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
             var loader = new THREE.TextureLoader();
@@ -141,7 +143,7 @@ function PreviewArea(canvas_, model_, name_) {
             controllerRight.add( object.clone() );
             controllerRight.standingMatrix = vrControl.getStandingMatrix();
             scene.add(controllerRight);
-        } );
+        } );*/
 
         gearVRControllerExist = true;
 
