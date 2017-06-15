@@ -60,23 +60,18 @@ THREE.GearVRController = function ( id ) {
 
             if ( pose === null ) return; // No user action yet
 
-            /*
             //  Position and orientation.
 
-            if ( pose.position !== null )
-                scope.position.fromArray( pose.position );
-            else
-                scope.position = THREE.Vector3(0,-20,20);
+            if ( pose.position !== null ) scope.position.fromArray( pose.position );
             if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
             scope.matrix.compose( scope.position, scope.quaternion, scope.scale );
             scope.matrix.multiplyMatrices( scope.standingMatrix, scope.matrix );
             scope.matrixWorldNeedsUpdate = true;
             scope.visible = true;
-            */
 
             //  orientation
 
-            if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
+            /*if ( pose.orientation !== null ) scope.quaternion.fromArray( pose.orientation );
 
             scope.updateMatrix();
             scope.visible = true;
@@ -87,7 +82,7 @@ THREE.GearVRController = function ( id ) {
 
                 angularVelocity.fromArray( pose.angularVelocity );
                 scope.dispatchEvent( { type: 'angularvelocitychanged', angularVelocity: angularVelocity } );
-            }
+            }*/
 
             //  Thumbpad and Buttons.
 
