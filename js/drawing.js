@@ -287,10 +287,19 @@ initControls = function () {
     modelRight.setAllRegionsActivated();
 
     createLegend(modelLeft);
+
+    if (mobile) {
+        console.log("Mobile VR requested");
+    } else {
+        hideVRMaximizeButtons();
+    }
 };
 
 // init the canvas where we render the brain
 initCanvas = function () {
+
+    glyphNodeDictionary = {};
+    visibleNodes = new Array(modelLeft.getConnectionMatrixDimension()).fill(true);
 
     // create visualization
     previewAreaLeft = new PreviewArea(document.getElementById('canvasLeft'), modelLeft, 'Left');
@@ -303,22 +312,11 @@ initCanvas = function () {
     document.getElementById("syncRight").onclick = function() {
         previewAreaRight.syncCameraWith(previewAreaLeft.getCamera());
     };
-
-    glyphNodeDictionary = {};
-    // create left and right canvas
-    previewAreaLeft.createCanvas();
+    // pass mouse events controllers
     previewAreaLeft.setEventListeners(onMouseDown, onMouseUp, onDocumentMouseMove);
-    previewAreaRight.createCanvas();
     previewAreaRight.setEventListeners(onMouseDown, onMouseUp, onDocumentMouseMove);
-    // prepare Occulus rift
-    previewAreaLeft.initVR();
-    previewAreaRight.initVR();
     window.addEventListener("keypress", onKeyPress, true);
 
-    visibleNodes = new Array(modelLeft.getConnectionMatrixDimension()).fill(true);
-    // draw connectomes and start animation
-    previewAreaLeft.drawRegions();
-    previewAreaRight.drawRegions();
     $(window).resize(function(e){
         //e.preventDefault();
         console.log("on resize event");
@@ -332,12 +330,6 @@ initCanvas = function () {
             previewAreaLeft.resizeScene();
             previewAreaRight.resizeScene();}
         , true);
-
-    if (mobile) {
-        console.log("Mobile VR requested");
-    } else {
-        hideVRMaximizeButtons();
-    }
 
     previewAreaLeft.requestAnimate();
     previewAreaRight.requestAnimate();

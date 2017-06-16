@@ -968,4 +968,9 @@ function PreviewArea(canvas_, model_, name_) {
         // camera.quaternion.copy(cam.quaternion);
         // camera.updateMatrix();
     };
+
+    // PreviewArea construction
+    this.createCanvas();
+    this.initVR();
+    this.drawRegions();
 }
