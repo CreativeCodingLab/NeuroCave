@@ -35,8 +35,7 @@ function onDocumentMouseMove(model, event) {
 
 }
 
-updateNodeMoveOver = function (model, intersectedObject)
-{
+updateNodeMoveOver = function (model, intersectedObject) {
     var nodeIdx, region, nodeRegion;
     if ( intersectedObject ) {
         nodeIdx = glyphNodeDictionary[intersectedObject.object.uuid];
@@ -263,8 +262,8 @@ updateVRStatus = function (status) {
     }
 };
 
-// init the canvas where we render the brain
-initCanvas = function () {
+// init the GUI controls
+initControls = function () {
     // add controls
     addOpacitySlider();
     addEdgeBundlingCheck();
@@ -288,6 +287,11 @@ initCanvas = function () {
     modelRight.setAllRegionsActivated();
 
     createLegend(modelLeft);
+};
+
+// init the canvas where we render the brain
+initCanvas = function () {
+
     // create visualization
     previewAreaLeft = new PreviewArea(document.getElementById('canvasLeft'), modelLeft, 'Left');
     previewAreaRight = new PreviewArea(document.getElementById('canvasRight'), modelRight, 'Right');

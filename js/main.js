@@ -47,6 +47,7 @@ init = function () {
                     console.log("Loading data done.");
                     modelLeft.createGroups();
                     modelRight.createGroups();
+                    initControls();
                     initCanvas();
                 })
             ;
