@@ -13,28 +13,21 @@ var setFolder = function (folderName, callback) {
 // it is assumed all data folder should have an index.txt file describing its contents
 var scanFolder = function (callback) {
     var indexFile = "./data/" + folder + "/index.txt";
-    $.ajax({
-        url: indexFile,
-        type:'HEAD',
-        error: function() {
-            alert("Index file don't exist, can not continue");
-            return false;
+    Papa.parse(indexFile, {
+        download: true,
+        delimiter: ",",
+        dynamicTyping: true,
+        header: true,
+        skipEmptyLines: true,
+        error: function (error) {
+            console.log("Loading Atlas failure : " + error);
+            alert("Unable to load Index file (index.txt), can not continue");
         },
-        success: function() {
-            Papa.parse(indexFile, {
-                download: true,
-                delimiter: ",",
-                dynamicTyping: true,
-                header: true,
-                skipEmptyLines: true,
-                error: "continue",
-                complete: function (results) {
-                    dataFiles = results.data;
-                    console.log("Subjects loaded");
-                    callback(null,null);
-                }
-            });
-            return true;
+        complete: function (results) {
+            console.log("Loading subjects ...");
+            dataFiles = results.data;
+            console.log("Subjects loaded");
+            callback(null,null);
         }
     });
 };
