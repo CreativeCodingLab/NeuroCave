@@ -96,18 +96,18 @@ if(isLoaded == 0) {
     queue()
         .defer(scanFolder)
         .defer(loadLookUpTable)
-        .defer(loadIcColors)
+        //.defer(loadIcColors)
         // .defer(loadColorMap)
         .awaitAll(function () {
             console.log("Loading data done.");
             init();
         });
-} else{
+} else {
     console.log("loaded from different files");
 
     queue()
         .defer(loadLookUpTable)
-        .defer(loadIcColors)
+        //.defer(loadIcColors)
         .defer(parse)
         .awaitAll(function(){
             init();
