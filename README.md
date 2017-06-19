@@ -32,7 +32,8 @@ containing the data. The folder should contain 3 types of files:
 - Network files: a ".csv" file per subject containing the adjacency matrix of the connectome.
 - Topology files: a ".csv" file per subject containing the different topological and clustering information for each 
   region. Topological information are expected to be an (x,y,z) vector for each label. Clustering information are 
-  expected to be an integer number starting with 1.
+  expected to be an integer number starting with 1. The clustering information column name should have the keyword
+  "Clustering", i.e. "XYZ-Clustering".
 - Configuration file: a "index.txt" file that lists the available network and topology pair files and associates them 
   to the subject ID.
 
