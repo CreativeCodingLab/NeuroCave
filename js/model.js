@@ -563,26 +563,24 @@ function Model() {
         var dataType;
         for (var i = 0; i < data[0].length; i++) {
             dataType = data[0][i];
-            switch (dataType) {
-                case ("label"):
+                if (dataType === "label") {
                     this.setLabelKeys(data, i);
-                    break;
-                case ("PLACE"): // structural
-                case ("PACE"): // functional
-                case ("Q-Modularity"):
-                case ("Q"):
+                }
+                else if (dataType ==="PLACE" ||  // structural
+                    dataType ==="PACE" || // functional
+                    dataType ==="Q" ||
+                    dataType ==="Q-Modularity" ||
+                    dataType.includes("Clustering") ) {
                     this.setClusters(data, i, dataType);
                     this.computeNodesLocationForClusters(dataType);
                     topologies.push(dataType);
                     clusteringTopologies.push(dataType);
-                    break;
-                case (""):
-                    break;
-                default: // all other topologies
+                    }
+                else if (dataType === "") {}
+                else { // all other topologies
                     this.setCentroids(data, dataType, i);
                     topologies.push(dataType);
-                    break;
-            }
+                }
         }
         activeTopology = topologies[0];
     };
@@ -703,6 +701,7 @@ function Model() {
                 }
             }
         }
+
     }
 }
 
