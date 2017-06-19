@@ -571,6 +571,7 @@ function Model() {
                     dataType ==="Q" ||
                     dataType ==="Q-Modularity" ||
                     dataType.includes("Clustering") ) {
+                    dataType = dataType.replace("Clustering", "");
                     this.setClusters(data, i, dataType);
                     this.computeNodesLocationForClusters(dataType);
                     topologies.push(dataType);
