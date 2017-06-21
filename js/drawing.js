@@ -486,6 +486,7 @@ changeSceneToSubject = function (subjectId, model, previewArea, side) {
                     model.updateClusteringGroupLevel(level2);
                     model.setAllRegionsActivated();
                     model.setCurrentRegionsInformation(info);
+                    model.computeEdgesForTopology(model.getActiveTopology());
                     redrawScene(side);
                 })
             ;
