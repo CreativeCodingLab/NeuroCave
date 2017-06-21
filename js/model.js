@@ -155,7 +155,11 @@ function Model() {
 
     // isomap, MDS, anatomy, tsne, selection from centroids
     this.setActiveTopology = function (topology) {
+        if (activeTopology === topology)
+            return;
+
         activeTopology = topology;
+        this.computeEdgesForTopology(topology);
     };
 
     this.getActiveTopology = function () {
@@ -189,7 +193,6 @@ function Model() {
         }
         centroids[topology] = scaleCentroids(data);
         this.computeNodesDistances(topology);
-        this.computeEdgesForTopology(topology);
     };
 
     // set shortest path distance threshold and update GUI
@@ -584,6 +587,7 @@ function Model() {
                 }
         }
         activeTopology = topologies[0];
+        this.computeEdgesForTopology(activeTopology);
     };
 
     this.getTopologies = function () {
@@ -636,12 +640,12 @@ function Model() {
         var results = fbundling();
 
         for (i = 0; i <edges_.length; i++) {
-            edges[activeTopology][edgeIndices[i]] = results[i];
+            edges[edgeIndices[i]] = results[i];
         }
     };
 
     this.getActiveEdges = function() {
-        return edges[activeTopology];
+        return edges;
     };
 
     this.getEdgesIndeces = function() {
@@ -690,15 +694,16 @@ function Model() {
 
     // compute the edges for a specific topology
     this.computeEdgesForTopology = function (topology) {
+        console.log("Computing edges for " + topology);
         var nNodes = connectionMatrix.length;
-        edges[topology] = [];
+        edges = [];
         for (var i = 0; i < nNodes; i++) {
             for (var j = i+1; j < nNodes; j++) {
                 if (Math.abs(connectionMatrix[i][j]) > 0) {
                     var edge = [];
                     edge.push(centroids[topology][i]);
                     edge.push(centroids[topology][j]);
-                    edges[topology].push(edge);
+                    edges.push(edge);
                 }
             }
         }
