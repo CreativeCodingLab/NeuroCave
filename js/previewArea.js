@@ -451,7 +451,7 @@ function PreviewArea(canvas_, model_, name_) {
             if (mobile) {
                 if (gearVRControllerExist) {
                     //controllerRight.update();
-                    scanGearVRController();
+                    //scanGearVRController();
                 }
                 vrControl.update();
             }
