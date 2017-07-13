@@ -270,8 +270,8 @@ initControls = function () {
     addModalityButton();
     addThresholdSlider();
     addColorGroupList();
-    addTopologyRadioButtons(modelLeft, 'Left');
-    addTopologyRadioButtons(modelRight, 'Right');
+    addTopologyMenu(modelLeft, 'Left');
+    addTopologyMenu(modelRight, 'Right');
 
     addShortestPathFilterButton();
     addDistanceSlider();
@@ -480,7 +480,7 @@ changeSceneToSubject = function (subjectId, model, previewArea, side) {
                     var level1 = model.getClusteringLevel();
                     var level2 = model.getClusteringGroupLevel();
                     model.createGroups();
-                    addTopologyRadioButtons(model, side);
+                    addTopologyMenu(model, side);
                     model.setActiveGroup(activeGroup);
                     model.setClusteringLevel(level1);
                     model.updateClusteringGroupLevel(level2);

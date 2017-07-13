@@ -397,61 +397,52 @@ createLegend = function(model) {
 /* Color coding area at upload */
 // add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
 addColorGroupList = function() {
-    var menu = d3.select("#colorCoding");
 
-    menu.append("label")
-        .attr("for","colorGroup")
-        .text("Color coding:");
-    menu.append("br");
-
+    var select = document.getElementById("colorCodingMenu");
     var names = atlas.getGroupsNames();
+
     for (var i = 0; i < names.length; ++i) {
-        menu.append("input")
-            .attr("type", "radio")
-            .attr("name","colorGroup")
-            .attr("id",names[i]+"_ColorGroup")
-            .attr("value",names[i])
-            .attr("checked","false")
-            .on("change", function () {
-                setColorClusteringSliderVisibility("hidden");
-                changeColorGroup(this.value);
-            });
-        menu.append("label")
-            .attr("for",names[i])
-            .text(names[i]);
-        menu.append("br");
+        var el = document.createElement("option");
+        el.textContent = names[i];
+        el.value = names[i];
+        el.selected = (i==0);
+        select.appendChild(el);
     }
 
+    var hierarchicalClusteringExist = false;
     if (modelLeft.hasClusteringData() && modelRight.hasClusteringData()) {
         var clusterNames = modelLeft.getClusteringTopologiesNames();
-        var hierarchicalClusteringExist = false;
+
         for (var i = 0; i < clusterNames.length; ++i) {
             var name = clusterNames[i];
             var isHierarchical = name == "PLACE" || name == "PACE";
             hierarchicalClusteringExist |= isHierarchical;
-            menu.append("input")
-                .attr("type", "radio")
-                .attr("name", "colorGroup")
-                .attr("value", name)
-                .attr("id", name+"_ColorGroup")
-                .attr("checked", "false")
-                .on("change", function () {
-                    setColorClusteringSliderVisibility(this.getAttribute("hierarchical") == 'true' ? "visible" : "hidden");
-                    changeColorGroup(this.value);
-                });
-            menu.append("label")
-                .attr("for", name)
-                .text(name);
-            menu.append("br");
-            document.getElementById(name+"_ColorGroup").setAttribute("hierarchical", isHierarchical);
+
+            var el = document.createElement("option");
+            el.textContent = name;
+            el.value = name;
+            select.appendChild(el);
         }
+
+        select.onchange = function () {
+            var selection = this.options[this.selectedIndex].value;
+            switch (selection) {
+                case ("PLACE"):
+                case ("PACE"):
+                    setColorClusteringSliderVisibility("visible");
+                    break;
+                default:
+                    setColorClusteringSliderVisibility("hidden");
+                    break;
+            }
+            changeColorGroup(selection);
+        };
 
         if (hierarchicalClusteringExist)
             addColorClusteringSlider();
     }
 
     setColorClusteringSliderVisibility("hidden");
-    document.getElementById(names[0]+"_ColorGroup").checked = "true";
 };
 
 addColorClusteringSlider = function () {
@@ -485,66 +476,50 @@ setColorClusteringSliderVisibility = function (value) {
         elem.style.visibility = value;
 };
 
-/* Topology options at topologyLeft and topologyRight */
-// add "Topological Spaces" radio button group for scene containing:
+/* Topology options at viewLeft and viewRight */
+// add "Topological Spaces" menu for scene containing:
 // Isomap, MDS, tSNE and anatomy spaces
-addTopologyRadioButtons = function (model, side) {
+addTopologyMenu = function (model, side) {
 
     var topologies = model.getTopologies();
     var hierarchicalClusteringExist = false;
 
-    var menu = d3.select("#topology" + side);
-
-    menu.append("br");
-
-    menu.append("label")
-        .attr("for","geometry" + side)
-        .text("Coordinate Space:");
-    menu.append("br");
+    var select = document.getElementById("topologyMenu" + side);
 
     for (var i = 0; i <topologies.length; i++) {
         var topology = topologies[i];
-        var ip = menu.append("input")
-            .attr("type", "radio")
-            .attr("name","geometry" + side)
-            .attr("id",topology + side)
-            .attr("value",topology)
-            .attr("checked", "false");
-        switch (topology) {
+
+        var el = document.createElement("option");
+        el.textContent = topology;
+        el.value = topology;
+        el.selected = (i == 0);
+        select.appendChild(el);
+    }
+    select.onchange = function () {
+        var selection = this.options[this.selectedIndex].value;
+        switch (selection) {
             case ("PLACE"):
             case ("PACE"):
-                ip.on("change", function () {
-                    setClusteringSliderVisibility(side, "visible");
-                    changeActiveGeometry(model, side, this.value);
-                });
+                setClusteringSliderVisibility(side, "visible");
+                changeActiveGeometry(model, side, this.value);
                 hierarchicalClusteringExist = true;
                 break;
             default:
-                ip.on("change", function () {
-                    setClusteringSliderVisibility(side, "hidden");
-                    changeActiveGeometry(model, side, this.value);
-                });
+                setClusteringSliderVisibility(side, "hidden");
+                changeActiveGeometry(model, side, selection);
                 break;
         }
-        menu.append("label")
-            .attr("for",topology)
-            .text(topology);
-        menu.append("br");
-    }
+    };
 
     if (hierarchicalClusteringExist)
         addClusteringSlider(model, side);
 
     setClusteringSliderVisibility(side, "hidden");
-    document.getElementById(topologies[0] + side).checked = "true";
 };
 
 // remove geometry buttons
 removeGeometryButtons = function (side) {
-    var menu = document.getElementById("topology" + side);
-    while (menu.firstChild) {
-        menu.removeChild(menu.firstChild);
-    }
+    document.getElementById("topologyMenu" + side).innerHTML = "";
 };
 
 // add clustering level slider
@@ -782,8 +757,8 @@ searchElement = function(index) {
 // toggle labels check boxes on right click
 toggleMenus = function (e) {
     $('#shortestPath').toggle();
-    $('#topologyLeft').toggle();
-    $('#topologyRight').toggle();
+    $('#viewLeft').toggle();
+    $('#viewRight').toggle();
     $('#legend').toggle();
     $('#nodeInfoPanel').toggle();
     $('#colorCoding').toggle();

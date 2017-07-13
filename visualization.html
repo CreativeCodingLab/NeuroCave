@@ -63,15 +63,25 @@
 </div>
 
 <svg class = "menu" id="legend"></svg>
-<div class ="menu" id="colorCoding"></div>
 
-<select id = "subjectMenuLeft" class = "jumpmenu"></select>
-<select id = "subjectMenuRight" class = "jumpmenu"></select>
 <div class = "menu" id ="shortestPath"></div>
-<div class = "menu" id ="topologyLeft">
+<div class ="menu" id="colorCoding">
+    <label for="colorCodingMenu">ColorCoding: </label>
+    <select id = "colorCodingMenu" class = "jumpmenu"></select>
+</div>
+
+<div class = "menu" id ="viewLeft">
+    <label id = "subjectMenuLeftLabel" for="subjectMenuLeft">Subject: </label>
+    <select id = "subjectMenuLeft" class = "jumpmenu"></select>
+    <label id = "topologyMenuLeftLabel" for="topologyMenuLeft">Coordinate System: </label>
+    <select id = "topologyMenuLeft" class = "jumpmenu"></select>
     <button type = 'button' id = 'syncLeft' >Sync</button>
 </div>
-<div class = "menu" id ="topologyRight">
+<div class = "menu" id ="viewRight">
+    <label id = "subjectMenuRightLabel" for="subjectMenuRight">Subject: </label>
+    <select id = "subjectMenuRight" class = "jumpmenu"></select>
+    <label id = "topologyMenuRightLabel" for="topologyMenuRight">Coordinate System: </label>
+    <select id = "topologyMenuRight" class = "jumpmenu"></select>
     <button type = 'button' id = 'syncRight' >Sync</button>
 </div>
 <div id="vrLeft">

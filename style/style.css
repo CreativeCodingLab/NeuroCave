@@ -114,31 +114,7 @@ button > input[type="checkbox"] {
     z-index: 2
 }
 
-#colorCoding{
-    position: absolute;
-    width: 150px;
-    height: 280px;
-    top: 20px;
-    left: 20px
-}
 
-#subjectMenuLeft {
-    position: absolute;
-    width: 180px;
-    height: 25px;
-    top: 5px;
-    left: 20%;
-    color: black;
-}
-
-#subjectMenuRight {
-    position: absolute;
-    width: 180px;
-    height: 25px;
-    top: 5px;
-    right: 20%;
-    color: black;
-}
 
 #shortestPath {
     position: absolute;
@@ -148,28 +124,103 @@ button > input[type="checkbox"] {
     right: 30px
 }
 
-#topologyLeft {
+#colorCoding{
     position: absolute;
     width: 175px;
-    height: 150px;
+    height: 25px;
     top: 400px;
-    left: 20px
+    right: 30px;
+    z-index: 3;
+}
+
+#viewLeft {
+    position: absolute;
+    height: 100px;
+    width: 50%;
+    top: 0px;
+    left: 0px;
+}
+
+#subjectMenuLeftLabel {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+#subjectMenuLeft {
+    position: relative;
+    width: 130px;
+    height: 25px;
+    top: 5px;
+    left: 5px;
+    color: black;
+}
+
+#topologyMenuLeftLabel {
+    position: relative;
+    top: 5px;
+    left: 15px;
+}
+
+#topologyMenuLeft {
+    position: relative;
+    width: 130px;
+    height: 25px;
+    top: 5px;
+    left: 15px;
+    color: black;
 }
 
 #syncLeft {
+    position: relative;
     height: 25px;
+    top: 5px;
+    left: 20px;
 }
 
 #syncRight {
+    position: relative;
     height: 25px;
+    top: 5px;
+    left: 20px;
 }
 
-#topologyRight {
+#viewRight {
     position: absolute;
-    width: 175px;
-    height: 150px;
-    top: 400px;
-    right: 30px
+    height: 100px;
+    width:50%;
+    top: 0px;
+    right: 0px;
+}
+
+#topologyMenuRightLabel {
+    position: relative;
+    top: 5px;
+    left: 15px;
+}
+
+#topologyMenuRight {
+    position: relative;
+    width: 130px;
+    height: 25px;
+    top: 5px;
+    left: 15px;
+    color: black;
+}
+
+#subjectMenuRightLabel {
+    position: relative;
+    top: 5px;
+    left: 5px;
+}
+
+#subjectMenuRight {
+    position: relative;
+    width: 130px;
+    height: 25px;
+    top: 5px;
+    left: 5px;
+    color: black;
 }
 
 #nodeInfoPanel {
