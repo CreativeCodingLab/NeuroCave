@@ -39,6 +39,7 @@ function Model() {
     var metricValues = [];
 
     var clusters = {};                  // PLACE clusters, assumed level 4: clusters from 1 to 16
+    var maxClusterHierarchicalLevel = 4;// max clustering hierarchical level
     var clusteringLevel = 4;            // default PLACE/PACE level
     var clusteringGroupLevel = 4;       // clustering group level used for color coding, 1 to 4
     var clusteringRadius = 5;           // sphere radius of PLACE/PACE visualization
@@ -460,12 +461,16 @@ function Model() {
     // clusters starts by 1 not 0.
     this.computeNodesLocationForClusters = function(topology) {
         var platonic = new Platonics();
-        var isHierarchical = topology == "PLACE" || topology == "PACE";
+        var isHierarchical = topology === "PLACE" || topology === "PACE";
         var level = isHierarchical ? clusteringLevel-1 : 0;
         var cluster = clusters[topology][level];
         var totalNNodes = cluster.length;
         var maxNumberOfClusters = d3.max(cluster) - d3.min(cluster) + 1;
         var nClusters = ((isHierarchical)) ? Math.pow(2, clusteringLevel) : maxNumberOfClusters;
+        // if hierarchical but the nClusters > maxNumberOfClusters
+        // this only happens if the provided data have < 4 levels
+        // of clusters. The clusteringLevel should discover that
+        nClusters = Math.min(nClusters, maxNumberOfClusters);
 
         if (maxNumberOfClusters < 4)
             platonic.createTetrahedron();
@@ -476,7 +481,7 @@ function Model() {
         else if (maxNumberOfClusters < 20)
             platonic.createIcosahedron();
         else {
-            console.log("Can not visualize clustering data.");
+            console.error("Can not visualize clustering data.");
             return;
         }
         // use one of the faces to compute primary variables
@@ -521,11 +526,22 @@ function Model() {
             clusteringData.push(data[j][loc]);
         }
         var temp = [];
-        if (name == "PLACE" || name == "PACE") { // PLACE
-            temp = new Array(4); // 4 levels
-            temp[3] = clusteringData;
-            for (var i = 2; i >= 0; i--) {
-                temp[i] = math.ceil(math.divide(temp[i + 1], 2.0));
+        if (name === "PLACE" || name === "PACE") { // PLACE
+            var maxNumberOfClusters = d3.max(clusteringData) - d3.min(clusteringData) + 1;
+            console.log("Found " + maxNumberOfClusters + " clusters for " + name + " data.");
+            maxClusterHierarchicalLevel = Math.ceil(Math.log2(maxNumberOfClusters));
+            clusteringLevel = maxClusterHierarchicalLevel;
+            console.log("Max clustering level to be used = " + maxClusterHierarchicalLevel);
+            if (maxClusterHierarchicalLevel > 4) {
+                console.error("Hierarchical data requires " + maxClusterHierarchicalLevel + " levels."+
+                                "\n That is more than what can be visualized!!");
+            }
+            temp = new Array(maxClusterHierarchicalLevel); // final levels
+            temp[maxClusterHierarchicalLevel-1] = clusteringData;
+            if (maxClusterHierarchicalLevel > 1) {
+                for (var i = maxClusterHierarchicalLevel - 1; i >= 0; i--) {
+                    temp[i] = math.ceil(math.divide(temp[i + 1], 2.0));
+                }
             }
         } else {
             temp[0] = clusteringData;
@@ -534,10 +550,17 @@ function Model() {
     };
 
     this.setClusteringLevel = function(level) {
-        if (level == clusteringLevel){
+        if (level == clusteringLevel) {
             return;
         }
-        clusteringLevel = level;
+        // clustering level assumes hierarchical data
+        if (level > maxClusterHierarchicalLevel) {
+            console.log("Clustering level set to more than the max possible for the current data.");
+            console.log("Cap value to " + maxClusterHierarchicalLevel);
+            clusteringLevel = maxClusterHierarchicalLevel;
+        } else {
+            clusteringLevel = level;
+        }
         this.computeNodesLocationForClusters(activeTopology);
     };
 
@@ -551,6 +574,10 @@ function Model() {
 
     this.getClusteringLevel = function() {
         return clusteringLevel;
+    };
+
+    this.getMaxClusterHierarchicalLevel = function() {
+        return maxClusterHierarchicalLevel;
     };
 
     this.hasClusteringData = function () {
