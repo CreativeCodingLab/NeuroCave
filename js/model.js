@@ -538,10 +538,8 @@ function Model() {
             }
             temp = new Array(maxClusterHierarchicalLevel); // final levels
             temp[maxClusterHierarchicalLevel-1] = clusteringData;
-            if (maxClusterHierarchicalLevel > 1) {
-                for (var i = maxClusterHierarchicalLevel - 1; i >= 0; i--) {
-                    temp[i] = math.ceil(math.divide(temp[i + 1], 2.0));
-                }
+            for (var i = maxClusterHierarchicalLevel - 2; i >= 0; i--) {
+                temp[i] = math.ceil(math.divide(temp[i + 1], 2.0));
             }
         } else {
             temp[0] = clusteringData;
