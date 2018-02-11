@@ -8,13 +8,13 @@
 <script type="text/javascript" src="js/external-libraries/papaparse.min.js"></script>
 <script>
 
-    loadVisualization = function (folderName) {
-        queue()
-                .defer(setFolder,folderName)
-                .awaitAll( function() {
-                    console.log(folder);
-                });
-    }
+//    loadVisualization = function (folderName) {
+//        queue()
+//                .defer(setFolder,folderName)
+//                .awaitAll( function() {
+//                    console.log(folder);
+//                });
+//    }
 
 </script>
 
@@ -49,6 +49,8 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
     <p></p>
     <a onclick="location.href=this.href+'?dataset=Demo7&load=0&lut=baltimore';return false;" href="visualization.html">Demo 7: F1000, female vs male, age: 20-30</a>
     <p></p>
+    <a onclick="location.href=this.href+'?dataset=theta&load=0&lut=baltimore';return false;" href="visualization.html">theta</a>
+    <p></p>
 </ul>
 
 <h2>Demo For Samsung Gear (under test)</h2>
@@ -77,18 +79,16 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
     <p></p>
     <input id = 'folderSelect' type = 'file' onchange="getfolder(event)" webkitdirectory directory multiple/>Choose data folder</input>
     <p></p>
-    <select id = "atlas" class = "jumpmenu"></select>
+    <select id = "Atlas" class = "jumpmenu"></select>
     <label>Choose Atlas</label>
     <p></p>
-    <button type = 'button' id = 'submit'
-            onclick="location.href='visualization.html'+'?dataset='+folder+'&load=0&lut='+option">Submit</button>
+    <button type = 'button' id = 'submit' onclick="location.href='visualization.html?dataset='+folder+'&load=0&lut='+atlas">Submit</button>
     <br>
 </div>
 
-<!--<div id='fileNames'></div>-->
-
 <script type="text/Javascript">
     var list = null;
+    var atlas = null;
     // it is assumed all data folder should have an index.txt file describing its contents
     var lookForAtlases = function (callback) {
         Papa.parse("data/index.txt", {
@@ -105,10 +105,16 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
         });
     };
 
+    // initialize variables:
+    // folder : is the folder containing data
+    // menu : will contain the different atlases
     init = function () {
-        var option = list[0];
-        var menu = document.getElementById("atlas");
+        console.log("Init...");
+        atlas = list[0];
+        console.log("Current Atlas = " + atlas);
+        var menu = document.getElementById("Atlas");
         var folder = '';
+        console.log("Current folder = " + folder);
         for(var i = 0; i < 3; i++) {
             var el = document.createElement("option");
             el.textContent = list[i];
@@ -116,19 +122,21 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
             el.selected = (i==0);
             menu.appendChild(el);
         }
-        menu.onchange = function () { option = list[this.selectedIndex]; };
+        menu.onchange = function () {
+            atlas = list[this.selectedIndex];
+            console.log("Current Atlas = " + atlas);
+        };
     };
 
     // get user selected folder info
     getfolder = function (e) {
-        console.log("Select folder");
         var files = e.target.files;
         if (files) {
             if (files.length == 0) {
                 alert("Empty directory!!!")
             } else {
                 folder = files[0].webkitRelativePath.split('/')[0];
-                console.log(folder)
+                console.log("Selected folder = " + folder)
             }
         }
     };
