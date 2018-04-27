@@ -19,6 +19,11 @@ and shortest path trees can be computed on the fly. Our tool support exploration
 compatible with the Oculus Rift headset and the Oculus Touch input accessory for nodal
 selection. 
 
+# Network Neuroscience article
+
+An article introducing NeuroCave has been acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044).
+
+
 # Video documentation 
 
 A short video presentation introducing the main features of NeuroCave can be found 
@@ -37,7 +42,7 @@ containing the data. The folder should contain 3 types of files:
 - Configuration file: a "index.txt" file that lists the available network and topology pair files and associates them 
   to the subject ID.
 
-Please contact Johnson Keiriz at jgadel2@uic.edu (or create an issue on this GitHub repo) if you have any questions. 
+Please contact Johnson Keiriz at jgadel2@uic.edu or Angus Forbes at angus@ucsc.edu (or create an issue on this GitHub repo) if you have any questions. 
 
 # Creating an Atlas
 
@@ -104,7 +109,7 @@ Each edge can be colored using a gradient, whose two colors are chosen according
 
 # Testing
 
-NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing. A paper introducing 
+NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing. An article introducing 
 NeuroCave is acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044).
 
 # Acknowledgment
