@@ -19,17 +19,12 @@ and shortest path trees can be computed on the fly. Our tool support exploration
 compatible with the Oculus Rift headset and the Oculus Touch input accessory for nodal
 selection. 
 
-# Network Neuroscience article
+# Network Neuroscience article and video documentation
 
-An article introducing NeuroCave has been acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044).
-
-
-# Video documentation 
-
-A short video presentation introducing the main features of NeuroCave can be found 
+An article introducing NeuroCave— "NeuroCave: A Web-based Immersive Visualization Platform for Exploring Connectome Datasets"— has been acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044). A short video presentation introducing the main features of NeuroCave can be found 
 [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
-# How to use it
+# How to use NeuroCave
 
 The NeuroCave software is accessible [online](https://creativecodinglab.github.io/NeuroCave/). There is no need of 
 installation since it is a web-based application. Users can upload and visualize their own data by pointed to a folder 
@@ -44,7 +39,7 @@ containing the data. The folder should contain 3 types of files:
 
 Please contact Johnson Keiriz at jgadel2@uic.edu or Angus Forbes at angus@ucsc.edu (or create an issue on this GitHub repo) if you have any questions. 
 
-# Creating an Atlas
+# Creating an Atlas for NeuroCave
 
 The Atlas is a look-up-table csv file containing labels information about a specific segmentation regime. There exist
 many famous Atlases for human brains such the Desikan-Killiany which is the default Atlas used in Freesurfer. Generally, 
@@ -112,12 +107,13 @@ Each edge can be colored using a gradient, whose two colors are chosen according
 NeuroCave is available [here](https://creativecodinglab.github.io/NeuroCave/) for online testing. An article introducing 
 NeuroCave is acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044).
 
-# Acknowledgment
+# NeuroCave Project members
 
-NeuroCave Project members: 
+- Johnson Keiriz, Olu Ajilore, and Alex D. Leow (University of Illinois at Chicago); 
 
-Johnson Keiriz, Olu Ajilore, and Alex D. Leow (University of Illinois at Chicago); Liang 
-Zhan (University of Wisconsin-Stout); Angus Forbes (University of California, Santa Cruz). 
+- Liang Zhan (University of Wisconsin-Stout); 
+
+- Angus Forbes (University of California, Santa Cruz). 
 
 
 Software development was led by Johnson Keiriz, extending the prior work of Conte et al.'s BRAINtrinsic tool. Johnson Keirez is a member 
