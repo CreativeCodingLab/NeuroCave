@@ -21,7 +21,7 @@ selection.
 
 # Network Neuroscience article and video documentation
 
-An article introducing NeuroCave— "NeuroCave: A Web-based Immersive Visualization Platform for Exploring Connectome Datasets"— has been acccepted to Network Neuroscience, available [here](https://doi.org/10.1162/NETN_a_00044). A short video presentation introducing the main features of NeuroCave can be found 
+An article introducing NeuroCave— [NeuroCave: A Web-based Immersive Visualization Platform for Exploring Connectome Datasets](https://doi.org/10.1162/NETN_a_00044)— has been acccepted to Network Neuroscience. A short video presentation introducing the main features of NeuroCave can be found 
 [here](https://dl.dropboxusercontent.com/u/571874/NeuroCave_VIS_2017.mp4).
 
 # How to use NeuroCave
