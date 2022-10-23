@@ -2,6 +2,7 @@
  * Created by Johnson on 2/15/2017.
  */
 
+
 var previewAreaLeft, previewAreaRight;
 
 var glyphNodeDictionary ={};        /// Object that stores uuid of left and right glyphs
@@ -24,6 +25,13 @@ var click = false;
 var hoverTimeout = false;
 var oldNodeIndex = -1;
 
+import {isLoaded, dataFiles,mobile} from "./globals";
+import {addEdgeBundlingCheck,addModalityButton,removeGeometryButtons,addOpacitySlider,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,createLegend,hideVRMaximizeButtons} from './GUI.js';
+import {queue} from "./external-libraries/queue";
+import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} from "./utils/parsingData";
+import {modelLeft,modelRight} from './model';
+import {PreviewArea} from "./previewArea";
+
 // callback on mouse moving, expected action: node beneath pointer are drawn bigger
 function onDocumentMouseMove(model, event) {
     // the following line would stop any other event handler from firing
@@ -35,7 +43,7 @@ function onDocumentMouseMove(model, event) {
 
 }
 
-updateNodeMoveOver = function (model, intersectedObject) {
+var updateNodeMoveOver = function (model, intersectedObject) {
     var nodeIdx, region, nodeRegion;
     if ( intersectedObject ) {
         nodeIdx = glyphNodeDictionary[intersectedObject.object.uuid];
@@ -122,7 +130,7 @@ function onLeftClick(model, event) {
     updateNodeSelection(model, objectIntersected, isLeft);
 }
 
-updateNodeSelection = function (model, objectIntersected, isLeft) {
+var updateNodeSelection = function (model, objectIntersected, isLeft) {
     var nodeIndex;
     if ( objectIntersected ) {
         nodeIndex = glyphNodeDictionary[objectIntersected.object.uuid];
@@ -222,7 +230,7 @@ function onKeyPress(event) {
 }
 
 // update VR status for desktop
-updateVRStatus = function (status) {
+var updateVRStatus = function (status) {
     switch (status)
     {
         case 'enable':
@@ -263,10 +271,10 @@ updateVRStatus = function (status) {
 };
 
 // init the GUI controls
-initControls = function () {
+var initControls = function () {
     // add controls
     addOpacitySlider();
-    addEdgeBundlingCheck();
+    //addEdgeBundlingCheck();
     addModalityButton();
     addThresholdSlider();
     addColorGroupList();
@@ -286,7 +294,7 @@ initControls = function () {
     modelLeft.setAllRegionsActivated();
     modelRight.setAllRegionsActivated();
 
-    createLegend(modelLeft);
+    //createLegend(modelLeft); //temporarily disabled to get code to zork
 
     if (mobile) {
         console.log("Mobile VR requested");
@@ -296,7 +304,7 @@ initControls = function () {
 };
 
 // init the canvas where we render the brain
-initCanvas = function () {
+var initCanvas = function () {
 
     glyphNodeDictionary = {};
     visibleNodes = new Array(modelLeft.getConnectionMatrixDimension()).fill(true);
@@ -336,13 +344,13 @@ initCanvas = function () {
 };
 
 // set the threshold for both models
-setThreshold = function(value) {
+var setThreshold = function(value) {
     modelLeft.setThreshold(value);
     modelRight.setThreshold(value);
 };
 
 // enable edge bundling
-enableEdgeBundling = function (enable) {
+var enableEdgeBundling = function (enable) {
     if (enableEB == enable)
         return;
 
@@ -359,30 +367,30 @@ enableEdgeBundling = function (enable) {
 };
 
 // updating scenes: redrawing glyphs and displayed edges
-updateScenes = function () {
+var updateScenes = function () {
     console.log("Scene update");
     previewAreaLeft.updateScene();
     previewAreaRight.updateScene();
     createLegend(modelLeft);
 };
 
-updateNodesVisiblity = function () {
+var updateNodesVisiblity = function () {
     previewAreaLeft.updateNodesVisibility();
     previewAreaRight.updateNodesVisibility();
     createLegend(modelLeft);
 };
 
-redrawEdges = function () {
+var redrawEdges = function () {
     previewAreaLeft.redrawEdges();
     previewAreaRight.redrawEdges();
 };
 
-updateOpacity = function (opacity) {
+var updateOpacity = function (opacity) {
     previewAreaLeft.updateEdgeOpacity(opacity);
     previewAreaRight.updateEdgeOpacity(opacity);
 };
 
-removeEdgesGivenNodeFromScenes = function(nodeIndex) {
+var removeEdgesGivenNodeFromScenes = function(nodeIndex) {
     previewAreaLeft.removeEdgesGivenNode(nodeIndex);
     previewAreaRight.removeEdgesGivenNode(nodeIndex);
 
@@ -393,7 +401,7 @@ removeEdgesGivenNodeFromScenes = function(nodeIndex) {
 // get intersected object beneath the mouse pointer
 // detects which scene: left or right
 // return undefined if no object was found
-getIntersectedObject = function(event) {
+var getIntersectedObject = function(event) {
 
     var isLeft = event.clientX < window.innerWidth/2;
 
@@ -406,7 +414,7 @@ getIntersectedObject = function(event) {
     return isLeft ? previewAreaLeft.getIntersectedObject(vector) : previewAreaRight.getIntersectedObject(vector);
 };
 
-changeColorGroup = function (name) {
+var changeColorGroup = function (name) {
     modelLeft.setActiveGroup(name);
     modelRight.setActiveGroup(name);
 
@@ -422,7 +430,7 @@ changeColorGroup = function (name) {
     createLegend(modelLeft);
 };
 
-redrawScene = function (side) {
+var redrawScene = function (side) {
     updateNeeded = true;
     switch(side) {
         case 'Left':
@@ -437,14 +445,14 @@ redrawScene = function (side) {
 };
 
 // change the active geometry
-changeActiveGeometry = function (model, side, type) {
+var changeActiveGeometry = function (model, side, type) {
     console.log("Change Active Geometry to: ", type);
     model.setActiveTopology(type);
     redrawScene(side);
 };
 
 // draw shortest path for the left and right scenes = prepare the edges and plot them
-updateShortestPathEdges = function (side) {
+var updateShortestPathEdges = function (side) {
     if (!spt)
         return;
     switch (side) {
@@ -462,7 +470,7 @@ updateShortestPathEdges = function (side) {
 };
 
 // change the subject in a specific scene
-changeSceneToSubject = function (subjectId, model, previewArea, side) {
+var changeSceneToSubject = function (subjectId, model, previewArea, side) {
     var fileNames = dataFiles[subjectId];
     removeGeometryButtons(side);
     var info = model.getCurrentRegionsInformation();
@@ -492,3 +500,5 @@ changeSceneToSubject = function (subjectId, model, previewArea, side) {
             ;
         });
 };
+
+export {changeSceneToSubject, initControls, initCanvas, previewAreaLeft, previewAreaRight};

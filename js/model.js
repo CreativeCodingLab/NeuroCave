@@ -44,7 +44,8 @@ function Model() {
     var clusteringGroupLevel = 4;       // clustering group level used for color coding, 1 to 4
     var clusteringRadius = 5;           // sphere radius of PLACE/PACE visualization
 
-    var fbundling = d3.GPUForceEdgeBundling().cycles(6).iterations(60).enable_keep_programs(true);
+    // disable edge bundling for now to get rest of code working
+    //var fbundling = d3.GPUForceEdgeBundling().cycles(6).iterations(60).enable_keep_programs(true);
 
     this.clearModel = function () {
         groups = [];
@@ -661,12 +662,13 @@ function Model() {
                 }
             }
         }
-        fbundling.edges(edges_);
-        var results = fbundling();
+        // disable edge bundling for now, just to get the rest of the code upgraded and working
+        //fbundling.edges(edges_);
+        //var results = fbundling();
 
-        for (i = 0; i <edges_.length; i++) {
-            edges[edgeIndices[i]] = results[i];
-        }
+        //for (i = 0; i <edges_.length; i++) {
+        //    edges[edgeIndices[i]] = results[i];
+        //}
     };
 
     this.getActiveEdges = function() {

@@ -2,6 +2,8 @@
  * Created by giorgioconte on 31/01/15.
  */
 // this file contains functions that create\delete GUI controlling elements
+//import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
+//import {dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
 
 var SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
@@ -34,7 +36,7 @@ initSubjectMenu = function (side) {
 
 /* Node stuff at nodeInfoPanel */
 // adds a slider to control glyphs size
-addDimensionFactorSlider = function () {
+var addDimensionFactorSlider = function () {
     var panel = d3.select("#nodeInfoPanel");
 
     panel.append("input")
@@ -57,7 +59,7 @@ addDimensionFactorSlider = function () {
 };
 
 // adds a button to toggle skybox visibility
-addSkyboxButton = function () {
+var addSkyboxButton = function () {
 
     var menu = d3.select("#nodeInfoPanel");
     menu.append("button")
@@ -77,7 +79,7 @@ addSkyboxButton = function () {
 };
 
 // adds a text label showing: label - region name - nodal strength
-setNodeInfoPanel = function (region, index) {
+var setNodeInfoPanel = function (region, index) {
 
     var panel = d3.select('#nodeInfoPanel');
 
@@ -94,7 +96,7 @@ setNodeInfoPanel = function (region, index) {
 
 /* Edges stuff at edgeInfoPanel */
 // add a slider to threshold edges at specific values
-addThresholdSlider = function () {
+var addThresholdSlider = function () {
 
     var max = Math.max(modelLeft.getMaximumWeight(), modelRight.getMaximumWeight());
     var min = Math.min(modelLeft.getMinimumWeight(), modelRight.getMinimumWeight());
@@ -124,7 +126,7 @@ addThresholdSlider = function () {
 };
 
 // add opacity slider 0 to 1
-addOpacitySlider = function () {
+var addOpacitySlider = function () {
     var menu = d3.select("#edgeInfoPanel");
     menu.append("label")
         .attr("for", "opacitySlider")
@@ -143,7 +145,7 @@ addOpacitySlider = function () {
         });
 };
 
-addEdgeBundlingCheck = function () {
+var addEdgeBundlingCheck = function () {
     var menu = d3.select("#edgeInfoPanel");
     menu.append("br");
     menu.append("label")
@@ -161,7 +163,7 @@ addEdgeBundlingCheck = function () {
 };
 
 // remove threshold slider and its labels
-removeThresholdSlider = function () {
+var removeThresholdSlider = function () {
     var elem = document.getElementById('thresholdSlider');
     if(elem) {
         elem.parentNode.removeChild(elem);
@@ -173,7 +175,7 @@ removeThresholdSlider = function () {
 };
 
 // add slider to filter the top N edges in terms of value
-addTopNSlider = function () {
+var addTopNSlider = function () {
     var menu = d3.select("#edgeInfoPanel");
 
     menu.append("input")
@@ -196,7 +198,7 @@ addTopNSlider = function () {
 };
 
 // remove top N edges slider and its labels
-removeTopNSlider= function () {
+var removeTopNSlider= function () {
     var elem = document.getElementById('topNThresholdSlider');
     if(elem) {
         elem.parentNode.removeChild(elem);
@@ -208,14 +210,14 @@ removeTopNSlider= function () {
 };
 
 // remove all DOM elements from the edgeInfoPanel
-removeElementsFromEdgePanel = function () {
+var removeElementsFromEdgePanel = function () {
     removeThresholdSlider();
     removeTopNSlider();
 };
 
 // add "Change Modality" button to toggle between:
 // edge threshold and top N edges
-addModalityButton = function () {
+var addModalityButton = function () {
     var menu = d3.select("#edgeInfoPanel");
 
     menu.append("button")
@@ -235,7 +237,7 @@ addModalityButton = function () {
 };
 
 // change modality callback
-changeModality = function (modality) {
+var changeModality = function (modality) {
     thresholdModality = modality;
 
     if(modality){
@@ -253,7 +255,7 @@ changeModality = function (modality) {
 /* Edges legend */
 // create legend panel containing different groups
 // the state of each group can be either: active, transparent or inactive
-createLegend = function(model) {
+var createLegend = function(model) {
     var legendMenu = document.getElementById("legend");
 
     while(legendMenu.hasChildNodes()){
@@ -396,7 +398,7 @@ createLegend = function(model) {
 
 /* Color coding area at upload */
 // add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
-addColorGroupList = function() {
+var addColorGroupList = function() {
 
     var select = document.getElementById("colorCodingMenu");
     var names = atlas.getGroupsNames();
@@ -445,7 +447,7 @@ addColorGroupList = function() {
     setColorClusteringSliderVisibility("hidden");
 };
 
-addColorClusteringSlider = function () {
+var addColorClusteringSlider = function () {
     var menu = d3.select("#colorCoding");
     menu.append("br");
     menu.append("label")
@@ -467,7 +469,7 @@ addColorClusteringSlider = function () {
         });
 };
 
-setColorClusteringSliderVisibility = function (value) {
+var setColorClusteringSliderVisibility = function (value) {
     var elem = document.getElementById('colorClusteringSlider');
     if (elem)
         elem.style.visibility = value;
@@ -479,7 +481,7 @@ setColorClusteringSliderVisibility = function (value) {
 /* Topology options at viewLeft and viewRight */
 // add "Topological Spaces" menu for scene containing:
 // Isomap, MDS, tSNE and anatomy spaces
-addTopologyMenu = function (model, side) {
+var addTopologyMenu = function (model, side) {
 
     var topologies = model.getTopologies();
     var hierarchicalClusteringExist = false;
@@ -518,12 +520,12 @@ addTopologyMenu = function (model, side) {
 };
 
 // remove geometry buttons
-removeGeometryButtons = function (side) {
+var removeGeometryButtons = function (side) {
     document.getElementById("topologyMenu" + side).innerHTML = "";
 };
 
 // add clustering level slider
-addClusteringSlider = function (model, side) {
+var addClusteringSlider = function (model, side) {
     var menu = d3.select("#topology" + side);
 
     menu.append("br");
@@ -546,7 +548,7 @@ addClusteringSlider = function (model, side) {
 };
 
 // control clustering level slider visibility
-setClusteringSliderVisibility = function (side, value) {
+var setClusteringSliderVisibility = function (side, value) {
     var elem = document.getElementById('clusteringSlider' + side);
     if (elem)
         elem.style.visibility = value;
@@ -558,7 +560,7 @@ setClusteringSliderVisibility = function (side, value) {
 
 /*Shortest path stuff at shortestPathLeft and shortestPathRight */
 // add filter to shortest path by percentage
-addDistanceSlider = function () {
+var addDistanceSlider = function () {
     var menu = d3.select("#shortestPath");
     menu.append("br");
 
@@ -587,14 +589,14 @@ addDistanceSlider = function () {
 };
 
 // remove shortest path percentage filter
-enableDistanceSlider = function (status) {
+var enableDistanceSlider = function (status) {
     var elem = document.getElementById('distanceThresholdSlider');
     if(elem)
         elem.disabled = !status;
 };
 
 // add a slider that filters shortest paths by the number of hops
-addShortestPathHopsSlider = function () {
+var addShortestPathHopsSlider = function () {
     var menu =  d3.select('#shortestPath');
     menu.append("br");
 
@@ -619,13 +621,13 @@ addShortestPathHopsSlider = function () {
 };
 
 // remove the shortest path number of hops filter
-enableShortestPathHopsSlider = function (status) {
+var enableShortestPathHopsSlider = function (status) {
     var elem = document.getElementById('numberOfHopsSlider');
     if(elem)
         elem.disabled = !status;
 };
 
-addShortestPathFilterButton = function () {
+var addShortestPathFilterButton = function () {
     var menu = d3.select("#shortestPath");
         menu.append('button')
             .attr("id", "sptFilterBtn")
@@ -651,7 +653,7 @@ addShortestPathFilterButton = function () {
             });
 };
 
-enableShortestPathFilterButton = function (status) {
+var enableShortestPathFilterButton = function (status) {
     var elem = document.getElementById('sptFilterBtn');
     if(elem)
         elem.disabled = !status;
@@ -661,7 +663,7 @@ enableShortestPathFilterButton = function (status) {
     enableShortestPathHopsSlider(status && shortestPathVisMethod == NUMBER_HOPS);
 };
 
-enableThresholdControls = function (status) {
+var enableThresholdControls = function (status) {
     var elem = document.getElementById('changeModalityBtn');
     if(elem)
         elem.disabled = !status;
@@ -673,14 +675,14 @@ enableThresholdControls = function (status) {
         elem.disabled = !status;
 };
 
-hideVRMaximizeButtons = function () {
+var hideVRMaximizeButtons = function () {
     document.getElementById("magicWindowLeft").style.visibility = "hidden";
     document.getElementById("magicWindowRight").style.visibility = "hidden";
 };
 
 
 // add labels check boxes, appear/disappear on right click
-addFslRadioButton = function() {
+var addFslRadioButton = function() {
     var rightMenu = d3.select("#rightFslLabels");
     var leftMenu = d3.select("#leftFslLabels");
 
@@ -718,7 +720,7 @@ addFslRadioButton = function() {
 };
 
 // add search nodes by index panel, appear/disappear on right click
-addSearchPanel = function(){
+var addSearchPanel = function(){
     var menu = d3.select("#search");
 
     menu.append("text")
@@ -740,7 +742,7 @@ addSearchPanel = function(){
 };
 
 // search by index callback
-searchElement = function(index) {
+var searchElement = function(index) {
     index = parseInt(index);
     console.log(index);
     if(typeof(index) != 'number' || isNaN(index)){
@@ -755,7 +757,7 @@ searchElement = function(index) {
 };
 
 // toggle labels check boxes on right click
-toggleMenus = function (e) {
+var toggleMenus = function (e) {
     $('#shortestPath').toggle();
     $('#viewLeft').toggle();
     $('#viewRight').toggle();

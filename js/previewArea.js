@@ -10,6 +10,12 @@
  * @constructor
  */
 
+import * as THREE from 'three'
+//import {isLoaded, dataFiles,mobile} from "./globals";
+import {mobile} from "./globals";
+
+
+
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
     var model = model_;
@@ -974,3 +980,5 @@ function PreviewArea(canvas_, model_, name_) {
     this.initVR();
     this.drawRegions();
 }
+
+export {PreviewArea}
