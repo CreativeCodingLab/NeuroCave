@@ -88,7 +88,7 @@ var loadSubjectNetwork = function (fileNames, model, callback) {
 };
 
 var loadSubjectTopology = function (fileNames, model, callback) {
-    Papa.parse("data/"+folder + "/" + fileNames.topology,{
+    Papa.parse("data/" + folder + "/" + fileNames.topology, {
         download: true,
         dynamicTyping: true,
         delimiter: ',',
