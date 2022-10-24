@@ -12,11 +12,13 @@
 
 import * as THREE from 'three'
 //import {isLoaded, dataFiles  , mobile} from "./globals";
-import {mobile} from "./globals";
+import {mobile, atlas} from './globals';
 import {VRControls} from './external-libraries/vr/VRControls'
 import {VREffect} from './external-libraries/vr/VREffect'
 import {getNormalGeometry,getNormalMaterial} from './graphicsUtils.js'
-import {glyphNodeDictionary} from './drawing'
+import {getRoot, setRoot, getSpt, glyphNodeDictionary, getNodesSelected, clrNodesSelected, setNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB } from './drawing'
+import {getShortestPathVisMethod,SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
+import {scaleColorGroup} from './utils/scale'
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -490,7 +492,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
-        if (spt)
+        if (getSpt)
             this.updateShortestPathEdges();
         this.drawConnections();
     };
@@ -536,7 +538,7 @@ function PreviewArea(canvas_, model_, name_) {
         var dataset = model.getDataset();
         for(var i=0; i < dataset.length; i++){
             var opacity = 1.0;
-            if(root && root == i){ // root node
+            if(getRoot && getRoot == i){ // root node
                 opacity = 1.0;
             }
 
@@ -564,8 +566,8 @@ function PreviewArea(canvas_, model_, name_) {
     // don't draw edges belonging to inactive nodes
     this.drawConnections = function () {
         var nodeIdx;
-        for(var i= 0; i < nodesSelected.length; i++){
-            nodeIdx = nodesSelected[i];
+        for(var i= 0; i < getNodesSelected().length; i++){
+            nodeIdx = getNodesSelected()[i];
             // draw only edges belonging to active nodes
             if(model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
                 // two ways to draw edges
@@ -682,11 +684,11 @@ function PreviewArea(canvas_, model_, name_) {
         var row = model.getTopConnectionsByNode(nodeIndex, n);
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
-        if (enableEB) {
+        if (getEnableEB()) {
             model.performEBOnNode(nodeIndex);
         }
         for (var i =0; i < row.length; ++i) {
-            if ((nodeIndex != row[i]) && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && visibleNodes[i]) {
+            if ((nodeIndex != row[i]) && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i)) {
                 displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[nodeIndex][row[i]]], nodeIndex, [nodeIndex, row[i]]);
             }
         }
@@ -700,12 +702,12 @@ function PreviewArea(canvas_, model_, name_) {
         var row = model.getConnectionMatrixRow(indexNode);
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
-        if (enableEB) {
+        if (getEnableEB) {
             model.performEBOnNode(indexNode);
         }
 
         for(var i=0; i < row.length ; i++){
-            if((i != indexNode) && Math.abs(row[i]) > model.getThreshold()  && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && visibleNodes[i]) {
+            if((i != indexNode) && Math.abs(row[i]) > model.getThreshold()  && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i)) {
                 displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[indexNode][i]], indexNode, [indexNode, i]);
             }
         }
@@ -787,8 +789,8 @@ function PreviewArea(canvas_, model_, name_) {
 
     // draw a selected node: increase it's size
     this.drawSelectedNode = function (nodeIndex) {
-        if(nodesSelected.indexOf(nodeIndex) == -1) {
-            nodesSelected[nodesSelected.length] = nodeIndex;
+        if(getNodesSelected().indexOf(nodeIndex) == -1) {
+            setNodesSelected(getNodesSelected().length, nodeIndex);
         }
         this.updateNodeGeometry(nodeIndex, 'selected');
     };
@@ -819,14 +821,14 @@ function PreviewArea(canvas_, model_, name_) {
     // compute shortest path info for a node
     this.computeShortestPathForNode = function(nodeIndex) {
         console.log("Compute Shortest Path for node " + nodeIndex);
-        root = nodeIndex;
+        setRoot(nodeIndex);
         model.computeShortestPathDistances(nodeIndex);
     };
 
     // draw shortest path from root node up to a number of hops
     this.updateShortestPathBasedOnHops = function () {
         var hops = model.getNumberOfHops();
-        var hierarchy = model.getHierarchy(root);
+        var hierarchy = model.getHierarchy(getRoot);
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
@@ -837,7 +839,7 @@ function PreviewArea(canvas_, model_, name_) {
             if( i < hops + 1 ) {
                 //Visible node branch
                 for(var j=0; j < hierarchy[i].length; j++){
-                    visibleNodes[hierarchy[i][j]] = true;
+                    setVisibleNodes(hierarchy[i][j], true);
                     var prev = previousMap[hierarchy[i][j]];
                     if(prev){
                         shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][hierarchy[i][j]]] , prev, [prev, i]);
@@ -845,29 +847,29 @@ function PreviewArea(canvas_, model_, name_) {
                 }
             } else {
                 for(var j=0; j < hierarchy[i].length; ++j){
-                    visibleNodes[hierarchy[i][j]] = false;
+                    setVisibleNodes(hierarchy[i][j], false);
                 }
             }
         }
     };
 
     this.updateShortestPathBasedOnDistance = function () {
-        nodesSelected = [];
+        clrNodesSelected();
         this.removeShortestPathEdgesFromScene();
 
         // show only nodes with shortest paths distance less than a threshold
         var threshold = model.getDistanceThreshold()/100.*model.getMaximumDistance();
         var distanceArray = model.getDistanceArray();
-        for(var i=0; i < visibleNodes.length; i++){
-            visibleNodes[i] = (distanceArray[i] <= threshold);
+        for(var i=0; i < getVisibleNodesLength(); i++){
+            setVisibleNodes(i, (distanceArray[i] <= threshold));
         }
 
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
 
-        for(i=0; i < visibleNodes.length; ++i) {
-            if(visibleNodes[i]){
+        for(i=0; i < getVisibleNodesLength(); ++i) {
+            if(getVisibleNodes(i)){
                 var prev = previousMap[i];
                 if(prev) {
                     shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][i]], prev, [prev, i]);
@@ -877,7 +879,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.updateShortestPathEdges = function () {
-        switch (shortestPathVisMethod) {
+        switch (getShortestPathVisMethod()) {
             case (SHORTEST_DISTANCE):
                     this.updateShortestPathBasedOnDistance();
                 break;
@@ -897,10 +899,10 @@ function PreviewArea(canvas_, model_, name_) {
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
 
-        visibleNodes.fill(true);
+        setVisibleNodes(getVisibleNodes().fill(true));
         while(previousMap[i]!= null){
             prev = previousMap[i];
-            visibleNodes[prev] = true;
+            setVisibleNodes(prev, true);
             shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][i]], prev, [prev, i] );
             i = prev;
         }

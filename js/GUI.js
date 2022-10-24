@@ -5,7 +5,7 @@
 //import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
 //import {dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
 
-var SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
+const SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
 

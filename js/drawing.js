@@ -17,7 +17,7 @@ var pointedObject;                  // node object under mouse
 var root;                           // the index of the root node = start point of shortest path computation
 
 var thresholdModality = true;
-var enableEB = true;
+var enableEB = false;
 
 var vr = false;                     // enable VR
 var spt = false;                    // enabling shortest path
@@ -33,6 +33,7 @@ import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} fr
 import {modelLeft,modelRight} from './model';
 import {PreviewArea} from "./previewArea";
 import {setUpdateNeeded} from './utils/Dijkstra';
+import {setNodeInfoPanel} from './GUI'
 
 // callback on mouse moving, expected action: node beneath pointer are drawn bigger
 function onDocumentMouseMove(model, event) {
@@ -503,4 +504,36 @@ var changeSceneToSubject = function (subjectId, model, previewArea, side) {
         });
 };
 
-export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, glyphNodeDictionary, previewAreaLeft, previewAreaRight};
+var setRoot = function (rootNode) {
+    root = rootNode;
+}
+
+var getRoot = function () {
+    return root;
+}
+
+var getSpt = function () {
+    return spt;
+}
+
+var getNodesSelected = function () {
+    return nodesSelected;
+}
+
+var clrNodesSelected = function () {
+    nodesSelected = [];
+}
+
+var setNodesSelected = function (arrIndex, newNodeVal) {
+    nodesSelected[arrIndex] = newNodeVal;
+}
+
+var getEnableEB = function () { return enableEB };
+
+var getVisibleNodesLength = function (arrIndex) { return visibleNodes.length }
+
+var getVisibleNodes = function (arrIndex) { return visibleNodes[arrIndex] }
+
+var setVisibleNodes = function (arrIndex, arrValue) { visibleNodes[arrIndex] = arrValue }
+
+export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, setRoot, getRoot, getSpt, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB };
