@@ -25,12 +25,14 @@ var click = false;
 var hoverTimeout = false;
 var oldNodeIndex = -1;
 
+import * as THREE from 'three'
 import {isLoaded, dataFiles,mobile} from "./globals";
 import {addEdgeBundlingCheck,addModalityButton,removeGeometryButtons,addOpacitySlider,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,createLegend,hideVRMaximizeButtons} from './GUI.js';
 import {queue} from "./external-libraries/queue";
 import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} from "./utils/parsingData";
 import {modelLeft,modelRight} from './model';
 import {PreviewArea} from "./previewArea";
+import {setUpdateNeeded} from './utils/Dijkstra';
 
 // callback on mouse moving, expected action: node beneath pointer are drawn bigger
 function onDocumentMouseMove(model, event) {
@@ -294,7 +296,7 @@ var initControls = function () {
     modelLeft.setAllRegionsActivated();
     modelRight.setAllRegionsActivated();
 
-    //createLegend(modelLeft); //temporarily disabled to get code to zork
+    //createLegend(modelLeft); //todo: temporarily disabled to get code to zork
 
     if (mobile) {
         console.log("Mobile VR requested");
@@ -431,7 +433,7 @@ var changeColorGroup = function (name) {
 };
 
 var redrawScene = function (side) {
-    updateNeeded = true;
+    setUpdateNeeded(true);
     switch(side) {
         case 'Left':
         case 'left':
@@ -501,4 +503,4 @@ var changeSceneToSubject = function (subjectId, model, previewArea, side) {
         });
 };
 
-export {changeSceneToSubject, initControls, initCanvas, previewAreaLeft, previewAreaRight};
+export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, glyphNodeDictionary, previewAreaLeft, previewAreaRight};

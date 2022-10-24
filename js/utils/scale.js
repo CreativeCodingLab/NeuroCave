@@ -2,6 +2,9 @@
  * Created by giorgioconte on 02/02/15.
  */
 
+import * as d3 from '../external-libraries/d3'
+
+
 // var connectionMatrixScale;
 var groupColor = d3.scale.category10();
 var metric = false;
@@ -25,7 +28,7 @@ var colorMap = {
     'Caudate':'#ad494a'
 };
 
-scaleColorGroup = function(model, group) {
+var scaleColorGroup = function(model, group) {
 
     var color;
     var filteredGroup;
@@ -59,7 +62,7 @@ scaleColorGroup = function(model, group) {
 };
 
 // set group color according to the activeGroup number of elements
-setColorGroupScale = function() {
+var setColorGroupScale = function() {
     groupColor = (modelLeft.getActiveGroup().length <= 10) ? d3.scale.category10() : d3.scale.category20();
 };
 
@@ -91,3 +94,5 @@ var round = function(number, digits){
     digits = Math.pow(10,digits);
     return Math.round(number*digits)/digits;
 };
+
+export {scaleColorGroup,setColorGroupScale}

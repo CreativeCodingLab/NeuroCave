@@ -3,6 +3,10 @@
 
 var updateNeeded = true;
 
+function setUpdateNeeded(value) {
+    updateNeeded = value;
+}
+
 function PriorityQueue () {
     this._nodes = [];
 

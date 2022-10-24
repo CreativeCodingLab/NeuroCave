@@ -11,14 +11,12 @@
  */
 
 import * as THREE from 'three'
-//import {isLoaded, dataFiles  , mobile} from "./globals";
+//import {isLoaded, dataFiles,mobile} from "./globals";
 import {mobile} from "./globals";
-import {VRControls} from './external-libraries/vr/VRControls'
-import {VREffect} from './external-libraries/vr/VREffect'
-import {getNormalGeometry,getNormalMaterial} from './graphicsUtils.js'
-import {glyphNodeDictionary} from './drawing'
 
-function PreviewArea(canvas_, model_, name_) {
+
+
+function PreviewAreaXR(canvas_, model_, name_) {
     var name = name_;
     var model = model_;
     var canvas = canvas_;
@@ -61,13 +59,10 @@ function PreviewArea(canvas_, model_, name_) {
 
     // init Oculus Rift
     this.initVR = function () {
-
-
-
-        vrControl = new VRControls(camera, function (message) {
+        vrControl = new THREE.VRControls(camera, function (message) {
             console.log("VRControls: ", message);
         });
-        effect = new VREffect(renderer, function (message)  {
+        effect = new THREE.VREffect(renderer, function (message) {
             console.log("VREffect ", message);
         });
         effect.setSize(window.innerWidth/2., window.innerHeight);
@@ -384,7 +379,7 @@ function PreviewArea(canvas_, model_, name_) {
         renderer = new THREE.WebGLRenderer({antialias: true});
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
-        if (!mobile && 0) {
+        if (!mobile) {
             controls = new THREE.TrackballControls(camera, renderer.domElement);
             controls.rotateSpeed = 0.5;
         }
@@ -456,30 +451,28 @@ function PreviewArea(canvas_, model_, name_) {
                 controllerRight.update();
                 scanOculusTouch();
             }
-            //vrControl.update(); //todo: temporarily disabled to get graphjics to work
+            vrControl.update();
         }
         else {
-            if (mobile && 0) {  // todo: get code to work and re-enable by deleting && 0
+            if (mobile) {
                 if (gearVRControllerExist) {
                     controllerRight.update();
                     scanGearVRController();
                 }
-                //vrControl.update();  // todo: get code working then enable
+                vrControl.update();
             }
-            //else
-                //controls.update();   // todo: get code working then enable
+            else
+                controls.update();
         }
 
         if (enableRender)
             effect.render(scene, camera);
 
-        //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
-        window.requestAnimationFrame(animatePV);
+        effect.requestAnimationFrame(animatePV);
     };
 
     this.requestAnimate = function () {
-        //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
-        window.requestAnimationFrame(animatePV);
+        effect.requestAnimationFrame(animatePV);
     };
 
     this.enableRender = function (state) { enableRender = state; };
@@ -988,4 +981,4 @@ function PreviewArea(canvas_, model_, name_) {
     this.drawRegions();
 }
 
-export {PreviewArea}
+//export {PreviewAreaXR}
