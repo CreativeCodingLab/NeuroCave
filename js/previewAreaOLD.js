@@ -16,7 +16,7 @@ import {mobile} from "./globals";
 
 
 
-function PreviewAreaXR(canvas_, model_, name_) {
+function PreviewAreaOLD(canvas_, model_, name_) {
     var name = name_;
     var model = model_;
     var canvas = canvas_;
@@ -981,4 +981,4 @@ function PreviewAreaXR(canvas_, model_, name_) {
     this.drawRegions();
 }
 
-//export {PreviewAreaXR}
+//export {PreviewAreaOLD}
