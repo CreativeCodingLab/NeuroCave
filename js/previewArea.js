@@ -765,20 +765,22 @@ function PreviewArea(canvas_, model_, name_) {
         //todo: a lot of this needs updated. (have done so in some previous works) but it would probably be just as easy
         //todo: to write a new bit for this part.
         var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
-        shader.uniforms['tCube'].value = cubemap; // apply textures to shader
+        //shader.uniforms['tCube'].value = cubemap; // apply textures to shader
 
         // create shader material
-        var skyBoxMaterial = new THREE.ShaderMaterial( {
-            fragmentShader: shader.fragmentShader,
-            vertexShader: shader.vertexShader,
-            uniforms: shader.uniforms,
+        var skyBoxMaterial = new THREE.MeshBasicMaterial( {
+//            fragmentShader: shader.fragmentShader,
+//            vertexShader: shader.vertexShader,
+//            uniforms: shader.uniforms,
             depthWrite: false,
+            color: 0xffffff,
+            envMap: cubemap,
             side: THREE.BackSide
         });
 
         // create skybox mesh
         var skybox = new THREE.Mesh(
-            new THREE.CubeGeometry(1500, 1500, 1500),
+            new THREE.BoxGeometry(1500, 1500, 1500),
             skyBoxMaterial
         );
 
