@@ -6,10 +6,7 @@
  * @author Mark Lundin 	/ http://mark-lundin.com
  */
 
-import * as THREE from 'three'
-
-//THREE.TrackballControls = function ( object, domElement ) {
-var TrackballControls = function ( object, domElement ) {
+THREE.TrackballControls = function ( object, domElement ) {
 
     var _this = this;
     var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
@@ -614,6 +611,5 @@ var TrackballControls = function ( object, domElement ) {
 
 };
 
-//THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
-//THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;
-export {TrackballControls}
+THREE.TrackballControls.prototype = Object.create( THREE.EventDispatcher.prototype );
+THREE.TrackballControls.prototype.constructor = THREE.TrackballControls;

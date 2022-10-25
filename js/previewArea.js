@@ -20,6 +20,7 @@ import {getRoot, setRoot, getSpt, glyphNodeDictionary, getNodesSelected, clrNode
 import {getShortestPathVisMethod,SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
 
+
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
     var model = model_;
@@ -386,8 +387,9 @@ function PreviewArea(canvas_, model_, name_) {
         renderer = new THREE.WebGLRenderer({antialias: true});
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
-        if (!mobile && 0) {
-            controls = new THREE.TrackballControls(camera, renderer.domElement);
+        if (!mobile) {
+            //controls = new THREE.TrackballControls(camera, renderer.domElement);
+            controls = new TrackballControls(camera, renderer.domElement);
             controls.rotateSpeed = 0.5;
         }
         addSkybox();
