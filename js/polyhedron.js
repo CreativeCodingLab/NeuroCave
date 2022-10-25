@@ -8,6 +8,9 @@
  * octahedron, dodecahedron or an icosahedron having 4, 6, 8, 12 and 20 faces respectively.
  * @constructor
  */
+
+import * as math from 'mathjs'
+
 function Platonics() {
 
     var vertices = [];
@@ -166,11 +169,22 @@ function Platonics() {
         centerAndNormalize();
     };
 
-    centerAndNormalize = function() {
-        var vCentroid = math.mean(vertices,0);
+    var centerAndNormalize = function() {
+        try {
+            var vCentroid = math.mean(vertices,0);
+        }
+        catch (e) {
+            console.log("vertices error");
+            console.log(vertices);
+            console.log("error: ",e);
+        }
+
+
         for (var i=0; i<vertices.length; i++) {
             vertices[i] = math.subtract(vertices[i], vCentroid);
             vertices[i] = math.divide(vertices[i], math.norm(vertices[i]));
         }
     }
 }
+
+export {Platonics}

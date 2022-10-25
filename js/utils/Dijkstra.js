@@ -121,3 +121,5 @@ function Graph() {
         return (hierarchy) ? hierarchy.length : 0;
     }
 }
+
+export {Graph,setUpdateNeeded}

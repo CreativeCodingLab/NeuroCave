@@ -4,6 +4,13 @@
 /*
 private variables
  */
+import * as d3 from './external-libraries/d3'
+import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "./globals";
+import {Graph} from './utils/Dijkstra'
+import * as THREE from 'three'
+import {Platonics} from "./polyhedron";
+import * as math from 'mathjs'
+import {sunflower} from "./graphicsUtils";
 
 function Model() {
     var groups = {};                    // contain nodes group affiliation according to Anatomy, place, rich club, id
@@ -67,7 +74,7 @@ function Model() {
 
 
     // data ready in model ready
-    this.ready = function() {
+    this.ready = function () {
         return (labelKeys && centroids && connectionMatrix);
     };
 
@@ -132,7 +139,7 @@ function Model() {
     // update the clustering group level, level can be 1 to 4
     this.updateClusteringGroupLevel = function (level) {
         if (this.hasClusteringData() && clusteringTopologies.indexOf(activeGroup) > -1 && clusters[activeGroup].length > 1) {
-            groups[activeGroup] = clusters[activeGroup][level-1];
+            groups[activeGroup] = clusters[activeGroup][level - 1];
             clusteringGroupLevel = level;
         }
     };
@@ -218,14 +225,14 @@ function Model() {
     };
 
     // set connection matrix
-    this.setConnectionMatrix = function(d) {
+    this.setConnectionMatrix = function (d) {
         connectionMatrix = d.data;
         this.computeDistanceMatrix();
         this.computeNodalStrength();
     };
 
     // prepare the dataset data
-    this.prepareDataset = function() {
+    this.prepareDataset = function () {
         dataset = [];
         for (var i = 0; i < labelKeys.length; i++) {
             var label = labelKeys[i];
@@ -241,7 +248,7 @@ function Model() {
     };
 
     // get the dataset according to activeTopology
-    this.getDataset = function() {
+    this.getDataset = function () {
         for (var i = 0; i < dataset.length; i++) {
             dataset[i].position = centroids[activeTopology][i];
             dataset[i].group = groups[activeGroup][i];
@@ -250,7 +257,7 @@ function Model() {
     };
 
     // get connection matrix according to activeMatrix
-    this.getConnectionMatrix = function() {
+    this.getConnectionMatrix = function () {
         return connectionMatrix;
     };
 
@@ -265,13 +272,13 @@ function Model() {
     };
 
     // return if a specific region is activated
-    this.isRegionActive = function(regionName) {
+    this.isRegionActive = function (regionName) {
         return regions[regionName].active;
     };
 
     // toggle a specific region in order: active, transparent, inactive
     // set activation to false if inactive
-    this.toggleRegion = function(regionName) {
+    this.toggleRegion = function (regionName) {
         switch (regions[regionName].state) {
             case 'active':
                 regions[regionName].state = 'transparent';
@@ -293,11 +300,11 @@ function Model() {
     };
 
     // get region state using its name
-    this.getRegionState = function(regionName) {
+    this.getRegionState = function (regionName) {
         return regions[regionName].state;
     };
 
-    this.getRegionActivation = function(regionName) {
+    this.getRegionActivation = function (regionName) {
         return regions[regionName].active;
     };
 
@@ -310,15 +317,15 @@ function Model() {
     };
 
     // set all regions active
-    this.setAllRegionsActivated = function() {
+    this.setAllRegionsActivated = function () {
         regions = {};
         for (var i = 0; i < groups[activeGroup].length; i++) {
             var element = groups[activeGroup][i];
             if (regions[element] === undefined)
-            regions[element] = {
-                active: true,
-                state: 'active'
-            }
+                regions[element] = {
+                    active: true,
+                    state: 'active'
+                }
         }
     };
 
@@ -328,7 +335,7 @@ function Model() {
     };
 
     // get top n edges connected to a specific node
-    this.getTopConnectionsByNode = function(indexNode, n) {
+    this.getTopConnectionsByNode = function (indexNode, n) {
         var row = this.getConnectionMatrixRow(indexNode);
         var sortedRow = this.getConnectionMatrixRow(indexNode).sort(function (a, b) {
             return b - a
@@ -342,21 +349,25 @@ function Model() {
 
     this.getMaximumWeight = function () {
         return d3.max(connectionMatrix, function (d) {
-            return d3.max(d, function (d) { return d; })
+            return d3.max(d, function (d) {
+                return d;
+            })
         });
     };
 
     this.getMinimumWeight = function () {
         return d3.min(connectionMatrix, function (d) {
-            return d3.min(d, function (d) { return d; })
+            return d3.min(d, function (d) {
+                return d;
+            })
         });
     };
 
-    this.getNumberOfEdges = function() {
+    this.getNumberOfEdges = function () {
         return numberOfEdges;
     };
 
-    this.setNumberOfEdges = function(n) {
+    this.setNumberOfEdges = function (n) {
         numberOfEdges = n;
     };
 
@@ -365,7 +376,7 @@ function Model() {
         return dataset[index];
     };
 
-    this.setMetricValues = function(data) {
+    this.setMetricValues = function (data) {
         metricValues = data.data;
 
         metricQuantileScale = d3.scale.quantile()
@@ -384,7 +395,7 @@ function Model() {
 
     /* BCT Stuff*/
     // compute nodal strength of a specific node given its row
-    this.getNodalStrength = function(idx) {
+    this.getNodalStrength = function (idx) {
         return nodesStrength[idx];
     };
 
@@ -396,32 +407,32 @@ function Model() {
     };
 
     // compute distance matrix = 1/(adjacency matrix)
-    this.computeDistanceMatrix = function() {
+    this.computeDistanceMatrix = function () {
         var nNodes = connectionMatrix.length;
         distanceMatrix = new Array(nNodes);
         graph = new Graph();
         var idx = 0;
         // for every node, add the distance to all other nodes
-        for(var i = 0; i < nNodes; i++){
+        for (var i = 0; i < nNodes; i++) {
             var vertexes = [];
             var row = new Array(nNodes);
             edgeIdx.push(new Array(nNodes));
             edgeIdx[i].fill(-1); // indicates no connection
-            for(var j = 0; j < nNodes; j++){
-                vertexes[j] = 1/connectionMatrix[i][j];
-                row[j] = 1/connectionMatrix[i][j];
+            for (var j = 0; j < nNodes; j++) {
+                vertexes[j] = 1 / connectionMatrix[i][j];
+                row[j] = 1 / connectionMatrix[i][j];
                 if (j > i && Math.abs(connectionMatrix[i][j]) > 0) {
                     edgeIdx[i][j] = idx;
                     idx++;
                 }
             }
             distanceMatrix[i] = row;
-            graph.addVertex(i,vertexes);
+            graph.addVertex(i, vertexes);
         }
 
         // mirror it
-        for(var i = 0; i < nNodes; i++) {
-            for(var j = i+1; j < nNodes; j++) {
+        for (var i = 0; i < nNodes; i++) {
+            for (var j = i + 1; j < nNodes; j++) {
                 edgeIdx[j][i] = edgeIdx[i][j];
             }
         }
@@ -429,7 +440,7 @@ function Model() {
     };
 
     // compute shortest path from a specific node to the rest of the nodes
-    this.computeShortestPathDistances = function(rootNode) {
+    this.computeShortestPathDistances = function (rootNode) {
         console.log("computing spt");
         distanceArray = graph.shortestPath(String(rootNode));
         maxDistance = d3.max(distanceArray);
@@ -443,11 +454,11 @@ function Model() {
         return (graph) ? graph.getPreviousMap() : null;
     };
 
-    this.getMaxNumberOfHops = function(){
+    this.getMaxNumberOfHops = function () {
         return graph.getMaxNumberOfHops();
     };
 
-    this.setNumberOfHops = function(hops) {
+    this.setNumberOfHops = function (hops) {
         numberOfHops = hops;
     };
 
@@ -460,10 +471,10 @@ function Model() {
     // in case of other clustering techniques: Q-modularity, no hierarchy information is applied
     // clusters[topology][0] contains the clustering information.
     // clusters starts by 1 not 0.
-    this.computeNodesLocationForClusters = function(topology) {
+    this.computeNodesLocationForClusters = function (topology) {
         var platonic = new Platonics();
         var isHierarchical = topology === "PLACE" || topology === "PACE";
-        var level = isHierarchical ? clusteringLevel-1 : 0;
+        var level = isHierarchical ? clusteringLevel - 1 : 0;
         var cluster = clusters[topology][level];
         var totalNNodes = cluster.length;
         var maxNumberOfClusters = d3.max(cluster) - d3.min(cluster) + 1;
@@ -487,24 +498,24 @@ function Model() {
         }
         // use one of the faces to compute primary variables
         var face = platonic.getFace(0);
-        var coneAxis = math.mean(face,0);
+        var coneAxis = math.mean(face, 0);
         coneAxis = math.divide(coneAxis, math.norm(coneAxis));
-        var theta = Math.abs( Math.acos(math.dot(coneAxis, face[0]) ));
-        var coneAngle = theta*0.6;
-        var coneR = clusteringRadius*Math.sin(coneAngle/2);
-        var coneH = clusteringRadius*Math.cos(coneAngle/2);
+        var theta = Math.abs(Math.acos(math.dot(coneAxis, face[0])));
+        var coneAngle = theta * 0.6;
+        var coneR = clusteringRadius * Math.sin(coneAngle / 2);
+        var coneH = clusteringRadius * Math.cos(coneAngle / 2);
         var v1 = [], v2 = [], center = [];
-        var centroids = new Array(totalNNodes+1);
+        var centroids = new Array(totalNNodes + 1);
 
         // assume clustering data starts at 1
         for (var i = 0; i < nClusters; i++) {
             var clusterIdx = [];
             for (var s = 0; s < totalNNodes; s++) {
-                if (cluster[s] == (i+1)) clusterIdx.push(s);
+                if (cluster[s] == (i + 1)) clusterIdx.push(s);
             }
             var nNodes = clusterIdx.length;
             face = platonic.getFace(i);
-            coneAxis = math.mean(face,0);
+            coneAxis = math.mean(face, 0);
             coneAxis = math.divide(coneAxis, math.norm(coneAxis));
             v1 = math.subtract(face[0], face[1]);
             v1 = math.divide(v1, math.norm(v1));
@@ -513,14 +524,14 @@ function Model() {
             var points = sunflower(nNodes, coneR, center, v1, v2);
             // normalize and store
             for (var k = 0; k < nNodes; k++) {
-                centroids[clusterIdx[k]+1] = math.multiply(clusteringRadius, math.divide(points[k], math.norm(points[k])));
+                centroids[clusterIdx[k] + 1] = math.multiply(clusteringRadius, math.divide(points[k], math.norm(points[k])));
             }
         }
         this.setCentroids(centroids, topology, 0);
     };
 
     // clusters can be hierarchical such as PLACE and PACE or not
-    this.setClusters = function(data, loc, name) {
+    this.setClusters = function (data, loc, name) {
         var clusteringData = [];
         // data[0] is assumed to contain a string header
         for (var j = 1; j < data.length; j++) {
@@ -534,11 +545,11 @@ function Model() {
             clusteringLevel = maxClusterHierarchicalLevel;
             console.log("Max clustering level to be used = " + maxClusterHierarchicalLevel);
             if (maxClusterHierarchicalLevel > 4) {
-                console.error("Hierarchical data requires " + maxClusterHierarchicalLevel + " levels."+
-                                "\n That is more than what can be visualized!!");
+                console.error("Hierarchical data requires " + maxClusterHierarchicalLevel + " levels." +
+                    "\n That is more than what can be visualized!!");
             }
             temp = new Array(maxClusterHierarchicalLevel); // final levels
-            temp[maxClusterHierarchicalLevel-1] = clusteringData;
+            temp[maxClusterHierarchicalLevel - 1] = clusteringData;
             for (var i = maxClusterHierarchicalLevel - 2; i >= 0; i--) {
                 temp[i] = math.ceil(math.divide(temp[i + 1], 2.0));
             }
@@ -548,7 +559,7 @@ function Model() {
         clusters[name] = temp;
     };
 
-    this.setClusteringLevel = function(level) {
+    this.setClusteringLevel = function (level) {
         if (level == clusteringLevel) {
             return;
         }
@@ -563,7 +574,7 @@ function Model() {
         this.computeNodesLocationForClusters(activeTopology);
     };
 
-    this.setClusteringSphereRadius = function(r) {
+    this.setClusteringSphereRadius = function (r) {
         if (r == clusteringRadius) {
             return;
         }
@@ -571,11 +582,11 @@ function Model() {
         this.computeNodesLocationForClusters(activeTopology);
     };
 
-    this.getClusteringLevel = function() {
+    this.getClusteringLevel = function () {
         return clusteringLevel;
     };
 
-    this.getMaxClusterHierarchicalLevel = function() {
+    this.getMaxClusterHierarchicalLevel = function () {
         return maxClusterHierarchicalLevel;
     };
 
@@ -590,27 +601,28 @@ function Model() {
     this.setTopology = function (data) {
         // the first line is assumed to contain the data indicator type
         var dataType;
+        if (data == null) {
+            console.log("data is null")
+        }
         for (var i = 0; i < data[0].length; i++) {
             dataType = data[0][i];
-                if (dataType === "label") {
-                    this.setLabelKeys(data, i);
-                }
-                else if (dataType ==="PLACE" ||  // structural
-                    dataType ==="PACE" || // functional
-                    dataType ==="Q" ||
-                    dataType ==="Q-Modularity" ||
-                    dataType.includes("Clustering") ) {
-                    dataType = dataType.replace("Clustering", "");
-                    this.setClusters(data, i, dataType);
-                    this.computeNodesLocationForClusters(dataType);
-                    topologies.push(dataType);
-                    clusteringTopologies.push(dataType);
-                    }
-                else if (dataType === "") {}
-                else { // all other topologies
-                    this.setCentroids(data, dataType, i);
-                    topologies.push(dataType);
-                }
+            if (dataType === "" || dataType == null) {
+            } else if (dataType === "label") {
+                this.setLabelKeys(data, i);
+            } else if (dataType === "PLACE" ||  // structural
+                dataType === "PACE" || // functional
+                dataType === "Q" ||
+                dataType === "Q-Modularity" ||
+                dataType.includes("Clustering")) {
+                dataType = dataType.replace("Clustering", "");
+                this.setClusters(data, i, dataType);
+                this.computeNodesLocationForClusters(dataType);
+                topologies.push(dataType);
+                clusteringTopologies.push(dataType);
+            } else { // all other topologies
+                this.setCentroids(data, dataType, i);
+                topologies.push(dataType);
+            }
         }
         activeTopology = topologies[0];
         this.computeEdgesForTopology(activeTopology);
@@ -627,7 +639,7 @@ function Model() {
      * 2) all edges of selected node neighbor
      * @param nodeIdx selected node index
      */
-    this.performEBOnNode = function(nodeIdx) {
+    this.performEBOnNode = function (nodeIdx) {
         var edges_ = [];
         var edgeIndices = [];
         var nNodes = connectionMatrix.length;
@@ -644,8 +656,12 @@ function Model() {
         }
         // selected node neighbors
         var neighbors = nodesDistances[activeTopology][nodeIdx]
-            .map(function(o, i) {return {idx: i, val: o}; }) // create map with value and index
-            .sort(function(a, b) {return a.val - b.val;}); // sort based on value
+            .map(function (o, i) {
+                return {idx: i, val: o};
+            }) // create map with value and index
+            .sort(function (a, b) {
+                return a.val - b.val;
+            }); // sort based on value
         for (var i = 1; i < nNodes; i++) { // first one assumed to be self
             if (edges_.length >= 500)
                 break;
@@ -671,32 +687,36 @@ function Model() {
         //}
     };
 
-    this.getActiveEdges = function() {
+    this.getActiveEdges = function () {
         return edges;
     };
 
-    this.getEdgesIndeces = function() {
+    this.getEdgesIndeces = function () {
         return edgeIdx;
     };
 
     // linearly scale coordinates to a range -500 to +500
     // returns a function that can be used to scale any input
     // according to provided data
-    var createCentroidScale = function(d){
+    var createCentroidScale = function (d) {
         var l = d.length;
         var allCoordinates = [];
 
-        for(var i=0; i < l; i++) {
+        for (var i = 0; i < l; i++) {
             allCoordinates[allCoordinates.length] = d[i].x;
             allCoordinates[allCoordinates.length] = d[i].y;
             allCoordinates[allCoordinates.length] = d[i].z;
         }
         var centroidScale = d3.scale.linear().domain(
             [
-                d3.min(allCoordinates, function(e){ return e; }),
-                d3.max(allCoordinates, function(e){ return e; })
+                d3.min(allCoordinates, function (e) {
+                    return e;
+                }),
+                d3.max(allCoordinates, function (e) {
+                    return e;
+                })
             ]
-        ).range([-500,+500]);
+        ).range([-500, +500]);
         return centroidScale;
     };
 
@@ -705,16 +725,22 @@ function Model() {
         var centroidScale = createCentroidScale(centroids);
 
         // compute centroids according to scaled data
-        var xCentroid = d3.mean(centroids, function(d){ return centroidScale(d.x); });
-        var yCentroid = d3.mean(centroids, function(d){ return centroidScale(d.y); });
-        var zCentroid = d3.mean(centroids, function(d){ return centroidScale(d.z); });
+        var xCentroid = d3.mean(centroids, function (d) {
+            return centroidScale(d.x);
+        });
+        var yCentroid = d3.mean(centroids, function (d) {
+            return centroidScale(d.y);
+        });
+        var zCentroid = d3.mean(centroids, function (d) {
+            return centroidScale(d.z);
+        });
 
         var newCentroids = new Array(centroids.length);
         for (var i = 0; i < centroids.length; i++) {
             var x = centroidScale(centroids[i].x) - xCentroid;
             var y = centroidScale(centroids[i].y) - yCentroid;
             var z = centroidScale(centroids[i].z) - zCentroid;
-            newCentroids[i] = new THREE.Vector3(x,y,z);
+            newCentroids[i] = new THREE.Vector3(x, y, z);
         }
         return newCentroids;
     };
@@ -725,7 +751,7 @@ function Model() {
         var nNodes = connectionMatrix.length;
         edges = [];
         for (var i = 0; i < nNodes; i++) {
-            for (var j = i+1; j < nNodes; j++) {
+            for (var j = i + 1; j < nNodes; j++) {
                 if (Math.abs(connectionMatrix[i][j]) > 0) {
                     var edge = [];
                     edge.push(centroids[topology][i]);
@@ -740,3 +766,4 @@ function Model() {
 
 var modelLeft = new Model();
 var modelRight = new Model();
+export {modelRight, modelLeft}

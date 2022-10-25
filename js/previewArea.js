@@ -11,7 +11,9 @@
  */
 
 import * as THREE from 'three'
-//import {isLoaded, dataFiles  , mobile} from "./globals";
+import {TrackballControls} from "three/addons/controls/TrackballControls";
+import {CubeTextureLoader} from "three";
+// import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
 import {VRControls} from './external-libraries/vr/VRControls'
 import {VREffect} from './external-libraries/vr/VREffect'
@@ -363,8 +365,8 @@ function PreviewArea(canvas_, model_, name_) {
         light.position.set( 1000, 1000, 100 );
         scene.add(light);
 
-        var axisHelper = new THREE.AxisHelper( 5 );
-        scene.add( axisHelper );
+        var axeshelper = new THREE.AxesHelper( 5 );
+        scene.add( axeshelper );
         addNodeLabel();
     };
 
@@ -391,6 +393,7 @@ function PreviewArea(canvas_, model_, name_) {
             //controls = new THREE.TrackballControls(camera, renderer.domElement);
             controls = new TrackballControls(camera, renderer.domElement);
             controls.rotateSpeed = 0.5;
+
         }
         addSkybox();
     };
@@ -756,10 +759,11 @@ function PreviewArea(canvas_, model_, name_) {
             'images/'+folder+'/posy.png',
             'images/'+folder+'/posz.png'
         ];
-
-        var cubemap = THREE.ImageUtils.loadTextureCube(images); // load textures
+        var loader = new CubeTextureLoader();
+        var cubemap = loader.load(images); // load textures
         cubemap.format = THREE.RGBFormat;
-
+        //todo: a lot of this needs updated. (have done so in some previous works) but it would probably be just as easy
+        //todo: to write a new bit for this part.
         var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
         shader.uniforms['tCube'].value = cubemap; // apply textures to shader
 

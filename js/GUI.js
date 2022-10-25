@@ -10,13 +10,18 @@ var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
 
 // initialize subject selection drop down menus
-initSubjectMenu = function (side) {
+import {getDataFile,setDataFile,atlas} from "./globals.js";
+import {changeSceneToSubject, changeActiveGeometry, previewAreaLeft, previewAreaRight} from './drawing'
+import {modelLeft,modelRight} from './model'
+import {setDimensionFactor} from './graphicsUtils.js'
+
+var initSubjectMenu = function (side) {
 
     var select = document.getElementById("subjectMenu" + side);
-    for (var i = 0; i < dataFiles.length; ++i) {
+    for (var i = 0; i < getDataFile().length; ++i) {
         var el = document.createElement("option");
-        el.textContent = dataFiles[i].subjectID;
-        el.value = dataFiles[i].subjectID;
+        el.textContent = getDataFile()[i].subjectID;
+        el.value = getDataFile()[i].subjectID;
         el.selected = (i==0);
         select.appendChild(el);
     }
@@ -771,3 +776,7 @@ var toggleMenus = function (e) {
     $('#vrLeft').toggle();
     $('#vrRight').toggle();
 };
+
+var getShortestPathVisMethod = function () { return shortestPathVisMethod }
+
+export {initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,hideVRMaximizeButtons, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel}
