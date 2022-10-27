@@ -11,7 +11,7 @@
  */
 
 import * as THREE from 'three'
-import {TrackballControls} from "three/addons/controls/TrackballControls";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {CubeTextureLoader} from "three";
 // import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
@@ -367,7 +367,18 @@ function PreviewArea(canvas_, model_, name_) {
 
         var axeshelper = new THREE.AxesHelper( 5 );
         scene.add( axeshelper );
-        addNodeLabel();
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+        controls.autoRotate = false;
+        controls.autoRotateSpeed = 0.5;
+        controls.enablePan = true;
+        controls.enableKeys = true;
+        controls.minDistance = 10;
+        controls.maxDistance = 1000;
+
+        //addNodeLabel();
     };
 
     this.resetCamera = function () {
@@ -389,12 +400,7 @@ function PreviewArea(canvas_, model_, name_) {
         renderer = new THREE.WebGLRenderer({antialias: true});
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
-        if (!mobile) {
-            //controls = new THREE.TrackballControls(camera, renderer.domElement);
-            controls = new TrackballControls(camera, renderer.domElement);
-            controls.rotateSpeed = 0.5;
 
-        }
         addSkybox();
     };
 
@@ -473,20 +479,24 @@ function PreviewArea(canvas_, model_, name_) {
                 }
                 //vrControl.update();  // todo: get code working then enable
             }
-            //else
-                //controls.update();   // todo: get code working then enable
+            else
+                controls.update();   // todo: get code working then enable
         }
 
         if (enableRender)
-            effect.render(scene, camera);
+            //changed from effect.render to renderer.render
+            renderer.render(scene, camera);
 
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
+
         window.requestAnimationFrame(animatePV);
     };
 
     this.requestAnimate = function () {
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
-        window.requestAnimationFrame(animatePV);
+        //window.requestAnimationFrame(animatePV);
+        controls.update()
+        renderer.render(scene, camera);
     };
 
     this.enableRender = function (state) { enableRender = state; };
@@ -994,7 +1004,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // PreviewArea construction
     this.createCanvas();
-    this.initVR();
+    //this.initVR();
     this.drawRegions();
 }
 
