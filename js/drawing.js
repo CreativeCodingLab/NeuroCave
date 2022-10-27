@@ -27,7 +27,23 @@ var oldNodeIndex = -1;
 
 import * as THREE from 'three'
 import {isLoaded, dataFiles,mobile} from "./globals";
-import {addEdgeBundlingCheck,addModalityButton,removeGeometryButtons,addOpacitySlider,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,createLegend,hideVRMaximizeButtons} from './GUI.js';
+import {
+    addEdgeBundlingCheck,
+    addModalityButton,
+    removeGeometryButtons,
+    addOpacitySlider,
+    addThresholdSlider,
+    addColorGroupList,
+    addTopologyMenu,
+    addShortestPathFilterButton,
+    addDistanceSlider,
+    addShortestPathHopsSlider,
+    enableShortestPathFilterButton,
+    addDimensionFactorSlider,
+    createLegend,
+    hideVRMaximizeButtons,
+    toggleMenus
+} from './GUI.js';
 import {queue} from "./external-libraries/queue";
 import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} from "./utils/parsingData";
 import {modelLeft,modelRight} from './model';
