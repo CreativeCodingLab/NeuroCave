@@ -12,11 +12,9 @@
 
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {CubeTextureLoader} from "three";
+
 // import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
-import {VRControls} from './external-libraries/vr/VRControls'
-import {VREffect} from './external-libraries/vr/VREffect'
 import {getNormalGeometry, getNormalMaterial} from './graphicsUtils.js'
 import {
     getRoot,
@@ -29,10 +27,13 @@ import {
     getVisibleNodes,
     getVisibleNodesLength,
     setVisibleNodes,
-    getEnableEB
+    getEnableEB,
+    vr,
+    activeVR
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
+
 
 
 function PreviewArea(canvas_, model_, name_) {
@@ -62,6 +63,7 @@ function PreviewArea(canvas_, model_, name_) {
     var vrButton = null;
 
     // request VR activation - desktop case
+    // advise renaming this function to avoid conflict with variable
     this.activateVR = function (activate) {
         if (activate == activateVR)
             return;
@@ -69,46 +71,57 @@ function PreviewArea(canvas_, model_, name_) {
         if (!mobile) {
             if (activateVR) {
                 console.log("Activate VR for PV: " + name);
-                effect.requestPresent();
+                //effect.requestPresent();
             } else
                 console.log("Disable VR for PV: " + name);
-            effect.exitPresent();
+            //effect.exitPresent();
         }
     };
+
+
 
     // init Oculus Rift
     this.initVR = function () {
-
-
-        vrControl = new VRControls(camera, function (message) {
-            console.log("VRControls: ", message);
-        });
-        effect = new VREffect(renderer, function (message) {
-            console.log("VREffect ", message);
-        });
-        effect.setSize(window.innerWidth / 2., window.innerHeight);
-
-        if (navigator.getVRDisplays) {
-            navigator.getVRDisplays()
-                .then(function (displays) {
-                    if (displays.length > 0) {
-                        console.log("VR Display found");
-                        effect.setVRDisplay(displays[0]);
-                        vrControl.setVRDisplay(displays[0]);
-                    }
-                });
+        //init VR
+        if (mobile) {
+            console.log("Init VR for PV: " + name);
             enableVR = true;
+            activateVR = true;
+            // init VR
+            vrButton = document.getElementById('vrButton' + name);
+            vrButton.addEventListener('click', function () {
+                vrButton.style.display = 'none';
+                //effect.requestPresent();
+            }, false);
+            //effect.requestPresent();
         } else {
-            console.log("No VR Hardware found!");
-            enableVR = false;
+            console.log("Init VR for PV: " + name);
+            enableVR = true;
+            activateVR = false;
+            // init VR
+            vrButton = document.getElementById('vrButton' + name);
+            vrButton.addEventListener('click', function () {
+                vrButton.style.display = 'none';
+                //effect.requestPresent();
+            }, false);
+            //effect.requestPresent();
         }
 
-        if (mobile) {
-            initWebVRForMobile();
-            initGearVRController();
-        } else
-            initOculusTouch();
     };
+
+    //on resize
+    this.onWindowResize = function () {
+        if (enableVR)
+            return;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+
+    };
+
+    //listen for resize event
+    window.addEventListener('resize', this.onWindowResize, false);
+
 
     // init Oculus Touch controllers
     // not supported in Firefox, only Google chromium
@@ -510,7 +523,7 @@ function PreviewArea(canvas_, model_, name_) {
             console.log("vrControl.update()");
         } else {
             controls.update();   // todo: get code working then enable
-            console.log("controls.update() called");
+            //console.log("controls.update() called");
         }
 
 
@@ -668,14 +681,14 @@ function PreviewArea(canvas_, model_, name_) {
             edge = displayedEdges[i];
             c1 = glyphs[edge.nodes[0]].material.color;
             c2 = glyphs[edge.nodes[1]].material.color;
-            edge.geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
+            edge.geometry.setAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
         }
 
         for (i = 0; i < shortestPathEdges.length; i++) {
             edge = displayedEdges[i];
             c1 = glyphs[edge.nodes[0]].material.color;
             c2 = glyphs[edge.nodes[1]].material.color;
-            edge.geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
+            edge.geometry.setAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
         }
     };
 
@@ -711,13 +724,13 @@ function PreviewArea(canvas_, model_, name_) {
             positions[i * 3 + 1] = edge[i].y;
             positions[i * 3 + 2] = edge[i].z;
         }
-        geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
         var s1 = model.getNodalStrength(nodes[0]), s2 = model.getNodalStrength(nodes[1]);
         var p1 = s1 / (s1 + s2);
         var c1 = new THREE.Color(scaleColorGroup(model, model.getGroupNameByNodeIndex(nodes[0]))),// glyphs[nodes[0]].material.color,
             c2 = new THREE.Color(scaleColorGroup(model, model.getGroupNameByNodeIndex(nodes[1])));// glyphs[nodes[1]].material.color;
-        geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, n, p1), 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, n, p1), 3));
 
         // geometry.colors = colorGradient;
         var line = new THREE.Line(geometry, material);
@@ -725,6 +738,9 @@ function PreviewArea(canvas_, model_, name_) {
         line.nPoints = n;
         line.nodes = nodes;
         line.p1 = p1;
+        line.material.linewidth = 1;
+        line.material.vertexColors = THREE.VertexColors;
+
         return line;
     };
 
@@ -856,7 +872,8 @@ function PreviewArea(canvas_, model_, name_) {
 
     // callback when window is resized
     this.resizeScene = function () {
-        if (vrButton && vrButton.isPresenting()) {
+        //todo disabled for now straight to else  vrButton.isPresenting()
+        if (vrButton && 0) {
             camera.aspect = window.innerWidth / window.innerHeight;
             renderer.setSize(window.innerWidth, window.innerHeight);
             console.log("Resize for Mobile VR");
@@ -1030,15 +1047,14 @@ function PreviewArea(canvas_, model_, name_) {
     this.syncCameraWith = function (cam) {
         camera.copy(cam);
         camera.position.copy(cam.position);
-        camera.rotation.copy(cam.rotation);
         camera.zoom = cam.zoom;
-        // camera.quaternion.copy(cam.quaternion);
-        // camera.updateMatrix();
     };
+
+
 
     // PreviewArea construction
     this.createCanvas();
-    //this.initVR();
+    this.initVR();
     this.drawRegions();
 }
 
