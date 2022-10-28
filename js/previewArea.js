@@ -17,9 +17,21 @@ import {CubeTextureLoader} from "three";
 import {mobile, atlas} from './globals';
 import {VRControls} from './external-libraries/vr/VRControls'
 import {VREffect} from './external-libraries/vr/VREffect'
-import {getNormalGeometry,getNormalMaterial} from './graphicsUtils.js'
-import {getRoot, setRoot, getSpt, glyphNodeDictionary, getNodesSelected, clrNodesSelected, setNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB } from './drawing'
-import {getShortestPathVisMethod,SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
+import {getNormalGeometry, getNormalMaterial} from './graphicsUtils.js'
+import {
+    getRoot,
+    setRoot,
+    getSpt,
+    glyphNodeDictionary,
+    getNodesSelected,
+    clrNodesSelected,
+    setNodesSelected,
+    getVisibleNodes,
+    getVisibleNodesLength,
+    setVisibleNodes,
+    getEnableEB
+} from './drawing'
+import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
 
 
@@ -32,7 +44,8 @@ function PreviewArea(canvas_, model_, name_) {
 
     // VR stuff
     var vrControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false, enableRender = true;
+    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false,
+        enableRender = true;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
 
     var enableVR = false;
@@ -57,10 +70,9 @@ function PreviewArea(canvas_, model_, name_) {
             if (activateVR) {
                 console.log("Activate VR for PV: " + name);
                 effect.requestPresent();
-            }
-            else
+            } else
                 console.log("Disable VR for PV: " + name);
-                effect.exitPresent();
+            effect.exitPresent();
         }
     };
 
@@ -68,14 +80,13 @@ function PreviewArea(canvas_, model_, name_) {
     this.initVR = function () {
 
 
-
         vrControl = new VRControls(camera, function (message) {
             console.log("VRControls: ", message);
         });
-        effect = new VREffect(renderer, function (message)  {
+        effect = new VREffect(renderer, function (message) {
             console.log("VREffect ", message);
         });
-        effect.setSize(window.innerWidth/2., window.innerHeight);
+        effect.setSize(window.innerWidth / 2., window.innerHeight);
 
         if (navigator.getVRDisplays) {
             navigator.getVRDisplays()
@@ -95,8 +106,7 @@ function PreviewArea(canvas_, model_, name_) {
         if (mobile) {
             initWebVRForMobile();
             initGearVRController();
-        }
-        else
+        } else
             initOculusTouch();
     };
 
@@ -107,29 +117,29 @@ function PreviewArea(canvas_, model_, name_) {
         if (!enableVR)
             return;
 
-        controllerLeft = new THREE.ViveController( 0 );
-        controllerRight = new THREE.ViveController( 1 );
+        controllerLeft = new THREE.ViveController(0);
+        controllerRight = new THREE.ViveController(1);
 
         var loader = new THREE.OBJLoader();
-        loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
-        loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+        loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+        loader.load('vr_controller_vive_1_5.obj', function (object) {
 
             var loader = new THREE.TextureLoader();
-            loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
+            loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
 
-            var controller = object.children[ 0 ];
-            controller.material.map = loader.load( 'onepointfive_texture.png' );
-            controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
+            var controller = object.children[0];
+            controller.material.map = loader.load('onepointfive_texture.png');
+            controller.material.specularMap = loader.load('onepointfive_spec.png');
 
-            controllerLeft.add( object.clone() );
-            controllerRight.add( object.clone() );
+            controllerLeft.add(object.clone());
+            controllerRight.add(object.clone());
 
             controllerLeft.standingMatrix = vrControl.getStandingMatrix();
             controllerRight.standingMatrix = vrControl.getStandingMatrix();
 
             scene.add(controllerLeft);
             scene.add(controllerRight);
-        } );
+        });
 
         // controllerLeft.addEventListener('gripsup', function(e) { updateVRStatus('left'); }, true);
         // controllerRight.addEventListener('gripsup', function(e) { updateVRStatus('right'); }, true);
@@ -149,17 +159,17 @@ function PreviewArea(canvas_, model_, name_) {
 
 
         var loader = new THREE.OBJLoader();
-        loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
-        loader.load( 'vr_controller_vive_1_5.obj', function ( object ) {
+        loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+        loader.load('vr_controller_vive_1_5.obj', function (object) {
             var loader = new THREE.TextureLoader();
-            loader.setPath( 'js/external-libraries/vr/models/obj/vive-controller/' );
-            var controller = object.children[ 0 ];
-            controller.material.map = loader.load( 'onepointfive_texture.png' );
-            controller.material.specularMap = loader.load( 'onepointfive_spec.png' );
-            controllerRight.add( object.clone() );
+            loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+            var controller = object.children[0];
+            controller.material.map = loader.load('onepointfive_texture.png');
+            controller.material.specularMap = loader.load('onepointfive_spec.png');
+            controllerRight.add(object.clone());
             controllerRight.standingMatrix = vrControl.getStandingMatrix();
             scene.add(controllerRight);
-        } );
+        });
 
         gearVRControllerExist = true;
 
@@ -176,15 +186,17 @@ function PreviewArea(canvas_, model_, name_) {
             disabledOpacity: 0.9
         };
         vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
-        vrButton.on('exit', function () { updateVRStatus('disable'); });
-        vrButton.on('hide', function() {
-            document.getElementById('vr'+name).style.display = 'none';
+        vrButton.on('exit', function () {
+            updateVRStatus('disable');
         });
-        vrButton.on('show', function() {
-            document.getElementById('vr'+name).style.display = 'inherit';
+        vrButton.on('hide', function () {
+            document.getElementById('vr' + name).style.display = 'none';
         });
-        document.getElementById('vrButton'+name).appendChild(vrButton.domElement);
-        document.getElementById('magicWindow'+name).addEventListener('click', function() {
+        vrButton.on('show', function () {
+            document.getElementById('vr' + name).style.display = 'inherit';
+        });
+        document.getElementById('vrButton' + name).appendChild(vrButton.domElement);
+        document.getElementById('magicWindow' + name).addEventListener('click', function () {
             vr = true;
             activateVR = true;
             activeVR = name.toLowerCase();
@@ -196,10 +208,10 @@ function PreviewArea(canvas_, model_, name_) {
     // scan Gear VR controller
     var scanGearVRController = function () {
         var thumbPad = controllerRight.getButtonState('thumbpad');
-        var trigger =  controllerRight.getButtonState('trigger');
+        var trigger = controllerRight.getButtonState('trigger');
         var angleX = null, angleY = null;
         var gamePadRight = controllerRight.getGamepad();
-        if(gamePadRight && !trigger) {
+        if (gamePadRight && !trigger) {
             angleX = gamePadRight.axes[0];
             angleY = gamePadRight.axes[1];
             if (thumbPad) {
@@ -211,21 +223,21 @@ function PreviewArea(canvas_, model_, name_) {
             }
             brain.matrixWorldNeedsUpdate = true;
         }
-        var v3Origin = new THREE.Vector3(0,0,0);
-        var v3UnitUp = new THREE.Vector3(0,0,-100);
+        var v3Origin = new THREE.Vector3(0, 0, 0);
+        var v3UnitUp = new THREE.Vector3(0, 0, -100);
 
         // Find all nodes within 0.1 distance from left Touch Controller
         var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
         for (var i = 0; i < brain.children.length; i++) {
             var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
-            if ( (distToNodeIRight < closestNodeDistanceRight ) ) {
+            if ((distToNodeIRight < closestNodeDistanceRight)) {
                 closestNodeDistanceRight = distToNodeIRight;
                 closestNodeIndexRight = i;
             }
         }
 
         var isLeft = (activateVR == 'left');
-        if(trigger) {
+        if (trigger) {
             pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
 
             if (pointerRight) {
@@ -253,7 +265,7 @@ function PreviewArea(canvas_, model_, name_) {
         var angleX = null, angleY = null;
         var gamePadLeft = controllerLeft.getGamepad();
         var gamePadRight = controllerRight.getGamepad();
-        if(gamePadLeft) {
+        if (gamePadLeft) {
             angleX = gamePadLeft.axes[0];
             angleY = gamePadLeft.axes[1];
             brain.rotateX(boostRotationSpeed * angleX);
@@ -261,10 +273,10 @@ function PreviewArea(canvas_, model_, name_) {
             brain.matrixWorldNeedsUpdate = true;
         }
 
-        if(gamePadRight) {
+        if (gamePadRight) {
             angleX = gamePadRight.axes[0];
             angleY = gamePadRight.axes[1];
-            if(controllerRight.getButtonState('thumbpad')) {
+            if (controllerRight.getButtonState('thumbpad')) {
                 brain.position.y += boostMoveSpeed * angleY;
             } else {
                 brain.position.z += boostMoveSpeed * angleX;
@@ -273,8 +285,8 @@ function PreviewArea(canvas_, model_, name_) {
             brain.matrixWorldNeedsUpdate = true;
         }
 
-        var v3Origin = new THREE.Vector3(0,0,0);
-        var v3UnitUp = new THREE.Vector3(0,0,-100.0);
+        var v3Origin = new THREE.Vector3(0, 0, 0);
+        var v3UnitUp = new THREE.Vector3(0, 0, -100.0);
         // var v3UnitFwd = new THREE.Vector3(0,0,1);
 
         // Find all nodes within 0.1 distance from left Touch Controller
@@ -282,20 +294,20 @@ function PreviewArea(canvas_, model_, name_) {
         var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
         for (var i = 0; i < brain.children.length; i++) {
             var distToNodeILeft = controllerLeft.position.distanceTo(brain.children[i].getWorldPosition());
-            if ( (distToNodeILeft < closestNodeDistanceLeft ) ) {
+            if ((distToNodeILeft < closestNodeDistanceLeft)) {
                 closestNodeDistanceLeft = distToNodeILeft;
                 closestNodeIndexLeft = i;
             }
 
             var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
-            if ( (distToNodeIRight < closestNodeDistanceRight ) ) {
+            if ((distToNodeIRight < closestNodeDistanceRight)) {
                 closestNodeDistanceRight = distToNodeIRight;
                 closestNodeIndexRight = i;
             }
         }
 
         var isLeft = (activateVR == 'left');
-        if(controllerLeft.getButtonState('trigger')) {
+        if (controllerLeft.getButtonState('trigger')) {
             pointedNodeIdx = (closestNodeDistanceLeft < 2.0) ? closestNodeIndexLeft : -1;
 
             if (pointerLeft) {
@@ -315,7 +327,7 @@ function PreviewArea(canvas_, model_, name_) {
             pointerLeft = null;
         }
 
-        if(controllerRight.getButtonState('trigger')) {
+        if (controllerRight.getButtonState('trigger')) {
             pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
 
             if (pointerRight) {
@@ -347,6 +359,17 @@ function PreviewArea(canvas_, model_, name_) {
         return new THREE.Line(geometry, material);
     };
 
+    // get the object pointed by the controller
+    var getPointedObject = function (controller) {
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera({x: 0, y: 0}, camera);
+        var intersects = raycaster.intersectObjects(brain.children, true);
+        if (intersects.length > 0) {
+            return intersects[0].object;
+        }
+        return null;
+    }
+
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     var initScene = function () {
         renderer.setSize(canvas.clientWidth, window.innerHeight);
@@ -359,14 +382,14 @@ function PreviewArea(canvas_, model_, name_) {
         scene.add(brain);
 
         //Adding light
-        scene.add( new THREE.HemisphereLight(0x606060, 0x080820, 1.5));
-        scene.add( new THREE.AmbientLight(0x606060, 1.5));
-        var light = new THREE.PointLight( 0xffffff, 1.0, 10000 );
-        light.position.set( 1000, 1000, 100 );
+        scene.add(new THREE.HemisphereLight(0x606060, 0x080820, 1.5));
+        scene.add(new THREE.AmbientLight(0x606060, 1.5));
+        var light = new THREE.PointLight(0xffffff, 1.0, 10000);
+        light.position.set(1000, 1000, 100);
         scene.add(light);
 
-        var axeshelper = new THREE.AxesHelper( 5 );
-        scene.add( axeshelper );
+        var axeshelper = new THREE.AxesHelper(5);
+        scene.add(axeshelper);
         controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
@@ -382,39 +405,44 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.resetCamera = function () {
-        camera.position.set(50,50,50);
+        camera.position.set(50, 50, 50);
     };
 
     this.resetBrainPosition = function () {
         brain.updateMatrix();
-        brain.position.set(0,0,0);
-        brain.rotation.set(0,0,0);
-        brain.scale.set(1,1,1);
+        brain.position.set(0, 0, 0);
+        brain.rotation.set(0, 0, 0);
+        brain.scale.set(1, 1, 1);
         brain.updateMatrix();
         brain.matrixWorldNeedsUpdate = true;
     };
 
     // create 3js elements: scene, canvas, camera and controls; and init them and add skybox to the scene
-    this.createCanvas = function() {
+    this.createCanvas = function () {
         scene = new THREE.Scene();
         renderer = new THREE.WebGLRenderer({antialias: true});
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
-
+        console.log("createCanvas");
         addSkybox();
     };
 
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
+    //todo is this sort of infinite recursion intentional?
     this.setEventListeners = function (onMouseDown, onMouseUp, onDocumentMouseMove) {
         canvas.addEventListener('mousedown', onMouseDown, true);
-        canvas.addEventListener('mouseup', function (e) { onMouseUp(model, e);});
-        canvas.addEventListener('mousemove', function (e) { onDocumentMouseMove(model, e); }, true);
+        canvas.addEventListener('mouseup', function (e) {
+            onMouseUp(model, e);
+        });
+        canvas.addEventListener('mousemove', function (e) {
+            onDocumentMouseMove(model, e);
+        }, true);
     };
 
     // update node scale according to selection status
     this.updateNodeGeometry = function (nodeIndex, status) {
         var scale = 1.0;
-        switch (status){
+        switch (status) {
             case 'normal':
                 scale = 1.0;
                 break;
@@ -422,10 +450,10 @@ function PreviewArea(canvas_, model_, name_) {
                 scale = 1.2;
                 break;
             case 'selected':
-                scale = (8/3);
+                scale = (8 / 3);
                 break;
             case 'root':
-                scale = (10/3);
+                scale = (10 / 3);
                 break;
         }
         glyphs[nodeIndex].scale.set(scale, scale, scale);
@@ -433,13 +461,13 @@ function PreviewArea(canvas_, model_, name_) {
 
     this.updateNodesColor = function () {
         var dataset = model.getDataset();
-        for (var i=0; i < glyphs.length; ++i){
+        for (var i = 0; i < glyphs.length; ++i) {
             glyphs[i].material.color = new THREE.Color(scaleColorGroup(model, dataset[i].group));
         }
     };
 
     var removeNodesFromScene = function () {
-        for (var i=0; i < glyphs.length; ++i){
+        for (var i = 0; i < glyphs.length; ++i) {
             brain.remove(glyphs[i]);
             delete glyphNodeDictionary[glyphs[i].uuid];
         }
@@ -447,7 +475,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.removeEdgesFromScene = function () {
-        for(var i=0; i < displayedEdges.length; ++i){
+        for (var i = 0; i < displayedEdges.length; ++i) {
             brain.remove(displayedEdges[i]);
         }
         displayedEdges = [];
@@ -456,7 +484,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.removeShortestPathEdgesFromScene = function () {
-        for(var i=0; i < shortestPathEdges.length; i++){
+        for (var i = 0; i < shortestPathEdges.length; i++) {
             brain.remove(shortestPathEdges[i]);
         }
         shortestPathEdges = [];
@@ -468,24 +496,28 @@ function PreviewArea(canvas_, model_, name_) {
                 controllerLeft.update();
                 controllerRight.update();
                 scanOculusTouch();
+                console.log("scanOculusTouch");
             }
             //vrControl.update(); //todo: temporarily disabled to get graphjics to work
-        }
-        else {
-            if (mobile && 0) {  // todo: get code to work and re-enable by deleting && 0
-                if (gearVRControllerExist) {
-                    controllerRight.update();
-                    scanGearVRController();
-                }
-                //vrControl.update();  // todo: get code working then enable
+            console.log("vrControl.update()");
+        } else if (mobile && 0) {  // todo: get code to work and re-enable by deleting && 0
+            if (gearVRControllerExist) {
+                controllerRight.update();
+                scanGearVRController();
+                console.log("gearVRControllerExist");
             }
-            else
-                controls.update();   // todo: get code working then enable
+            //vrControl.update();  // todo: get code working then enable
+            console.log("vrControl.update()");
+        } else {
+            controls.update();   // todo: get code working then enable
+            console.log("controls.update() called");
         }
+
 
         if (enableRender)
             //changed from effect.render to renderer.render
             renderer.render(scene, camera);
+
 
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
 
@@ -495,15 +527,23 @@ function PreviewArea(canvas_, model_, name_) {
     this.requestAnimate = function () {
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
         //window.requestAnimationFrame(animatePV);
+        animatePV();
         controls.update()
         renderer.render(scene, camera);
+        console.log("requestAnimate called");
     };
 
-    this.enableRender = function (state) { enableRender = state; };
+    this.enableRender = function (state) {
+        enableRender = state;
+    };
 
-    this.isVRAvailable = function () { return enableVR; };
+    this.isVRAvailable = function () {
+        return enableVR;
+    };
 
-    this.isPresenting = function () { vrButton.isPresenting(); };
+    this.isPresenting = function () {
+        vrButton.isPresenting();
+    };
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
@@ -518,7 +558,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     // updating scenes: redrawing glyphs and displayed edges
-    this.updateScene = function (){
+    this.updateScene = function () {
         updateNodesPositions();
         this.updateNodesVisibility();
         this.redrawEdges();
@@ -530,7 +570,7 @@ function PreviewArea(canvas_, model_, name_) {
         var dataset = model.getDataset();
         var material, geometry;
 
-        for(var i=0; i < dataset.length; i++){
+        for (var i = 0; i < dataset.length; i++) {
             geometry = getNormalGeometry(dataset[i].hemisphere);
             material = getNormalMaterial(model, dataset[i].group);
             glyphs[i] = new THREE.Mesh(geometry, material);
@@ -544,21 +584,21 @@ function PreviewArea(canvas_, model_, name_) {
     // update the nodes positions according to the latest in the model
     var updateNodesPositions = function () {
         var dataset = model.getDataset();
-        for(var i=0; i < dataset.length; i++){
+        for (var i = 0; i < dataset.length; i++) {
             glyphs[i].position.set(dataset[i].position.x, dataset[i].position.y, dataset[i].position.z);
         }
     };
 
     this.updateNodesVisibility = function () {
         var dataset = model.getDataset();
-        for(var i=0; i < dataset.length; i++){
+        for (var i = 0; i < dataset.length; i++) {
             var opacity = 1.0;
-            if(getRoot && getRoot == i){ // root node
+            if (getRoot && getRoot == i) { // root node
                 opacity = 1.0;
             }
 
             if (shouldDrawRegion(dataset[i])) {
-                switch (model.getRegionState(dataset[i].group)){
+                switch (model.getRegionState(dataset[i].group)) {
                     case 'active':
                         opacity = 1.0;
                         break;
@@ -581,12 +621,12 @@ function PreviewArea(canvas_, model_, name_) {
     // don't draw edges belonging to inactive nodes
     this.drawConnections = function () {
         var nodeIdx;
-        for(var i= 0; i < getNodesSelected().length; i++){
+        for (var i = 0; i < getNodesSelected().length; i++) {
             nodeIdx = getNodesSelected()[i];
             // draw only edges belonging to active nodes
-            if(model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
+            if (model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
                 // two ways to draw edges
-                if(thresholdModality) {
+                if (thresholdModality) {
                     // 1) filter edges according to threshold
                     this.drawEdgesGivenNode(nodeIdx);
                 } else {
@@ -597,7 +637,7 @@ function PreviewArea(canvas_, model_, name_) {
         }
 
         // draw all edges belonging to the shortest path array
-        for(i=0; i < shortestPathEdges.length; i++){
+        for (i = 0; i < shortestPathEdges.length; i++) {
             displayedEdges[displayedEdges.length] = shortestPathEdges[i];
             brain.add(shortestPathEdges[i]);
         }
@@ -607,15 +647,16 @@ function PreviewArea(canvas_, model_, name_) {
 
     // skew the color distribution according to the nodes strength
     var computeColorGradient = function (c1, c2, n, p) {
-        var gradient = new Float32Array( n * 3 );
-        var p1 = p; var p2 = 1-p1;
+        var gradient = new Float32Array(n * 3);
+        var p1 = p;
+        var p2 = 1 - p1;
         for (var i = 0; i < n; ++i) {
             // skew the color distribution according to the nodes strength
-            var r = i/(n-1);
-            var rr = (r*r*(p2-0.5) + r*(0.5-p2*p2))/(p1*p2);
-            gradient[ i * 3 ] = c2.r + (c1.r - c2.r)*rr;
-            gradient[ i * 3 + 1 ] = c2.g + (c1.g - c2.g)*rr;
-            gradient[ i * 3 + 2 ] = c2.b + (c1.b - c2.b)*rr
+            var r = i / (n - 1);
+            var rr = (r * r * (p2 - 0.5) + r * (0.5 - p2 * p2)) / (p1 * p2);
+            gradient[i * 3] = c2.r + (c1.r - c2.r) * rr;
+            gradient[i * 3 + 1] = c2.g + (c1.g - c2.g) * rr;
+            gradient[i * 3 + 2] = c2.b + (c1.b - c2.b) * rr
         }
         return gradient;
     };
@@ -623,24 +664,24 @@ function PreviewArea(canvas_, model_, name_) {
     // set the color of displayed edges
     this.updateEdgeColors = function () {
         var edge, c1, c2;
-        for(var i = 0; i < displayedEdges.length; i++){
+        for (var i = 0; i < displayedEdges.length; i++) {
             edge = displayedEdges[i];
             c1 = glyphs[edge.nodes[0]].material.color;
             c2 = glyphs[edge.nodes[1]].material.color;
-            edge.geometry.addAttribute( 'color', new THREE.BufferAttribute( computeColorGradient(c1,c2,edge.nPoints, edge.p1), 3 ) );
+            edge.geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
         }
 
-        for(i = 0; i < shortestPathEdges.length; i++){
+        for (i = 0; i < shortestPathEdges.length; i++) {
             edge = displayedEdges[i];
             c1 = glyphs[edge.nodes[0]].material.color;
             c2 = glyphs[edge.nodes[1]].material.color;
-            edge.geometry.addAttribute( 'color', new THREE.BufferAttribute( computeColorGradient(c1,c2,edge.nPoints, edge.p1), 3 ) );
+            edge.geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, edge.nPoints, edge.p1), 3));
         }
     };
 
     this.updateEdgeOpacity = function (opacity) {
         edgeOpacity = opacity;
-        for(var i = 0; i < displayedEdges.length; i++){
+        for (var i = 0; i < displayedEdges.length; i++) {
             displayedEdges[i].material.opacity = opacity;
         }
     };
@@ -653,7 +694,7 @@ function PreviewArea(canvas_, model_, name_) {
     // line.setGeometry( geometry );
     // material = new THREE.MeshLineMaterial();
     // var mesh  = new THREE.Mesh(line.geometry, material);
-    var createLine = function(edge, ownerNode, nodes){
+    var createLine = function (edge, ownerNode, nodes) {
         var material = new THREE.LineBasicMaterial({
             transparent: true,
             opacity: edgeOpacity,
@@ -664,22 +705,22 @@ function PreviewArea(canvas_, model_, name_) {
         var geometry = new THREE.BufferGeometry();
         var n = edge.length;
 
-        var positions = new Float32Array( n * 3 );
+        var positions = new Float32Array(n * 3);
         for (var i = 0; i < n; i++) {
-            positions[ i * 3 ] = edge[i].x;
-            positions[ i * 3 + 1 ] = edge[i].y;
-            positions[ i * 3 + 2 ] = edge[i].z;
+            positions[i * 3] = edge[i].x;
+            positions[i * 3 + 1] = edge[i].y;
+            positions[i * 3 + 2] = edge[i].z;
         }
-        geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+        geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
 
         var s1 = model.getNodalStrength(nodes[0]), s2 = model.getNodalStrength(nodes[1]);
-        var p1 = s1/(s1+s2);
+        var p1 = s1 / (s1 + s2);
         var c1 = new THREE.Color(scaleColorGroup(model, model.getGroupNameByNodeIndex(nodes[0]))),// glyphs[nodes[0]].material.color,
             c2 = new THREE.Color(scaleColorGroup(model, model.getGroupNameByNodeIndex(nodes[1])));// glyphs[nodes[1]].material.color;
-        geometry.addAttribute( 'color', new THREE.BufferAttribute( computeColorGradient(c1,c2,n,p1), 3 ) );
+        geometry.addAttribute('color', new THREE.BufferAttribute(computeColorGradient(c1, c2, n, p1), 3));
 
         // geometry.colors = colorGradient;
-        var line  = new THREE.Line(geometry, material);
+        var line = new THREE.Line(geometry, material);
         line.name = ownerNode;
         line.nPoints = n;
         line.nodes = nodes;
@@ -702,7 +743,7 @@ function PreviewArea(canvas_, model_, name_) {
         if (getEnableEB()) {
             model.performEBOnNode(nodeIndex);
         }
-        for (var i =0; i < row.length; ++i) {
+        for (var i = 0; i < row.length; ++i) {
             if ((nodeIndex != row[i]) && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i)) {
                 displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[nodeIndex][row[i]]], nodeIndex, [nodeIndex, row[i]]);
             }
@@ -712,7 +753,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     // draw edges given a node following edge threshold
-    this.drawEdgesGivenNode = function(indexNode) {
+    this.drawEdgesGivenNode = function (indexNode) {
 
         var row = model.getConnectionMatrixRow(indexNode);
         var edges = model.getActiveEdges();
@@ -721,23 +762,23 @@ function PreviewArea(canvas_, model_, name_) {
             model.performEBOnNode(indexNode);
         }
 
-        for(var i=0; i < row.length ; i++){
-            if((i != indexNode) && Math.abs(row[i]) > model.getThreshold()  && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i)) {
+        for (var i = 0; i < row.length; i++) {
+            if ((i != indexNode) && Math.abs(row[i]) > model.getThreshold() && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i)) {
                 displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[indexNode][i]], indexNode, [indexNode, i]);
             }
         }
     };
 
     // give a specific node index, remove all edges from a specific node in a specific scene
-    this.removeEdgesGivenNode = function(indexNode) {
+    this.removeEdgesGivenNode = function (indexNode) {
         var l = displayedEdges.length;
 
         // keep a list of removed edges indexes
         var removedEdges = [];
-        for(var i=0; i < l; i++){
+        for (var i = 0; i < l; i++) {
             var edge = displayedEdges[i];
             //removing only the edges that starts from that node
-            if(edge.name == indexNode && shortestPathEdges.indexOf(edge) == -1){
+            if (edge.name == indexNode && shortestPathEdges.indexOf(edge) == -1) {
                 removedEdges[removedEdges.length] = i;
                 brain.remove(edge);
             }
@@ -745,69 +786,60 @@ function PreviewArea(canvas_, model_, name_) {
 
         // update the displayedEdges array
         var updatedDisplayEdges = [];
-        for(i=0; i < displayedEdges.length; i++){
+        for (i = 0; i < displayedEdges.length; i++) {
             //if the edge should not be removed
-            if( removedEdges.indexOf(i) == -1){
+            if (removedEdges.indexOf(i) == -1) {
                 updatedDisplayEdges[updatedDisplayEdges.length] = displayedEdges[i];
             }
         }
 
-        for(i=0; i < shortestPathEdges.length; i++){
+        for (i = 0; i < shortestPathEdges.length; i++) {
             updatedDisplayEdges[updatedDisplayEdges.length] = shortestPathEdges[i];
         }
         displayedEdges = updatedDisplayEdges;
     };
 
     // draw skybox from images
-    var addSkybox = function(){
+    var addSkybox = function () {
+        console.log("Adding skybox");
         var folder = 'darkgrid';
         var images = [
-            'images/'+folder+'/negx.png',
-            'images/'+folder+'/negy.png',
-            'images/'+folder+'/negz.png',
-            'images/'+folder+'/posx.png',
-            'images/'+folder+'/posy.png',
-            'images/'+folder+'/posz.png'
+            './images/' + folder + '/negx.png',
+            './images/' + folder + '/negy.png',
+            './images/' + folder + '/negz.png',
+            './images/' + folder + '/posx.png',
+            './images/' + folder + '/posy.png',
+            './images/' + folder + '/posz.png'
         ];
-        var loader = new CubeTextureLoader();
-        var cubemap = loader.load(images); // load textures
-        cubemap.format = THREE.RGBFormat;
-        //todo: a lot of this needs updated. (have done so in some previous works) but it would probably be just as easy
-        //todo: to write a new bit for this part.
-        var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
-        //shader.uniforms['tCube'].value = cubemap; // apply textures to shader
-
-        // create shader material
-        var skyBoxMaterial = new THREE.MeshBasicMaterial( {
-//            fragmentShader: shader.fragmentShader,
-//            vertexShader: shader.vertexShader,
-//            uniforms: shader.uniforms,
-            depthWrite: false,
-            color: 0xffffff,
-            envMap: cubemap,
-            side: THREE.BackSide
+        //create skybox using images
+        var skybox = new THREE.CubeTextureLoader().load(images);
+        //set the scene background property with the resulting texture
+        scene.background = skybox;
+        //activate background
+        scene.background.needsUpdate = true;
+        //
+        var geometry = new THREE.SphereGeometry(5000, 60, 40);
+        geometry.scale(-1, 1, 1);
+        var material = new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load('./images/' + folder + '/posy.png')
         });
+        var mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+    }; // end addSkybox
 
-        // create skybox mesh
-        var skybox = new THREE.Mesh(
-            new THREE.BoxGeometry(1500, 1500, 1500),
-            skyBoxMaterial
-        );
-
-        skybox.name = "skybox";
-        scene.add(skybox);
-    };
 
     // toggle skybox visibility
-    this.setSkyboxVisibility = function(visible){
-        var results = scene.children.filter(function(d) {return d.name == "skybox"});
+    this.setSkyboxVisibility = function (visible) {
+        var results = scene.children.filter(function (d) {
+            return d.name == "skybox"
+        });
         var skybox = results[0];
         skybox.visible = visible;
     };
 
     // draw a selected node: increase it's size
     this.drawSelectedNode = function (nodeIndex) {
-        if(getNodesSelected().indexOf(nodeIndex) == -1) {
+        if (getNodesSelected().indexOf(nodeIndex) == -1) {
             setNodesSelected(getNodesSelected().length, nodeIndex);
         }
         this.updateNodeGeometry(nodeIndex, 'selected');
@@ -816,14 +848,14 @@ function PreviewArea(canvas_, model_, name_) {
     // get intersected object beneath the mouse pointer
     // detects which scene: left or right
     // return undefined if no object was found
-    this.getIntersectedObject = function(vector) {
+    this.getIntersectedObject = function (vector) {
         raycaster.setFromCamera(vector, camera);
-        var objectsIntersected = raycaster.intersectObjects( glyphs );
-        return (objectsIntersected[0])?  objectsIntersected[0] : undefined;
+        var objectsIntersected = raycaster.intersectObjects(glyphs);
+        return (objectsIntersected[0]) ? objectsIntersected[0] : undefined;
     };
 
     // callback when window is resized
-    this.resizeScene = function(){
+    this.resizeScene = function () {
         if (vrButton && vrButton.isPresenting()) {
             camera.aspect = window.innerWidth / window.innerHeight;
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -837,7 +869,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     // compute shortest path info for a node
-    this.computeShortestPathForNode = function(nodeIndex) {
+    this.computeShortestPathForNode = function (nodeIndex) {
         console.log("Compute Shortest Path for node " + nodeIndex);
         setRoot(nodeIndex);
         model.computeShortestPathDistances(nodeIndex);
@@ -853,18 +885,18 @@ function PreviewArea(canvas_, model_, name_) {
 
         this.removeShortestPathEdgesFromScene();
 
-        for(var i = 0; i < hierarchy.length; ++i) {
-            if( i < hops + 1 ) {
+        for (var i = 0; i < hierarchy.length; ++i) {
+            if (i < hops + 1) {
                 //Visible node branch
-                for(var j=0; j < hierarchy[i].length; j++){
+                for (var j = 0; j < hierarchy[i].length; j++) {
                     setVisibleNodes(hierarchy[i][j], true);
                     var prev = previousMap[hierarchy[i][j]];
-                    if(prev){
-                        shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][hierarchy[i][j]]] , prev, [prev, i]);
+                    if (prev) {
+                        shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][hierarchy[i][j]]], prev, [prev, i]);
                     }
                 }
             } else {
-                for(var j=0; j < hierarchy[i].length; ++j){
+                for (var j = 0; j < hierarchy[i].length; ++j) {
                     setVisibleNodes(hierarchy[i][j], false);
                 }
             }
@@ -876,9 +908,9 @@ function PreviewArea(canvas_, model_, name_) {
         this.removeShortestPathEdgesFromScene();
 
         // show only nodes with shortest paths distance less than a threshold
-        var threshold = model.getDistanceThreshold()/100.*model.getMaximumDistance();
+        var threshold = model.getDistanceThreshold() / 100. * model.getMaximumDistance();
         var distanceArray = model.getDistanceArray();
-        for(var i=0; i < getVisibleNodesLength(); i++){
+        for (var i = 0; i < getVisibleNodesLength(); i++) {
             setVisibleNodes(i, (distanceArray[i] <= threshold));
         }
 
@@ -886,10 +918,10 @@ function PreviewArea(canvas_, model_, name_) {
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
 
-        for(i=0; i < getVisibleNodesLength(); ++i) {
-            if(getVisibleNodes(i)){
+        for (i = 0; i < getVisibleNodesLength(); ++i) {
+            if (getVisibleNodes(i)) {
                 var prev = previousMap[i];
-                if(prev) {
+                if (prev) {
                     shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][i]], prev, [prev, i]);
                 }
             }
@@ -899,16 +931,16 @@ function PreviewArea(canvas_, model_, name_) {
     this.updateShortestPathEdges = function () {
         switch (getShortestPathVisMethod()) {
             case (SHORTEST_DISTANCE):
-                    this.updateShortestPathBasedOnDistance();
+                this.updateShortestPathBasedOnDistance();
                 break;
             case (NUMBER_HOPS):
-                    this.updateShortestPathBasedOnHops();
+                this.updateShortestPathBasedOnHops();
                 break;
         }
     };
 
     // prepares the shortest path from a = root to node b
-    this.getShortestPathFromRootToNode = function(target) {
+    this.getShortestPathFromRootToNode = function (target) {
         this.removeShortestPathEdgesFromScene();
 
         var i = target;
@@ -918,10 +950,10 @@ function PreviewArea(canvas_, model_, name_) {
         var previousMap = model.getPreviousMap();
 
         setVisibleNodes(getVisibleNodes().fill(true));
-        while(previousMap[i]!= null){
+        while (previousMap[i] != null) {
             prev = previousMap[i];
             setVisibleNodes(prev, true);
-            shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][i]], prev, [prev, i] );
+            shortestPathEdges[shortestPathEdges.length] = createLine(edges[edgeIdx[prev][i]], prev, [prev, i]);
             i = prev;
         }
 
@@ -930,12 +962,12 @@ function PreviewArea(canvas_, model_, name_) {
 
     // get intersected object pointed to by Vive/Touch Controller pointer
     // return undefined if no object was found
-    var getPointedObject = function(controller) {
+    var getPointedObject = function (controller) {
 
         var gamePad = controller.getGamepad();
         if (gamePad) {
             var orientation = new THREE.Quaternion().fromArray(gamePad.pose.orientation);
-            var v3orientation = new THREE.Vector3(0,0,-1.0);
+            var v3orientation = new THREE.Vector3(0, 0, -1.0);
             v3orientation.applyQuaternion(orientation);
             var ray = new THREE.Raycaster(controller.position, v3orientation);
             var objectsIntersected = ray.intersectObjects(glyphs);
@@ -950,10 +982,10 @@ function PreviewArea(canvas_, model_, name_) {
     // Update the text and position according to selected node
     // The alignment, size and offset parameters are set by experimentation
     // TODO needs more experimentation
-    this.updateNodeLabel = function(text, nodeIndex) {
+    this.updateNodeLabel = function (text, nodeIndex) {
         var context = nspCanvas.getContext('2d');
         context.textAlign = 'left';
-        context.clearRect(0, 0, 256*4, 256);
+        context.clearRect(0, 0, 256 * 4, 256);
         context.fillText(text, 5, 120);
 
         nodeNameMap.needsUpdate = true;
@@ -963,11 +995,11 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     // Adding Node label Sprite
-    var addNodeLabel = function() {
+    var addNodeLabel = function () {
 
         nspCanvas = document.createElement('canvas');
         var size = 256;
-        nspCanvas.width = size*4;
+        nspCanvas.width = size * 4;
         nspCanvas.height = size;
         var context = nspCanvas.getContext('2d');
         context.fillStyle = '#ffffff';
@@ -986,14 +1018,16 @@ function PreviewArea(canvas_, model_, name_) {
         });
 
         nodeLabelSprite = new THREE.Sprite(mat);
-        nodeLabelSprite.scale.set( 100, 50, 1 );
-        nodeLabelSprite.position.set( 0, 0, 0 );
+        nodeLabelSprite.scale.set(100, 50, 1);
+        nodeLabelSprite.position.set(0, 0, 0);
         brain.add(nodeLabelSprite);
     };
 
-    this.getCamera = function() { return camera; };
+    this.getCamera = function () {
+        return camera;
+    };
 
-    this.syncCameraWith = function(cam) {
+    this.syncCameraWith = function (cam) {
         camera.copy(cam);
         camera.position.copy(cam.position);
         camera.rotation.copy(cam.rotation);
