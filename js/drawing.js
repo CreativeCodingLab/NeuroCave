@@ -317,7 +317,7 @@ var initControls = function () {
     modelLeft.setAllRegionsActivated();
     modelRight.setAllRegionsActivated();
 
-    createLegend(modelLeft); //todo: temporarily disabled to get code to zork
+    createLegend(modelLeft);
 
     // if (mobile) { // todo: probably not required for webXR
     //     console.log("Mobile VR requested");
