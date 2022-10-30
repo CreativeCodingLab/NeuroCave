@@ -49,70 +49,72 @@ function PreviewArea(canvas_, model_, name_) {
     var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false,
         enableRender = true;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
-
     var enableVR = false;
     var activateVR = false;
+    var vrButton = null;
+
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
     var glyphs = [];
     var displayedEdges = [];
+
     // shortest path
     var shortestPathEdges = [];
 
     var edgeOpacity = 1.0;
 
-    var vrButton = null;
-
     // request VR activation - desktop case
     // advise renaming this function to avoid conflict with variable
-    this.activateVR = function (activate) {
-        if (activate == activateVR)
-            return;
-        activateVR = activate;
-        if (!mobile) {
-            if (activateVR) {
-                console.log("Activate VR for PV: " + name);
-                //effect.requestPresent();
-            } else
-                console.log("Disable VR for PV: " + name);
-            //effect.exitPresent();
-        }
-    };
+    // this.activateVR = function (activate) {
+    //     if (activate == activateVR)
+    //         return;
+    //     activateVR = activate;
+    //     if (!mobile) {
+    //         if (activateVR) {
+    //             console.log("Activate VR for PV: " + name);
+    //             //effect.requestPresent();
+    //         } else
+    //             console.log("Disable VR for PV: " + name);
+    //         //effect.exitPresent();
+    //     }
+    // };
 
 
 
     // init Oculus Rift
     this.initVR = function () {
-        //init VR
-        if (mobile) {
-            console.log("Init VR for PV: " + name);
-            enableVR = true;
-            activateVR = true;
-            // init VR
-            vrButton = document.getElementById('vrButton' + name);
-            vrButton.addEventListener('click', function () {
-                vrButton.style.display = 'none';
-                //effect.requestPresent();
-            }, false);
-            //effect.requestPresent();
-        } else {
-            console.log("Init VR for PV: " + name);
-            enableVR = true;
-            activateVR = false;
-            // init VR
-            vrButton = document.getElementById('vrButton' + name);
-            vrButton.addEventListener('click', function () {
-                vrButton.style.display = 'none';
-                //effect.requestPresent();
-            }, false);
-            //effect.requestPresent();
-        }
+        //init VR //todo: this is stub now
 
     };
+    // OLD InitVR Code Here:
+        // if (mobile) {
+        //     console.log("Init VR for PV: " + name);
+        //     enableVR = true;
+        //     activateVR = true;
+        //     // init VR
+        //     vrButton = document.getElementById('vrButton' + name);
+        //     vrButton.addEventListener('click', function () {
+        //         vrButton.style.display = 'none';
+        //         //effect.requestPresent();
+        //     }, false);
+        //     //effect.requestPresent();
+        // } else {
+        //     console.log("Init VR for PV: " + name);
+        //     enableVR = true;
+        //     activateVR = false;
+        //     // init VR
+        //     vrButton = document.getElementById('vrButton' + name);
+        //     vrButton.addEventListener('click', function () {
+        //         vrButton.style.display = 'none';
+        //         //effect.requestPresent();
+        //     }, false);
+        //     //effect.requestPresent();
+        // }
+//    };
 
     //on resize
     this.onWindowResize = function () {
-        if (enableVR)
+        if (enableVR)  //todo: Is this still required in WebXR model?
             return;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
@@ -127,240 +129,240 @@ function PreviewArea(canvas_, model_, name_) {
     // init Oculus Touch controllers
     // not supported in Firefox, only Google chromium
     // check https://webvr.info/get-chrome/
-    var initOculusTouch = function () {
-        if (!enableVR)
-            return;
+    // var initOculusTouch = function () {
+    //     if (!enableVR)
+    //         return;
+    //
+    //     controllerLeft = new THREE.ViveController(0);
+    //     controllerRight = new THREE.ViveController(1);
+    //
+    //     var loader = new THREE.OBJLoader();
+    //     loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+    //     loader.load('vr_controller_vive_1_5.obj', function (object) {
+    //
+    //         var loader = new THREE.TextureLoader();
+    //         loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+    //
+    //         var controller = object.children[0];
+    //         controller.material.map = loader.load('onepointfive_texture.png');
+    //         controller.material.specularMap = loader.load('onepointfive_spec.png');
+    //
+    //         controllerLeft.add(object.clone());
+    //         controllerRight.add(object.clone());
+    //
+    //         controllerLeft.standingMatrix = vrControl.getStandingMatrix();
+    //         controllerRight.standingMatrix = vrControl.getStandingMatrix();
+    //
+    //         scene.add(controllerLeft);
+    //         scene.add(controllerRight);
+    //     });
+    //
+    //     // controllerLeft.addEventListener('gripsup', function(e) { updateVRStatus('left'); }, true);
+    //     // controllerRight.addEventListener('gripsup', function(e) { updateVRStatus('right'); }, true);
+    //
+    //     oculusTouchExist = true;
+    //
+    //     console.log("Init Oculus Touch done");
+    // };
 
-        controllerLeft = new THREE.ViveController(0);
-        controllerRight = new THREE.ViveController(1);
+    // var initGearVRController = function () {
+    //     if (!enableVR || !mobile)
+    //         return;
+    //
+    //     // assume right handed user
+    //     controllerRight = new THREE.GearVRController(0);
+    //     //controllerRight.position.set( 25, - 50, 0 );
+    //
+    //
+    //     var loader = new THREE.OBJLoader();
+    //     loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+    //     loader.load('vr_controller_vive_1_5.obj', function (object) {
+    //         var loader = new THREE.TextureLoader();
+    //         loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
+    //         var controller = object.children[0];
+    //         controller.material.map = loader.load('onepointfive_texture.png');
+    //         controller.material.specularMap = loader.load('onepointfive_spec.png');
+    //         controllerRight.add(object.clone());
+    //         controllerRight.standingMatrix = vrControl.getStandingMatrix();
+    //         scene.add(controllerRight);
+    //     });
+    //
+    //     gearVRControllerExist = true;
+    //
+    //     console.log("Init Gear VR Controller done");
+    // };
 
-        var loader = new THREE.OBJLoader();
-        loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
-        loader.load('vr_controller_vive_1_5.obj', function (object) {
-
-            var loader = new THREE.TextureLoader();
-            loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
-
-            var controller = object.children[0];
-            controller.material.map = loader.load('onepointfive_texture.png');
-            controller.material.specularMap = loader.load('onepointfive_spec.png');
-
-            controllerLeft.add(object.clone());
-            controllerRight.add(object.clone());
-
-            controllerLeft.standingMatrix = vrControl.getStandingMatrix();
-            controllerRight.standingMatrix = vrControl.getStandingMatrix();
-
-            scene.add(controllerLeft);
-            scene.add(controllerRight);
-        });
-
-        // controllerLeft.addEventListener('gripsup', function(e) { updateVRStatus('left'); }, true);
-        // controllerRight.addEventListener('gripsup', function(e) { updateVRStatus('right'); }, true);
-
-        oculusTouchExist = true;
-
-        console.log("Init Oculus Touch done");
-    };
-
-    var initGearVRController = function () {
-        if (!enableVR || !mobile)
-            return;
-
-        // assume right handed user
-        controllerRight = new THREE.GearVRController(0);
-        //controllerRight.position.set( 25, - 50, 0 );
-
-
-        var loader = new THREE.OBJLoader();
-        loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
-        loader.load('vr_controller_vive_1_5.obj', function (object) {
-            var loader = new THREE.TextureLoader();
-            loader.setPath('js/external-libraries/vr/models/obj/vive-controller/');
-            var controller = object.children[0];
-            controller.material.map = loader.load('onepointfive_texture.png');
-            controller.material.specularMap = loader.load('onepointfive_spec.png');
-            controllerRight.add(object.clone());
-            controllerRight.standingMatrix = vrControl.getStandingMatrix();
-            scene.add(controllerRight);
-        });
-
-        gearVRControllerExist = true;
-
-        console.log("Init Gear VR Controller done");
-    };
-
-    var initWebVRForMobile = function () {
-        // Initialize the WebVR UI.
-        var uiOptions = {
-            color: 'black',
-            background: 'white',
-            corners: 'round',
-            height: 40,
-            disabledOpacity: 0.9
-        };
-        vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
-        vrButton.on('exit', function () {
-            updateVRStatus('disable');
-        });
-        vrButton.on('hide', function () {
-            document.getElementById('vr' + name).style.display = 'none';
-        });
-        vrButton.on('show', function () {
-            document.getElementById('vr' + name).style.display = 'inherit';
-        });
-        document.getElementById('vrButton' + name).appendChild(vrButton.domElement);
-        document.getElementById('magicWindow' + name).addEventListener('click', function () {
-            vr = true;
-            activateVR = true;
-            activeVR = name.toLowerCase();
-            console.log("Active VR = " + activeVR);
-            vrButton.requestEnterFullscreen();
-        });
-    };
+    // var initWebVRForMobile = function () {
+    //     // Initialize the WebVR UI.
+    //     var uiOptions = {
+    //         color: 'black',
+    //         background: 'white',
+    //         corners: 'round',
+    //         height: 40,
+    //         disabledOpacity: 0.9
+    //     };
+    //     vrButton = new webvrui.EnterVRButton(renderer.domElement, uiOptions);
+    //     vrButton.on('exit', function () {
+    //         updateVRStatus('disable');
+    //     });
+    //     vrButton.on('hide', function () {
+    //         document.getElementById('vr' + name).style.display = 'none';
+    //     });
+    //     vrButton.on('show', function () {
+    //         document.getElementById('vr' + name).style.display = 'inherit';
+    //     });
+    //     document.getElementById('vrButton' + name).appendChild(vrButton.domElement);
+    //     document.getElementById('magicWindow' + name).addEventListener('click', function () {
+    //         vr = true;
+    //         activateVR = true;
+    //         activeVR = name.toLowerCase();
+    //         console.log("Active VR = " + activeVR);
+    //         vrButton.requestEnterFullscreen();
+    //     });
+    // };
 
     // scan Gear VR controller
-    var scanGearVRController = function () {
-        var thumbPad = controllerRight.getButtonState('thumbpad');
-        var trigger = controllerRight.getButtonState('trigger');
-        var angleX = null, angleY = null;
-        var gamePadRight = controllerRight.getGamepad();
-        if (gamePadRight && !trigger) {
-            angleX = gamePadRight.axes[0];
-            angleY = gamePadRight.axes[1];
-            if (thumbPad) {
-                brain.rotateX(0.2 * angleX);
-                brain.rotateZ(0.2 * angleY);
-            } else {
-                brain.position.z += 5 * angleX;
-                brain.position.x += 5 * angleY;
-            }
-            brain.matrixWorldNeedsUpdate = true;
-        }
-        var v3Origin = new THREE.Vector3(0, 0, 0);
-        var v3UnitUp = new THREE.Vector3(0, 0, -100);
-
-        // Find all nodes within 0.1 distance from left Touch Controller
-        var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
-        for (var i = 0; i < brain.children.length; i++) {
-            var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
-            if ((distToNodeIRight < closestNodeDistanceRight)) {
-                closestNodeDistanceRight = distToNodeIRight;
-                closestNodeIndexRight = i;
-            }
-        }
-
-        var isLeft = (activateVR == 'left');
-        if (trigger) {
-            pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
-
-            if (pointerRight) {
-                // Touch Controller pointer already on! scan for selection
-                if (thumbPad) {
-                    updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
-                }
-            } else {
-                pointerRight = drawPointer(v3Origin, v3UnitUp);
-                controllerRight.add(pointerRight);
-            }
-            updateNodeMoveOver(model, getPointedObject(controllerRight));
-        } else {
-            if (pointerRight) {
-                controllerRight.remove(pointerRight);
-            }
-            pointerRight = null;
-        }
-    };
+    // var scanGearVRController = function () {
+    //     var thumbPad = controllerRight.getButtonState('thumbpad');
+    //     var trigger = controllerRight.getButtonState('trigger');
+    //     var angleX = null, angleY = null;
+    //     var gamePadRight = controllerRight.getGamepad();
+    //     if (gamePadRight && !trigger) {
+    //         angleX = gamePadRight.axes[0];
+    //         angleY = gamePadRight.axes[1];
+    //         if (thumbPad) {
+    //             brain.rotateX(0.2 * angleX);
+    //             brain.rotateZ(0.2 * angleY);
+    //         } else {
+    //             brain.position.z += 5 * angleX;
+    //             brain.position.x += 5 * angleY;
+    //         }
+    //         brain.matrixWorldNeedsUpdate = true;
+    //     }
+    //     var v3Origin = new THREE.Vector3(0, 0, 0);
+    //     var v3UnitUp = new THREE.Vector3(0, 0, -100);
+    //
+    //     // Find all nodes within 0.1 distance from left Touch Controller
+    //     var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
+    //     for (var i = 0; i < brain.children.length; i++) {
+    //         var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
+    //         if ((distToNodeIRight < closestNodeDistanceRight)) {
+    //             closestNodeDistanceRight = distToNodeIRight;
+    //             closestNodeIndexRight = i;
+    //         }
+    //     }
+    //
+    //     var isLeft = (activateVR == 'left');
+    //     if (trigger) {
+    //         pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
+    //
+    //         if (pointerRight) {
+    //             // Touch Controller pointer already on! scan for selection
+    //             if (thumbPad) {
+    //                 updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
+    //             }
+    //         } else {
+    //             pointerRight = drawPointer(v3Origin, v3UnitUp);
+    //             controllerRight.add(pointerRight);
+    //         }
+    //         updateNodeMoveOver(model, getPointedObject(controllerRight));
+    //     } else {
+    //         if (pointerRight) {
+    //             controllerRight.remove(pointerRight);
+    //         }
+    //         pointerRight = null;
+    //     }
+    // };
 
     // scan the Oculus Touch for controls
-    var scanOculusTouch = function () {
-        var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
-        var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
-        var angleX = null, angleY = null;
-        var gamePadLeft = controllerLeft.getGamepad();
-        var gamePadRight = controllerRight.getGamepad();
-        if (gamePadLeft) {
-            angleX = gamePadLeft.axes[0];
-            angleY = gamePadLeft.axes[1];
-            brain.rotateX(boostRotationSpeed * angleX);
-            brain.rotateZ(boostRotationSpeed * angleY);
-            brain.matrixWorldNeedsUpdate = true;
-        }
-
-        if (gamePadRight) {
-            angleX = gamePadRight.axes[0];
-            angleY = gamePadRight.axes[1];
-            if (controllerRight.getButtonState('thumbpad')) {
-                brain.position.y += boostMoveSpeed * angleY;
-            } else {
-                brain.position.z += boostMoveSpeed * angleX;
-                brain.position.x += boostMoveSpeed * angleY;
-            }
-            brain.matrixWorldNeedsUpdate = true;
-        }
-
-        var v3Origin = new THREE.Vector3(0, 0, 0);
-        var v3UnitUp = new THREE.Vector3(0, 0, -100.0);
-        // var v3UnitFwd = new THREE.Vector3(0,0,1);
-
-        // Find all nodes within 0.1 distance from left Touch Controller
-        var closestNodeIndexLeft = 0, closestNodeDistanceLeft = 99999.9;
-        var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
-        for (var i = 0; i < brain.children.length; i++) {
-            var distToNodeILeft = controllerLeft.position.distanceTo(brain.children[i].getWorldPosition());
-            if ((distToNodeILeft < closestNodeDistanceLeft)) {
-                closestNodeDistanceLeft = distToNodeILeft;
-                closestNodeIndexLeft = i;
-            }
-
-            var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
-            if ((distToNodeIRight < closestNodeDistanceRight)) {
-                closestNodeDistanceRight = distToNodeIRight;
-                closestNodeIndexRight = i;
-            }
-        }
-
-        var isLeft = (activateVR == 'left');
-        if (controllerLeft.getButtonState('trigger')) {
-            pointedNodeIdx = (closestNodeDistanceLeft < 2.0) ? closestNodeIndexLeft : -1;
-
-            if (pointerLeft) {
-                // Touch Controller pointer already on! scan for selection
-                if (controllerLeft.getButtonState('grips')) {
-                    updateNodeSelection(model, getPointedObject(controllerLeft), isLeft);
-                }
-            } else {
-                pointerLeft = drawPointer(v3Origin, v3UnitUp);
-                controllerLeft.add(pointerLeft);
-            }
-            updateNodeMoveOver(model, getPointedObject(controllerLeft));
-        } else {
-            if (pointerLeft) {
-                controllerLeft.remove(pointerLeft);
-            }
-            pointerLeft = null;
-        }
-
-        if (controllerRight.getButtonState('trigger')) {
-            pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
-
-            if (pointerRight) {
-                // Touch Controller pointer already on! scan for selection
-                if (controllerRight.getButtonState('grips')) {
-                    updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
-                }
-            } else {
-                pointerRight = drawPointer(v3Origin, v3UnitUp);
-                controllerRight.add(pointerRight);
-            }
-            updateNodeMoveOver(model, getPointedObject(controllerRight));
-        } else {
-            if (pointerRight) {
-                controllerRight.remove(pointerRight);
-            }
-            pointerRight = null;
-        }
-    };
+    // var scanOculusTouch = function () {
+    //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
+    //     var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
+    //     var angleX = null, angleY = null;
+    //     var gamePadLeft = controllerLeft.getGamepad();
+    //     var gamePadRight = controllerRight.getGamepad();
+    //     if (gamePadLeft) {
+    //         angleX = gamePadLeft.axes[0];
+    //         angleY = gamePadLeft.axes[1];
+    //         brain.rotateX(boostRotationSpeed * angleX);
+    //         brain.rotateZ(boostRotationSpeed * angleY);
+    //         brain.matrixWorldNeedsUpdate = true;
+    //     }
+    //
+    //     if (gamePadRight) {
+    //         angleX = gamePadRight.axes[0];
+    //         angleY = gamePadRight.axes[1];
+    //         if (controllerRight.getButtonState('thumbpad')) {
+    //             brain.position.y += boostMoveSpeed * angleY;
+    //         } else {
+    //             brain.position.z += boostMoveSpeed * angleX;
+    //             brain.position.x += boostMoveSpeed * angleY;
+    //         }
+    //         brain.matrixWorldNeedsUpdate = true;
+    //     }
+    //
+    //     var v3Origin = new THREE.Vector3(0, 0, 0);
+    //     var v3UnitUp = new THREE.Vector3(0, 0, -100.0);
+    //     // var v3UnitFwd = new THREE.Vector3(0,0,1);
+    //
+    //     // Find all nodes within 0.1 distance from left Touch Controller
+    //     var closestNodeIndexLeft = 0, closestNodeDistanceLeft = 99999.9;
+    //     var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
+    //     for (var i = 0; i < brain.children.length; i++) {
+    //         var distToNodeILeft = controllerLeft.position.distanceTo(brain.children[i].getWorldPosition());
+    //         if ((distToNodeILeft < closestNodeDistanceLeft)) {
+    //             closestNodeDistanceLeft = distToNodeILeft;
+    //             closestNodeIndexLeft = i;
+    //         }
+    //
+    //         var distToNodeIRight = controllerRight.position.distanceTo(brain.children[i].getWorldPosition());
+    //         if ((distToNodeIRight < closestNodeDistanceRight)) {
+    //             closestNodeDistanceRight = distToNodeIRight;
+    //             closestNodeIndexRight = i;
+    //         }
+    //     }
+    //
+    //     var isLeft = (activateVR == 'left');
+    //     if (controllerLeft.getButtonState('trigger')) {
+    //         pointedNodeIdx = (closestNodeDistanceLeft < 2.0) ? closestNodeIndexLeft : -1;
+    //
+    //         if (pointerLeft) {
+    //             // Touch Controller pointer already on! scan for selection
+    //             if (controllerLeft.getButtonState('grips')) {
+    //                 updateNodeSelection(model, getPointedObject(controllerLeft), isLeft);
+    //             }
+    //         } else {
+    //             pointerLeft = drawPointer(v3Origin, v3UnitUp);
+    //             controllerLeft.add(pointerLeft);
+    //         }
+    //         updateNodeMoveOver(model, getPointedObject(controllerLeft));
+    //     } else {
+    //         if (pointerLeft) {
+    //             controllerLeft.remove(pointerLeft);
+    //         }
+    //         pointerLeft = null;
+    //     }
+    //
+    //     if (controllerRight.getButtonState('trigger')) {
+    //         pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
+    //
+    //         if (pointerRight) {
+    //             // Touch Controller pointer already on! scan for selection
+    //             if (controllerRight.getButtonState('grips')) {
+    //                 updateNodeSelection(model, getPointedObject(controllerRight), isLeft);
+    //             }
+    //         } else {
+    //             pointerRight = drawPointer(v3Origin, v3UnitUp);
+    //             controllerRight.add(pointerRight);
+    //         }
+    //         updateNodeMoveOver(model, getPointedObject(controllerRight));
+    //     } else {
+    //         if (pointerRight) {
+    //             controllerRight.remove(pointerRight);
+    //         }
+    //         pointerRight = null;
+    //     }
+    // };
 
     // draw a pointing line
     var drawPointer = function (start, end) {
@@ -505,27 +507,28 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     var animatePV = function () {
-        if (enableVR && activateVR) {
-            if (oculusTouchExist) {
-                controllerLeft.update();
-                controllerRight.update();
-                scanOculusTouch();
-                console.log("scanOculusTouch");
-            }
-            //vrControl.update(); //todo: temporarily disabled to get graphjics to work
-            console.log("vrControl.update()");
-        } else if (mobile && 0) {  // todo: get code to work and re-enable by deleting && 0
-            if (gearVRControllerExist) {
-                controllerRight.update();
-                scanGearVRController();
-                console.log("gearVRControllerExist");
-            }
-            //vrControl.update();  // todo: get code working then enable
-            console.log("vrControl.update()");
-        } else {
-            controls.update();   // todo: get code working then enable
+        // if (enableVR && activateVR) {
+        //     // if (oculusTouchExist) { //todo: Change old WebVR code to WebXR
+        //     //     controllerLeft.update();
+        //     //     controllerRight.update();
+        //     //     scanOculusTouch();
+        //     //     console.log("scanOculusTouch");
+        //     // }
+        //     //vrControl.update(); //todo: Change old WebVR code to WebXR
+        //     console.log("vrControl.update()");
+        // } else if (mobile && 0) {  // todo: get code to work and re-enable by deleting && 0
+        //     if (gearVRControllerExist) {
+        //         controllerRight.update();
+        //         scanGearVRController();
+        //         console.log("gearVRControllerExist");
+        //     }
+        //     //vrControl.update();  // todo: get code working then enable
+        //     console.log("vrControl.update()");
+        // } else {
+
+        controls.update();   // todo: this only executes when not VR or Mobile in Old WebVR Model. Consider in WebXR
             //console.log("controls.update() called");
-        }
+        //}
 
 
         if (enableRender)
@@ -555,9 +558,9 @@ function PreviewArea(canvas_, model_, name_) {
         return enableVR;
     };
 
-    this.isPresenting = function () {
-        vrButton.isPresenting();
-    };
+    // this.isPresenting = function () {
+    //     vrButton.isPresenting();
+    // };
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
@@ -873,16 +876,16 @@ function PreviewArea(canvas_, model_, name_) {
 
     // callback when window is resized
     this.resizeScene = function () {
-        //todo disabled for now straight to else  vrButton.isPresenting()
-        if (vrButton && 0) {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            console.log("Resize for Mobile VR");
-        } else {
+        //todo disabled for now straight to else  vrButton.isPresenting() ...  actually removing all WebVR for now
+        // if (vrButton && 0) {
+        //     camera.aspect = window.innerWidth / window.innerHeight;
+        //     renderer.setSize(window.innerWidth, window.innerHeight);
+        //     console.log("Resize for Mobile VR");
+        // } else {
             camera.aspect = window.innerWidth / 2.0 / window.innerHeight;
             renderer.setSize(window.innerWidth / 2.0, window.innerHeight);
             console.log("Resize");
-        }
+        //}
         camera.updateProjectionMatrix();
     };
 
@@ -1055,7 +1058,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // PreviewArea construction
     this.createCanvas();
-    this.initVR();
+    this.initVR();  //todo: Is this still required with new WebXR model?
     this.drawRegions();
 }
 

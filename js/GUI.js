@@ -681,10 +681,11 @@ var enableThresholdControls = function (status) {
         elem.disabled = !status;
 };
 
-var hideVRMaximizeButtons = function () {
-    document.getElementById("magicWindowLeft").style.visibility = "hidden";
-    document.getElementById("magicWindowRight").style.visibility = "hidden";
-};
+// todo: this hides the Enter VR buttons I guess but not sure what its for or if required in webXR
+// var hideVRMaximizeButtons = function () {
+//     document.getElementById("magicWindowLeft").style.visibility = "hidden";
+//     document.getElementById("magicWindowRight").style.visibility = "hidden";
+// };
 
 
 // add labels check boxes, appear/disappear on right click
@@ -780,4 +781,4 @@ var toggleMenus = function (e) {
 
 var getShortestPathVisMethod = function () { return shortestPathVisMethod }
 
-export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,hideVRMaximizeButtons, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend}
+export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons

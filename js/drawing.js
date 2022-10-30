@@ -41,7 +41,7 @@ import {
     enableShortestPathFilterButton,
     addDimensionFactorSlider,
     createLegend,
-    hideVRMaximizeButtons,
+    //hideVRMaximizeButtons,
     toggleMenus
 } from './GUI.js';
 import {queue} from "./external-libraries/queue";
@@ -75,10 +75,10 @@ var updateNodeMoveOver = function (model, intersectedObject) {
     // update node information label
     if ( nodeExistAndVisible ) {
         setNodeInfoPanel(region, nodeIdx);
-        if (vr) {
-            previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
-            previewAreaRight.updateNodeLabel(region.name, nodeIdx);
-        }
+        // if (vr) {  //todo: this can be used outside of VR to help get node label info next to the node itself, not in the screen corner
+        //     previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
+        //     previewAreaRight.updateNodeLabel(region.name, nodeIdx);
+        // }
     }
 
     if ( nodeExistAndVisible && (nodesSelected.indexOf(nodeIdx) == -1)) { // not selected
@@ -227,68 +227,71 @@ function onMouseUp(model, event) {
 }
 
 function onKeyPress(event) {
-    if (event.key === 'v' || event.keyCode === 118) {
-        if (!previewAreaLeft.isVRAvailable()) {
-            alert("No VR Hardware found!!!");
-            return;
-        }
-        updateVRStatus('enable');
-        console.log("Enter VR mode");
-    }
-    if (vr && (event.key === 's' || event.keyCode === 115)) {
-        updateVRStatus('left');
-        console.log("VR Active for left preview area");
-    }
-    if (vr && (event.key === 'd' || event.keyCode === 100)) {
-        updateVRStatus('right');
-        console.log("VR Active for right preview area");
-    }
-    if (event.key === 'e' || event.keyCode === 101) {
-        updateVRStatus('disable');
-        console.log("Exit VR mode");
-    }
+    // todo: this is now a stub. no move keyboard activated VR
 }
+    // if (event.key === 'v' || event.keyCode === 118) {
+    //     if (!previewAreaLeft.isVRAvailable()) {
+    //         alert("No VR Hardware found!!!");
+    //         return;
+    //     }
+    //     updateVRStatus('enable');
+    //     console.log("Enter VR mode");
+    // }
+    // if (vr && (event.key === 's' || event.keyCode === 115)) {
+    //     updateVRStatus('left');
+    //     console.log("VR Active for left preview area");
+    // }
+    // if (vr && (event.key === 'd' || event.keyCode === 100)) {
+    //     updateVRStatus('right');
+    //     console.log("VR Active for right preview area");
+    // }
+    // if (event.key === 'e' || event.keyCode === 101) {
+    //     updateVRStatus('disable');
+    //     console.log("Exit VR mode");
+    // }
+//}
 
+// todo: this is probably not needed in WebXR
 // update VR status for desktop
-var updateVRStatus = function (status) {
-    switch (status)
-    {
-        case 'enable':
-            activeVR = 'none';
-            vr = true;
-            break;
-        case 'left':
-            activeVR = 'left';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            // VR allows only one canvas to perform the rendering
-            previewAreaLeft.enableRender(true);
-            previewAreaRight.enableRender(false);
-            setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
-            break;
-        case 'right':
-            activeVR = 'right';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            // VR allows only one canvas to perform the rendering
-            previewAreaLeft.enableRender(false);
-            previewAreaRight.enableRender(true);
-            setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
-            break;
-        case 'disable':
-            activeVR = 'none';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            vr = false;
-            previewAreaLeft.resetCamera();
-            previewAreaRight.resetCamera();
-            previewAreaLeft.resetBrainPosition();
-            previewAreaRight.resetBrainPosition();
-            previewAreaLeft.enableRender(true);
-            previewAreaRight.enableRender(true);
-            break;
-    }
-};
+// var updateVRStatus = function (status) {
+//     switch (status)
+//     {
+//         case 'enable':
+//             activeVR = 'none';
+//             vr = true;
+//             break;
+//         case 'left':
+//             activeVR = 'left';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             // VR allows only one canvas to perform the rendering
+//             previewAreaLeft.enableRender(true);
+//             previewAreaRight.enableRender(false);
+//             setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
+//             break;
+//         case 'right':
+//             activeVR = 'right';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             // VR allows only one canvas to perform the rendering
+//             previewAreaLeft.enableRender(false);
+//             previewAreaRight.enableRender(true);
+//             setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
+//             break;
+//         case 'disable':
+//             activeVR = 'none';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             vr = false;
+//             previewAreaLeft.resetCamera();
+//             previewAreaRight.resetCamera();
+//             previewAreaLeft.resetBrainPosition();
+//             previewAreaRight.resetBrainPosition();
+//             previewAreaLeft.enableRender(true);
+//             previewAreaRight.enableRender(true);
+//             break;
+//     }
+// };
 
 // init the GUI controls
 var initControls = function () {
@@ -314,13 +317,13 @@ var initControls = function () {
     modelLeft.setAllRegionsActivated();
     modelRight.setAllRegionsActivated();
 
-    //createLegend(modelLeft); //todo: temporarily disabled to get code to zork
+    createLegend(modelLeft); //todo: temporarily disabled to get code to zork
 
-    if (mobile) {
-        console.log("Mobile VR requested");
-    } else {
-        hideVRMaximizeButtons();
-    }
+    // if (mobile) { // todo: probably not required for webXR
+    //     console.log("Mobile VR requested");
+    // } else {
+    //     hideVRMaximizeButtons();
+    // }
 };
 
 // init the canvas where we render the brain
@@ -352,12 +355,13 @@ var initCanvas = function () {
         previewAreaRight.resizeScene();
     });
 
-    window.addEventListener('vrdisplaypresentchange', function(e){
-            //e.preventDefault();
-            console.log("on resize event");
-            previewAreaLeft.resizeScene();
-            previewAreaRight.resizeScene();}
-        , true);
+    // todo: Not sure how this will be handled in WebXR, adding or removing a headset or controller in mid-session
+    // window.addEventListener('vrdisplaypresentchange', function(e){
+    //         //e.preventDefault();
+    //         console.log("on resize event");
+    //         previewAreaLeft.resizeScene();
+    //         previewAreaRight.resizeScene();}
+    //     , true);
 
     previewAreaLeft.requestAnimate();
     previewAreaRight.requestAnimate();
