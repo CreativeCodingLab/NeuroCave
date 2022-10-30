@@ -37,7 +37,7 @@ function Model() {
     var edges = [];                     // contains the edges per dataType
     var edgeIdx = [];                   // 2D matrix where entries are the corresponding edge index
 
-    var distanceArray;                  // contain the shortest path for current selected node
+    var distanceArray = [];                  // contain the shortest path for current selected node
     var maxDistance = null;             // max value of distanceArray
     var distanceThreshold = 50;         // threshold for the distanceArray in percentage of the max value: 0 to 100
     var numberOfHops = 0;               // max number of hops for shortest path

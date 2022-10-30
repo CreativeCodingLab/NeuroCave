@@ -28,6 +28,7 @@ import {
     getVisibleNodesLength,
     setVisibleNodes,
     getEnableEB,
+    getThresholdModality,
     vr,
     activeVR
 } from './drawing'
@@ -560,7 +561,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     this.redrawEdges = function () {
         this.removeEdgesFromScene();
-        if (getSpt)
+        if (getSpt())
             this.updateShortestPathEdges();
         this.drawConnections();
     };
@@ -639,7 +640,7 @@ function PreviewArea(canvas_, model_, name_) {
             // draw only edges belonging to active nodes
             if (model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
                 // two ways to draw edges
-                if (thresholdModality) {
+                if (getThresholdModality()) {
                     // 1) filter edges according to threshold
                     this.drawEdgesGivenNode(nodeIdx);
                 } else {
@@ -711,7 +712,7 @@ function PreviewArea(canvas_, model_, name_) {
         var material = new THREE.LineBasicMaterial({
             transparent: true,
             opacity: edgeOpacity,
-            vertexColors: THREE.VertexColors
+            vertexColors: true //THREE.VertexColors
             // Due to limitations in the ANGLE layer on Windows platforms linewidth will always be 1.
         });
 
@@ -739,7 +740,7 @@ function PreviewArea(canvas_, model_, name_) {
         line.nodes = nodes;
         line.p1 = p1;
         line.material.linewidth = 1;
-        line.material.vertexColors = THREE.VertexColors;
+        line.material.vertexColors = true; //THREE.VertexColors;
 
         return line;
     };

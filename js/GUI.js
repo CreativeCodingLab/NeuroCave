@@ -11,9 +11,10 @@ var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
-import {changeSceneToSubject, changeActiveGeometry, previewAreaLeft, previewAreaRight} from './drawing'
+import {changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, previewAreaLeft, previewAreaRight, setThresholdModality} from './drawing'
 import {modelLeft,modelRight} from './model'
 import {setDimensionFactor} from './graphicsUtils.js'
+import {scaleColorGroup} from "./utils/scale";
 
 var initSubjectMenu = function (side) {
 
@@ -243,7 +244,7 @@ var addModalityButton = function () {
 
 // change modality callback
 var changeModality = function (modality) {
-    thresholdModality = modality;
+    setThresholdModality(modality);
 
     if(modality){
         //if it is thresholdModality
@@ -653,7 +654,7 @@ var addShortestPathFilterButton = function () {
                         document.getElementById("sptFilterBtn").innerHTML = "Number of Hops";
                         break;
                 }
-                if (spt)
+                if (getSpt())
                     updateScenes();
             });
 };
@@ -779,4 +780,4 @@ var toggleMenus = function (e) {
 
 var getShortestPathVisMethod = function () { return shortestPathVisMethod }
 
-export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,hideVRMaximizeButtons, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel}
+export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSlider,hideVRMaximizeButtons, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend}

@@ -3,7 +3,7 @@
  */
 
 import * as d3 from '../external-libraries/d3'
-
+import {modelLeft,modelRight} from '../model';
 
 // var connectionMatrixScale;
 var groupColor = d3.scale.category10();

@@ -35,12 +35,12 @@ function getAtlas() {
     return atlas
 }
 
-var folder = "Demo6"; //("dataset");
+var folder = url.searchParams.get("dataset"); //"Demo6"; //
 var dataFiles = {}
 
 
-var labelLUT = "baltimore"; //url.searchParams.get("lut");
-var isLoaded = 0; //parseInt(url.searchParams.get("load"));
+var labelLUT = url.searchParams.get("lut"); //"baltimore"; //
+var isLoaded = parseInt(url.searchParams.get("load")); // 0
 var metric = stringToBoolean(url.searchParams.get("metric"));
 if( metric == undefined){
     metric = false;

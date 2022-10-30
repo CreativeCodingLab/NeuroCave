@@ -49,7 +49,8 @@ import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} fr
 import {modelLeft,modelRight} from './model';
 import {PreviewArea} from "./previewArea";
 import {setUpdateNeeded} from './utils/Dijkstra';
-import {setNodeInfoPanel} from './GUI'
+import {setNodeInfoPanel, enableThresholdControls} from './GUI'
+import {setColorGroupScale} from './utils/scale'
 
 // callback on mouse moving, expected action: node beneath pointer are drawn bigger
 function onDocumentMouseMove(model, event) {
@@ -135,8 +136,8 @@ function onMiddleClick(event) {
             previewAreaRight.computeShortestPathForNode(nodeIndex);
         }
         updateScenes();
-        enableShortestPathFilterButton(spt);
-        enableThresholdControls(!spt);
+        enableShortestPathFilterButton(getSpt());
+        enableThresholdControls(!getSpt());
     }
 }
 
@@ -552,4 +553,8 @@ var getVisibleNodes = function (arrIndex) { return visibleNodes[arrIndex] }
 
 var setVisibleNodes = function (arrIndex, arrValue) { visibleNodes[arrIndex] = arrValue }
 
-export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, setRoot, getRoot, getSpt, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB };
+var getThresholdModality = function () { return thresholdModality }
+
+var setThresholdModality = function (modality) { thresholdModality = modality }
+
+export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, changeColorGroup, setRoot, getRoot, getSpt, updateScenes, updateNodesVisiblity, redrawEdges, updateOpacity, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB, getThresholdModality, setThresholdModality };
