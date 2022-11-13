@@ -87,6 +87,19 @@ function PreviewArea(canvas_, model_, name_) {
         return navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
     }
 
+    // Called either when the user has explicitly ended the session (like in
+    // onEndSession()) or when the UA has ended the session for any reason.
+    // At this point the session object is no longer usable and should be
+    // discarded.
+    function onSessionEnded(event) {
+        xrButton.setSession(null);
+
+        // In this simple case discard the WebGL context too, since we're not
+        // rendering anything else to the screen with it.
+        renderer = null;
+    }
+
+
     // Called when the user clicks the 'Exit XR' button. In response we end
     // the session.
     function onEndSession(session) {
@@ -128,6 +141,30 @@ function PreviewArea(canvas_, model_, name_) {
                 navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
                     xrButton.enabled = supported;
                 });
+            }
+
+
+            // Called when the user selects a device to present to. In response we
+            // will request an exclusive session from that device.
+            function onRequestSession() {
+                return navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
+            }
+
+
+
+            // Called when we've successfully acquired a XRSession. In response we
+            // will set up the necessary session state and kick off the frame loop.
+            function onSessionStarted(session) {
+                // This informs the 'Enter XR' button that the session has started and
+                // that it should display 'Exit XR' instead.
+                xrButton.setSession(session);
+
+
+                // Listen for the sessions 'end' event so we can respond if the user
+                // or UA ends the session for any reason.
+                session.addEventListener('end', onSessionEnded);
+
+
             }
 
 
