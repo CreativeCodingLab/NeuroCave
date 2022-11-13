@@ -34,7 +34,7 @@ import {
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
-
+import {WebXRButton} from './external-libraries/vr/webxr-button.js';
 
 
 function PreviewArea(canvas_, model_, name_) {
@@ -52,6 +52,7 @@ function PreviewArea(canvas_, model_, name_) {
     var enableVR = false;
     var activateVR = false;
     var vrButton = null;
+    var xrButton = null;
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -80,10 +81,58 @@ function PreviewArea(canvas_, model_, name_) {
     // };
 
 
+    // Called when the user selects a device to present to. In response we
+    // will request an exclusive session from that device.
+    function onRequestSession() {
+        return navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
+    }
+
+    // Called when the user clicks the 'Exit XR' button. In response we end
+    // the session.
+    function onEndSession(session) {
+        session.end();
+    }
 
     // init Oculus Rift
-    this.initVR = function () {
+    this.initXR = function () {
         //init VR //todo: this is stub now
+
+             console.log("Init XR for PV: " + name);
+             enableVR = true;
+             activateVR = false;
+
+        xrButton = new WebXRButton({
+            onRequestSession: onRequestSession,
+            onEndSession: onEndSession
+        });
+        // document.querySelector('header').appendChild(xrButton.domElement);
+        document.getElementById('vrButton' + name).appendChild(xrButton.domElement);
+
+
+
+        // init VR
+             vrButton = document.getElementById('vrButton' + name);
+             console.log("vrButton: " + vrButton);
+
+             //vrButton.addEventListener('click', function () {
+                 //vrButton.style.display = 'none';
+                 //vrButton.innerHTML = 'Enter VR';
+               //  console.log("Click On VR Button: " + name);
+                 //effect.requestPresent();
+             //}, false);
+
+
+            vrButton.addEventListener('mouseover', function () {
+                //vrButton.style.display = 'none';
+                //vrButton.innerHTML = 'Enter VR NOW';
+                console.log("Mouse Over VR Button: " + name);
+                //effect.requestPresent();
+            }, false);
+                 //effect.requestPresent();
+        // I found some VR button HTML in the visualization.html file and tried to light them up
+        // with OnClicks but they didn't seem to want to do anything so I tried that example class
+        // and it worked a bit better.
+
 
     };
     // OLD InitVR Code Here:
@@ -1058,7 +1107,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // PreviewArea construction
     this.createCanvas();
-    this.initVR();  //todo: Is this still required with new WebXR model?
+    this.initXR();  //todo: Is this still required with new WebXR model?
     this.drawRegions();
 }
 
