@@ -121,6 +121,15 @@ function PreviewArea(canvas_, model_, name_) {
                  //effect.requestPresent();
              //}, false);
 
+            // Is WebXR available on this UA?
+            if (navigator.xr) {
+                // If the device allows creation of exclusive sessions set it as the
+                // target of the 'Enter XR' button.
+                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                    xrButton.enabled = supported;
+                });
+            }
+
 
             vrButton.addEventListener('mouseover', function () {
                 //vrButton.style.display = 'none';
