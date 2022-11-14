@@ -13,6 +13,8 @@
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
+import * as quat from "./external-libraries/gl-matrix/quat.js";
+
 // import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
 import {getNormalGeometry, getNormalMaterial} from './graphicsUtils.js'
@@ -56,6 +58,10 @@ function PreviewArea(canvas_, model_, name_) {
     // XR stuff
     var xrButton = null;
     let xrRefSpace = null;
+    let xrImmersiveRefSpace = null;
+    let xrInlineRefSpace = null;
+    let inlineSession = null;
+
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -87,7 +93,13 @@ function PreviewArea(canvas_, model_, name_) {
     // Called when the user selects a device to present to. In response we
     // will request an exclusive session from that device.
     function onRequestSession() {
-        return navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
+        return navigator.xr.requestSession('immersive-vr').then((session) => { // onSessionStarted);
+            xrButton.setSession(session);
+            // Set a flag on the session so we can differentiate it from the
+            // inline session.
+            session.isImmersive = true;
+            onSessionStarted(session);
+        });
     }
 
     // Called either when the user has explicitly ended the session (like in
@@ -113,9 +125,9 @@ function PreviewArea(canvas_, model_, name_) {
     function createWebGLContext(glAttribs) {
         glAttribs = glAttribs || {alpha: false};
 
-        let webglCanvas = //document.createElement('canvas'); //
-                            document.getElementById('mycanvas' + name); // document.createElement('canvas');
-        console.log("Canvas: " + canvas);
+        let webglCanvas = document.createElement('canvas'); //
+                            //document.getElementById('mycanvas' + name); // document.createElement('canvas');
+        console.log("Canvas: " + webglCanvas);
         let contextTypes = glAttribs.webgl2 ? ['webgl2'] : ['webgl', 'experimental-webgl'];
         let context = null;
 
@@ -169,15 +181,17 @@ function PreviewArea(canvas_, model_, name_) {
             navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
                 xrButton.enabled = supported;
             });
+
+            // Start up an inline session, which should always be supported on
+            // browsers that support WebXR regardless of the available hardware.
+            navigator.xr.requestSession('inline').then((session) => {
+                inlineSession = session;
+                onSessionStarted(session);
+                //updateFov(); //todo: make an FoV slider
+            });
         }
 
     } //this.initRXR
-
-            // Called when the user selects a device to present to. In response we
-            // will request an exclusive session from that device.
-            function onRequestSession() {
-                return navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
-            }
 
 
 
@@ -195,41 +209,149 @@ function PreviewArea(canvas_, model_, name_) {
 
                 // Create a WebGL context to render with, initialized to be compatible
                 // with the XRDisplay we're presenting to.
-                gl = createWebGLContext({
-                    xrCompatible: true
-                });
+                if (!gl) {
+                    gl = createWebGLContext({
+                        xrCompatible: true
+                    });
 
-                // Use the new WebGL context to create a XRWebGLLayer and set it as the
-                // sessions baseLayer. This allows any content rendered to the layer to
-                // be displayed on the XRDevice.
-                session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
+                    // In order for an inline session to be used we must attach the WebGL
+                    // canvas to the document, which will serve as the output surface for
+                    // the results of the inline session's rendering.
+                    document.getElementById('canvas' + name).appendChild(gl.canvas);
+
+                    // The canvas is synced with the window size via CSS, but we still
+                    // need to update the width and height attributes in order to keep
+                    // the default framebuffer resolution in-sync.
+                    function onResize() {
+                        gl.canvas.width = gl.canvas.clientWidth * window.devicePixelRatio;
+                        gl.canvas.height = gl.canvas.clientHeight * window.devicePixelRatio;
+                    }
+
+                    window.addEventListener('resize', onResize);
+                    onResize();
+
+                    // Installs the listeners necessary to allow users to look around with
+                    // inline sessions using the mouse or touch.
+                    addInlineViewListeners(gl.canvas);
+
+
+                } //if (!gl)
+
+
+                // WebGL layers for inline sessions won't allocate their own framebuffer,
+                // which causes gl commands to naturally execute against the default
+                // framebuffer while still using the canvas dimensions to compute
+                // viewports and projection matrices.
+                let glLayer = new XRWebGLLayer(session, gl);
+
+                session.updateRenderState({
+                    baseLayer: glLayer
+                });
 
                 // Get a frame of reference, which is required for querying poses. In
                 // this case an 'local' frame of reference means that all poses will
                 // be relative to the location where the XRDevice was first detected.
-                session.requestReferenceSpace('local').then((refSpace) => {
-                    xrRefSpace = refSpace;
-
-                    // Inform the session that we're ready to begin drawing.
+                let refSpaceType = session.isImmersive ? 'local' : 'viewer';
+                session.requestReferenceSpace(refSpaceType).then((refSpace) => {
+                    // Since we're dealing with multiple sessions now we need to track
+                    // which XRReferenceSpace is associated with which XRSession.
+                    if (session.isImmersive) {
+                        xrImmersiveRefSpace = refSpace;
+                    } else {
+                        xrInlineRefSpace = refSpace;
+                    }
                     session.requestAnimationFrame(onXRFrame);
                 });
+
+            } //onSessionStarted
+
+    // Make the canvas listen for mouse and touch events so that we can
+    // adjust the viewer pose accordingly in inline sessions.
+    function addInlineViewListeners(canvas) {
+        canvas.addEventListener('mousemove', (event) => {
+            // Only rotate when the right button is pressed
+            if (event.buttons && 2) {
+                rotateView(event.movementX, event.movementY);
             }
+        });
 
+        // Keep track of touch-related state so that users can touch and drag on
+        // the canvas to adjust the viewer pose in an inline session.
+        let primaryTouch = undefined;
+        let prevTouchX = undefined;
+        let prevTouchY = undefined;
 
-    // Called every time the XRSession requests that a new frame be drawn.
+        // Keep track of all active touches, but only use the first touch to
+        // adjust the viewer pose.
+        canvas.addEventListener("touchstart", (event) => {
+            if (primaryTouch == undefined) {
+                let touch = event.changedTouches[0];
+                primaryTouch = touch.identifier;
+                prevTouchX = touch.pageX;
+                prevTouchY = touch.pageY;
+            }
+        });
+
+        // Update the set of active touches now that one or more touches
+        // finished. If the primary touch just finished, update the viewer pose
+        // based on the final touch movement.
+        canvas.addEventListener("touchend", (event) => {
+            for (let touch of event.changedTouches) {
+                if (primaryTouch == touch.identifier) {
+                    primaryTouch = undefined;
+                    rotateView(touch.pageX - prevTouchX, touch.pageY - prevTouchY);
+                }
+            }
+        });
+
+        // Update the set of active touches now that one or more touches was
+        // cancelled. Don't update the viewer pose when the primary touch was
+        // cancelled.
+        canvas.addEventListener("touchcancel", (event) => {
+            for (let touch of event.changedTouches) {
+                if (primaryTouch == touch.identifier) {
+                    primaryTouch = undefined;
+                }
+            }
+        });
+
+        // Only use the delta between the most recent and previous events for
+        // the primary touch. Ignore the other touches.
+        canvas.addEventListener("touchmove", (event) => {
+            for (let touch of event.changedTouches) {
+                if (primaryTouch == touch.identifier) {
+                    rotateView(touch.pageX - prevTouchX, touch.pageY - prevTouchY);
+                    prevTouchX = touch.pageX;
+                    prevTouchY = touch.pageY;
+                }
+            }
+        });
+    } //addInlineViewListeners
+
+        // Called every time the XRSession requests that a new frame be drawn.
     function onXRFrame(t, frame) {
         let session = frame.session;
+        // Ensure that we're using the right frame of reference for the session.
+        let refSpace = session.isImmersive ?
+            xrImmersiveRefSpace :
+            xrInlineRefSpace;
 
-        // Inform the session that we're ready for the next frame.
-        session.requestAnimationFrame(onXRFrame);
+        // Account for the click-and-drag mouse movement or touch movement when
+        // calculating the viewer pose for inline sessions.
+        if (!session.isImmersive) {
+            refSpace = getAdjustedRefSpace(refSpace);
+        }
+
 
 
         // Get the XRDevice pose relative to the Frame of Reference we created
         // earlier.
-        let pose = frame.getViewerPose(xrRefSpace);
+        let pose = frame.getViewerPose(refSpace);
 
+        // Inform the session that we're ready for the next frame.
+        session.requestAnimationFrame(onXRFrame);
 
-// Getting the pose may fail if, for example, tracking is lost. So we
+        // Getting the pose may fail if, for example, tracking is lost. So we
         // have to check to make sure that we got a valid pose before attempting
         // to render with it. If not in this case we'll just leave the
         // framebuffer cleared, so tracking loss means the scene will simply
@@ -260,13 +382,36 @@ function PreviewArea(canvas_, model_, name_) {
                 // We bound the framebuffer and viewport up above, and are passing
                 // in the appropriate matrices here to be used when rendering.
                 //scene.draw(view.projectionMatrix, view.transform);
-                console.log("Draw Scene: " + view.projectionMatrix + view.transform.matrix);
+                //console.log("Draw Scene: " + view.projectionMatrix + view.transform.matrix);
             }
 
         } //if pose
     } //onXRFrame
 
-        // vrButton.addEventListener('mouseover', function () {
+    // Inline view adjustment code
+    // Allow the user to click and drag the mouse (or touch and drag the
+    // screen on handheld devices) to adjust the viewer pose for inline
+    // sessions. Samples after this one will hide this logic with a utility
+    // class (InlineViewerHelper).
+    let lookYaw = 0;
+    let lookPitch = 0;
+    const LOOK_SPEED = 0.0025;
+
+    // XRReferenceSpace offset is immutable, so return a new reference space
+    // that has an updated orientation.
+    function getAdjustedRefSpace(refSpace) {
+        // Represent the rotational component of the reference space as a
+        // quaternion.
+        let invOrientation = quat.create();
+        quat.rotateX(invOrientation, invOrientation, -lookPitch);
+        quat.rotateY(invOrientation, invOrientation, -lookYaw);
+        let xform = new XRRigidTransform(
+            {x: 0, y: 0, z: 0},
+            {x: invOrientation[0], y: invOrientation[1], z: invOrientation[2], w: invOrientation[3]});
+        return refSpace.getOffsetReferenceSpace(xform);
+    }
+
+    // vrButton.addEventListener('mouseover', function () {
         //         //vrButton.style.display = 'none';
         //         //vrButton.innerHTML = 'Enter VR NOW';
         //         console.log("Mouse Over VR Button: " + name);
@@ -629,7 +774,10 @@ function PreviewArea(canvas_, model_, name_) {
     // create 3js elements: scene, canvas, camera and controls; and init them and add skybox to the scene
     this.createCanvas = function () {
         scene = new THREE.Scene();
-        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            context: gl
+        });
         camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / window.innerHeight, 0.1, 3000);
         initScene();
         console.log("createCanvas");
@@ -1251,7 +1399,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // PreviewArea construction
     this.createCanvas();
-    this.initXR();  //todo: Is this still required with new WebXR model?
+    this.initXR();
     this.drawRegions();
 }
 
