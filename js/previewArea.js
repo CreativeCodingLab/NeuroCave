@@ -41,7 +41,7 @@ function PreviewArea(canvas_, model_, name_) {
     var name = name_;
     var model = model_;
     var canvas = canvas_;
-    var camera = null, renderer = null, controls = null, scene = null, raycaster = null;
+    var camera = null, renderer = null, controls = null, scene = null, raycaster = null, gl = null;
     var nodeLabelSprite = null, nodeNameMap = null, nspCanvas = null;
 
     // VR stuff
@@ -52,7 +52,10 @@ function PreviewArea(canvas_, model_, name_) {
     var enableVR = false;
     var activateVR = false;
     var vrButton = null;
+
+    // XR stuff
     var xrButton = null;
+    let xrRefSpace = null;
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -96,7 +99,7 @@ function PreviewArea(canvas_, model_, name_) {
 
         // In this simple case discard the WebGL context too, since we're not
         // rendering anything else to the screen with it.
-        renderer = null;
+        // renderer = null;
     }
 
 
@@ -106,13 +109,39 @@ function PreviewArea(canvas_, model_, name_) {
         session.end();
     }
 
+    // Creates a WebGL context and initializes it with some common default state.
+    function createWebGLContext(glAttribs) {
+        glAttribs = glAttribs || {alpha: false};
+
+        let webglCanvas = //document.createElement('canvas'); //
+                            document.getElementById('mycanvas' + name); // document.createElement('canvas');
+        console.log("Canvas: " + canvas);
+        let contextTypes = glAttribs.webgl2 ? ['webgl2'] : ['webgl', 'experimental-webgl'];
+        let context = null;
+
+        for (let contextType of contextTypes) {
+            context = webglCanvas.getContext(contextType, glAttribs);
+            if (context) {
+                break;
+            }
+        }
+
+        if (!context) {
+            let webglType = (glAttribs.webgl2 ? 'WebGL 2' : 'WebGL');
+            console.error('This browser does not support ' + webglType + '.');
+            return null;
+        }
+
+        return context;
+    }
+
     // init Oculus Rift
     this.initXR = function () {
         //init VR //todo: this is stub now
 
-             console.log("Init XR for PV: " + name);
-             enableVR = true;
-             activateVR = false;
+        console.log("Init XR for PV: " + name);
+        enableVR = true;
+        activateVR = false;
 
         xrButton = new WebXRButton({
             onRequestSession: onRequestSession,
@@ -122,27 +151,27 @@ function PreviewArea(canvas_, model_, name_) {
         document.getElementById('vrButton' + name).appendChild(xrButton.domElement);
 
 
-
         // init VR
-             vrButton = document.getElementById('vrButton' + name);
-             console.log("vrButton: " + vrButton);
+        vrButton = document.getElementById('vrButton' + name);
+        console.log("vrButton: " + vrButton);
 
-             //vrButton.addEventListener('click', function () {
-                 //vrButton.style.display = 'none';
-                 //vrButton.innerHTML = 'Enter VR';
-               //  console.log("Click On VR Button: " + name);
-                 //effect.requestPresent();
-             //}, false);
+        //vrButton.addEventListener('click', function () {
+        //vrButton.style.display = 'none';
+        //vrButton.innerHTML = 'Enter VR';
+        //  console.log("Click On VR Button: " + name);
+        //effect.requestPresent();
+        //}, false);
 
-            // Is WebXR available on this UA?
-            if (navigator.xr) {
-                // If the device allows creation of exclusive sessions set it as the
-                // target of the 'Enter XR' button.
-                navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
-                    xrButton.enabled = supported;
-                });
-            }
+        // Is WebXR available on this UA?
+        if (navigator.xr) {
+            // If the device allows creation of exclusive sessions set it as the
+            // target of the 'Enter XR' button.
+            navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                xrButton.enabled = supported;
+            });
+        }
 
+    } //this.initRXR
 
             // Called when the user selects a device to present to. In response we
             // will request an exclusive session from that device.
@@ -164,23 +193,92 @@ function PreviewArea(canvas_, model_, name_) {
                 // or UA ends the session for any reason.
                 session.addEventListener('end', onSessionEnded);
 
+                // Create a WebGL context to render with, initialized to be compatible
+                // with the XRDisplay we're presenting to.
+                gl = createWebGLContext({
+                    xrCompatible: true
+                });
 
+                // Use the new WebGL context to create a XRWebGLLayer and set it as the
+                // sessions baseLayer. This allows any content rendered to the layer to
+                // be displayed on the XRDevice.
+                session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
+
+                // Get a frame of reference, which is required for querying poses. In
+                // this case an 'local' frame of reference means that all poses will
+                // be relative to the location where the XRDevice was first detected.
+                session.requestReferenceSpace('local').then((refSpace) => {
+                    xrRefSpace = refSpace;
+
+                    // Inform the session that we're ready to begin drawing.
+                    session.requestAnimationFrame(onXRFrame);
+                });
             }
 
 
-            vrButton.addEventListener('mouseover', function () {
-                //vrButton.style.display = 'none';
-                //vrButton.innerHTML = 'Enter VR NOW';
-                console.log("Mouse Over VR Button: " + name);
-                //effect.requestPresent();
-            }, false);
+    // Called every time the XRSession requests that a new frame be drawn.
+    function onXRFrame(t, frame) {
+        let session = frame.session;
+
+        // Inform the session that we're ready for the next frame.
+        session.requestAnimationFrame(onXRFrame);
+
+
+        // Get the XRDevice pose relative to the Frame of Reference we created
+        // earlier.
+        let pose = frame.getViewerPose(xrRefSpace);
+
+
+// Getting the pose may fail if, for example, tracking is lost. So we
+        // have to check to make sure that we got a valid pose before attempting
+        // to render with it. If not in this case we'll just leave the
+        // framebuffer cleared, so tracking loss means the scene will simply
+        // disappear.
+        if (pose) {
+            let glLayer = session.renderState.baseLayer;
+
+            // If we do have a valid pose, bind the WebGL layer's framebuffer,
+            // which is where any content to be displayed on the XRDevice must be
+            // rendered.
+            gl.bindFramebuffer(gl.FRAMEBUFFER, glLayer.framebuffer);
+
+            // Clear the framebuffer
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            // Loop through each of the views reported by the frame and draw them
+            // into the corresponding viewport.
+            for (let view of pose.views) {
+                let viewport = glLayer.getViewport(view);
+                gl.viewport(viewport.x, viewport.y,
+                    viewport.width, viewport.height);
+
+                // Draw this view of the scene. What happens in this function really
+                // isn't all that important. What is important is that it renders
+                // into the XRWebGLLayer's framebuffer, using the viewport into that
+                // framebuffer reported by the current view, and using the
+                // projection matrix and view transform from the current view.
+                // We bound the framebuffer and viewport up above, and are passing
+                // in the appropriate matrices here to be used when rendering.
+                //scene.draw(view.projectionMatrix, view.transform);
+                console.log("Draw Scene: " + view.projectionMatrix + view.transform.matrix);
+            }
+
+        } //if pose
+    } //onXRFrame
+
+        // vrButton.addEventListener('mouseover', function () {
+        //         //vrButton.style.display = 'none';
+        //         //vrButton.innerHTML = 'Enter VR NOW';
+        //         console.log("Mouse Over VR Button: " + name);
+        //         //effect.requestPresent();
+        //     }, false);
                  //effect.requestPresent();
         // I found some VR button HTML in the visualization.html file and tried to light them up
         // with OnClicks but they didn't seem to want to do anything so I tried that example class
         // and it worked a bit better.
 
 
-    };
+
     // OLD InitVR Code Here:
         // if (mobile) {
         //     console.log("Init VR for PV: " + name);
