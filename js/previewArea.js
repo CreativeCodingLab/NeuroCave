@@ -36,9 +36,9 @@ import {
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
-//import {WebXRButton} from './external-libraries/vr/webxr-button.js';
+//import {WebXRButton} from './external-libraries/vr/webxr-button.js'; //Prettier button but not working so well
 import { VRButton } from './external-libraries/vr/VRButton.js';
-//import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
+import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -62,7 +62,7 @@ function PreviewArea(canvas_, model_, name_) {
     let xrImmersiveRefSpace = null;
     let xrInlineRefSpace = null;
     let inlineSession = null;
-    let controller, controllerGrip;
+    let controller, controllerGrip, controllerGripL, controllerGripR;
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -126,6 +126,17 @@ function PreviewArea(canvas_, model_, name_) {
 
         } );
         scene.add( controllerRight );
+
+        const controllerModelFactory = new XRControllerModelFactory();
+
+        controllerGripL = renderer.xr.getControllerGrip( 0 );
+        controllerGripL.add( controllerModelFactory.createControllerModel( controllerGripL ) );
+        scene.add( controllerGripL );
+
+        controllerGripR = renderer.xr.getControllerGrip( 1 );
+        controllerGripR.add( controllerModelFactory.createControllerModel( controllerGripR ) );
+        scene.add( controllerGripR );
+
 
         //document.body
         document.getElementById('vrButton' + name).appendChild( VRButton.createButton( renderer ) );
