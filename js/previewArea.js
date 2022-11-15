@@ -13,7 +13,7 @@
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
-import * as quat from "./external-libraries/gl-matrix/quat.js";
+//import * as quat from "./external-libraries/gl-matrix/quat.js";
 
 // import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
@@ -36,8 +36,9 @@ import {
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
-import {WebXRButton} from './external-libraries/vr/webxr-button.js';
-
+//import {WebXRButton} from './external-libraries/vr/webxr-button.js';
+import { VRButton } from './external-libraries/vr/VRButton.js';
+//import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -73,7 +74,23 @@ function PreviewArea(canvas_, model_, name_) {
 
     var edgeOpacity = 1.0;
 
-    // request VR activation - desktop case
+    this.initXR = function () {
+        //init VR //todo: this is stub now
+
+        console.log("Init XR for PV: " + name);
+        enableVR = true;
+        activateVR = false;
+
+        //renderer.outputEncoding = THREE.sRGBEncoding; //The robot says this makes the colors look better in VR but it makes the colors look worse in the browser
+        renderer.xr.enabled = true;
+
+        //document.body
+        document.getElementById('vrButton' + name).appendChild( VRButton.createButton( renderer ) );
+
+    }
+
+
+        // request VR activation - desktop case
     // advise renaming this function to avoid conflict with variable
     // this.activateVR = function (activate) {
     //     if (activate == activateVR)
@@ -90,7 +107,7 @@ function PreviewArea(canvas_, model_, name_) {
     // };
 
 
-    // Called when the user selects a device to present to. In response we
+ /*   // Called when the user selects a device to present to. In response we
     // will request an exclusive session from that device.
     function onRequestSession() {
         return navigator.xr.requestSession('immersive-vr').then((session) => { // onSessionStarted);
@@ -412,7 +429,7 @@ function PreviewArea(canvas_, model_, name_) {
             {x: invOrientation[0], y: invOrientation[1], z: invOrientation[2], w: invOrientation[3]});
         return refSpace.getOffsetReferenceSpace(xform);
     }
-
+*/
     // vrButton.addEventListener('mouseover', function () {
         //         //vrButton.style.display = 'none';
         //         //vrButton.innerHTML = 'Enter VR NOW';
@@ -881,7 +898,8 @@ function PreviewArea(canvas_, model_, name_) {
 
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
 
-        window.requestAnimationFrame(animatePV);
+        //window.requestAnimationFrame(animatePV); // todo: this is the old way of doing it. Consider in WebXR
+        renderer.setAnimationLoop( animatePV ); // todo: this is the new way to do it in WebXR
     };
 
     this.requestAnimate = function () {
