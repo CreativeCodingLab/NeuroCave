@@ -62,7 +62,7 @@ function PreviewArea(canvas_, model_, name_) {
     let xrImmersiveRefSpace = null;
     let xrInlineRefSpace = null;
     let inlineSession = null;
-
+    let controller, controllerGrip;
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -84,13 +84,83 @@ function PreviewArea(canvas_, model_, name_) {
         //renderer.outputEncoding = THREE.sRGBEncoding; //The robot says this makes the colors look better in VR but it makes the colors look worse in the browser
         renderer.xr.enabled = true;
 
+
+        function onSelectStart() {
+
+            this.userData.isSelecting = true;
+
+        }
+
+        function onSelectEnd() {
+
+            this.userData.isSelecting = false;
+
+        }
+
+        controllerLeft = renderer.xr.getController( 0 );
+        controllerLeft.addEventListener( 'selectstart', onSelectStart );
+        controllerLeft.addEventListener( 'selectend', onSelectEnd );
+        controllerLeft.addEventListener( 'connected', function ( event ) {
+
+            this.add( buildController( event.data ) );
+
+        } );
+        controllerLeft.addEventListener( 'disconnected', function () {
+
+            this.remove( this.children[ 0 ] );
+
+        } );
+        scene.add( controllerLeft );
+
+        controllerRight = renderer.xr.getController( 1 );
+        controllerRight.addEventListener( 'selectstart', onSelectStart );
+        controllerRight.addEventListener( 'selectend', onSelectEnd );
+        controllerRight.addEventListener( 'connected', function ( event ) {
+
+            this.add( buildController( event.data ) );
+
+        } );
+        controllerRight.addEventListener( 'disconnected', function () {
+
+            this.remove( this.children[ 0 ] );
+
+        } );
+        scene.add( controllerRight );
+
         //document.body
         document.getElementById('vrButton' + name).appendChild( VRButton.createButton( renderer ) );
 
     }
 
 
-        // request VR activation - desktop case
+    function buildController( data ) {
+
+        let geometry, material;
+
+        switch ( data.targetRayMode ) {
+
+            case 'tracked-pointer':
+
+                geometry = new THREE.BufferGeometry();
+                geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
+                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
+
+                material = new THREE.LineBasicMaterial( { vertexColors: true, blending: THREE.AdditiveBlending } );
+
+                return new THREE.Line( geometry, material );
+
+            case 'gaze':
+
+                geometry = new THREE.RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
+                material = new THREE.MeshBasicMaterial( { opacity: 0.5, transparent: true } );
+                return new THREE.Mesh( geometry, material );
+
+        }
+
+    }
+
+
+    // request VR activation - desktop case
     // advise renaming this function to avoid conflict with variable
     // this.activateVR = function (activate) {
     //     if (activate == activateVR)
