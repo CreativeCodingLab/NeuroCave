@@ -198,9 +198,11 @@ function PreviewArea(canvas_, model_, name_) {
             // Called when we've successfully acquired a XRSession. In response we
             // will set up the necessary session state and kick off the frame loop.
             function onSessionStarted(session) {
+                // THis line is left over from the immersive VR example:
                 // This informs the 'Enter XR' button that the session has started and
                 // that it should display 'Exit XR' instead.
-                xrButton.setSession(session);
+                //xrButton.setSession(session) // So, this is needed in "inline" mode.... not sure why.
+                // It actually breaks the "Enter VR" buttons - makes them start immersive mode on initXR
 
 
                 // Listen for the sessions 'end' event so we can respond if the user
@@ -382,7 +384,7 @@ function PreviewArea(canvas_, model_, name_) {
                 // We bound the framebuffer and viewport up above, and are passing
                 // in the appropriate matrices here to be used when rendering.
                 //scene.draw(view.projectionMatrix, view.transform);
-                //console.log("Draw Scene: " + view.projectionMatrix + view.transform.matrix);
+                console.log("Draw Scene: " + view.transform.matrix + view.projectionMatrix);
             }
 
         } //if pose
