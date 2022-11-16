@@ -62,7 +62,7 @@ function PreviewArea(canvas_, model_, name_) {
     let xrImmersiveRefSpace = null;
     let xrInlineRefSpace = null;
     let inlineSession = null;
-    let controller, controllerGrip, controllerGripL, controllerGripR;
+    let controller, controllerGrip, controllerGripLeft, controllerGripRight;
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -88,13 +88,13 @@ function PreviewArea(canvas_, model_, name_) {
         function onSelectStart() {
 
             this.userData.isSelecting = true;
-
+            console.log("Select start");
         }
 
         function onSelectEnd() {
 
             this.userData.isSelecting = false;
-
+            console.log("Select end");
         }
 
         controllerLeft = renderer.xr.getController( 0 );
@@ -129,13 +129,13 @@ function PreviewArea(canvas_, model_, name_) {
 
         const controllerModelFactory = new XRControllerModelFactory();
 
-        controllerGripL = renderer.xr.getControllerGrip( 0 );
-        controllerGripL.add( controllerModelFactory.createControllerModel( controllerGripL ) );
-        scene.add( controllerGripL );
+        controllerGripLeft = renderer.xr.getControllerGrip( 0 );
+        controllerGripLeft.add( controllerModelFactory.createControllerModel( controllerGripLeft ) );
+        scene.add( controllerGripLeft );
 
-        controllerGripR = renderer.xr.getControllerGrip( 1 );
-        controllerGripR.add( controllerModelFactory.createControllerModel( controllerGripR ) );
-        scene.add( controllerGripR );
+        controllerGripRight = renderer.xr.getControllerGrip( 1 );
+        controllerGripRight.add( controllerModelFactory.createControllerModel( controllerGripRight ) );
+        scene.add( controllerGripRight );
 
 
         //document.body
@@ -607,7 +607,7 @@ function PreviewArea(canvas_, model_, name_) {
     //     if (!enableVR || !mobile)
     //         return;
     //
-    //     // assume right handed user
+    0//     // assume right handed user
     //     controllerRight = new THREE.GearVRController(0);
     //     //controllerRight.position.set( 25, - 50, 0 );
     //
@@ -713,18 +713,19 @@ function PreviewArea(canvas_, model_, name_) {
     // };
 
     // scan the Oculus Touch for controls
-    // var scanOculusTouch = function () {
+    var scanOculusTouch = function () {
     //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
     //     var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
     //     var angleX = null, angleY = null;
-    //     var gamePadLeft = controllerLeft.getGamepad();
-    //     var gamePadRight = controllerRight.getGamepad();
+    //     var gamePadLeft = controllerLeft? controllerLeft.getGamepad() : nulll;
+    //     var gamePadRight = controllerRight? controllerRight.getGamepad() : null;
     //     if (gamePadLeft) {
     //         angleX = gamePadLeft.axes[0];
     //         angleY = gamePadLeft.axes[1];
     //         brain.rotateX(boostRotationSpeed * angleX);
     //         brain.rotateZ(boostRotationSpeed * angleY);
     //         brain.matrixWorldNeedsUpdate = true;
+    //         console.log("Left controller: " + angleX + ", " + angleY);
     //     }
     //
     //     if (gamePadRight) {
@@ -781,9 +782,11 @@ function PreviewArea(canvas_, model_, name_) {
     //         pointerLeft = null;
     //     }
     //
-    //     if (controllerRight.getButtonState('trigger')) {
+         if (controllerRight.userData.isSelecting) {  //getButtonState('trigger')) {
     //         pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
-    //
+
+             //
+             console.log("Right controller Trigger: " + controllerRight.userData.isSelecting);
     //         if (pointerRight) {
     //             // Touch Controller pointer already on! scan for selection
     //             if (controllerRight.getButtonState('grips')) {
@@ -794,13 +797,13 @@ function PreviewArea(canvas_, model_, name_) {
     //             controllerRight.add(pointerRight);
     //         }
     //         updateNodeMoveOver(model, getPointedObject(controllerRight));
-    //     } else {
+         } else {
     //         if (pointerRight) {
     //             controllerRight.remove(pointerRight);
     //         }
-    //         pointerRight = null;
-    //     }
-    // };
+             pointerRight = null;
+         }
+    }; // scanOculusTouch
 
     // draw a pointing line
     var drawPointer = function (start, end) {
@@ -952,8 +955,8 @@ function PreviewArea(canvas_, model_, name_) {
         //     // if (oculusTouchExist) { //todo: Change old WebVR code to WebXR
         //     //     controllerLeft.update();
         //     //     controllerRight.update();
-        //     //     scanOculusTouch();
-        //     //     console.log("scanOculusTouch");
+                  scanOculusTouch();
+             //     console.log("scanOculusTouch");
         //     // }
         //     //vrControl.update(); //todo: Change old WebVR code to WebXR
         //     console.log("vrControl.update()");
