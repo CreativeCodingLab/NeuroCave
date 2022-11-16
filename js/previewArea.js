@@ -953,8 +953,15 @@ function PreviewArea(canvas_, model_, name_) {
         }
         shortestPathEdges = [];
     };
-
+    var lastTime = 0;
     var animatePV = function () {
+        //limit this function to 60fps
+        if (Date.now() - lastTime < 1000 / 60) {
+            return;
+        }
+        lastTime = Date.now();
+
+
         // if (enableVR && activateVR) {
         //     // if (oculusTouchExist) { //todo: Change old WebVR code to WebXR
         //     //     controllerLeft.update();
@@ -989,25 +996,14 @@ function PreviewArea(canvas_, model_, name_) {
         //window.requestAnimationFrame(animatePV); // todo: this is the old way of doing it. Consider in WebXR
         renderer.setAnimationLoop( animatePV ); // todo: this is the new way to do it in WebXR
     };
-    var delta = 0;
-    var lastTime = 0;
 
     this.requestAnimate = function () {
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
         //window.requestAnimationFrame(animatePV);
-        //run 60 fps
-        //use delta and lastTime to control the speed of the animation
-        var now = Date.now();
-        delta = now - lastTime;
-        if (delta > 1000/60) {
-            lastTime = now - (delta % 1000/60);
-            animatePV();
-            controls.update()
-            renderer.render(scene, camera);
-            console.log("requestAnimate called");
-        }
-
-
+        animatePV();
+        controls.update()
+        renderer.render(scene, camera);
+        console.log("requestAnimate called");
     };
 
     this.enableRender = function (state) {
