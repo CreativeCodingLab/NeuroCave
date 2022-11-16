@@ -609,7 +609,7 @@ function PreviewArea(canvas_, model_, name_) {
     //     if (!enableVR || !mobile)
     //         return;
     //
-    0//     // assume right handed user
+    //     // assume right handed user
     //     controllerRight = new THREE.GearVRController(0);
     //     //controllerRight.position.set( 25, - 50, 0 );
     //
