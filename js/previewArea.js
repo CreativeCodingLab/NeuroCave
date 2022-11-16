@@ -37,8 +37,10 @@ import {
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
 //import {WebXRButton} from './external-libraries/vr/webxr-button.js'; //Prettier button but not working so well
-import { VRButton } from './external-libraries/vr/VRButton.js';
-import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
+//import { VRButton } from './external-libraries/vr/VRButton.js';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+//import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
+import { XRControllerModelFactory } from "three/src/renderers/webxr/WebXRController";
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -819,7 +821,9 @@ function PreviewArea(canvas_, model_, name_) {
     // get the object pointed by the controller
     var getPointedObject = function (controller) {
         var raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera({x: 0, y: 0}, camera);
+        //raycaster from controller
+        raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+        //raycaster.setFromCamera({x: 0, y: 0}, camera);
         var intersects = raycaster.intersectObjects(brain.children, true);
         if (intersects.length > 0) {
             return intersects[0].object;
