@@ -32,7 +32,10 @@ import {
     getEnableEB,
     getThresholdModality,
     vr,
-    activeVR
+    activeVR,
+    updateNodeSelection,
+    updateNodeMoveOver,
+
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
@@ -713,7 +716,24 @@ function PreviewArea(canvas_, model_, name_) {
     //         pointerRight = null;
     //     }
     // };
+    function getNearestNodes(controller) {
+        if(!controller) return;
+        if(!controller.position) return;
+        if(!brain) return;
+        if(!brain.children) return;
+        // Find all nodes within 0.1 distance from given Touch Controller
+        var closestNodeIndex = 0, closestNodeDistance = 99999.9;
+        for (var i = 0; i < brain.children.length; i++) {
+            var distToNodeI = controller.position.distanceTo(brain.children[i].position);
+            if ((distToNodeI < closestNodeDistance)) {
+                closestNodeDistance = distToNodeI;
+                closestNodeIndex = i;
+            }
 
+        }
+        return {closestNodeIndex: closestNodeIndex, closestNodeDistance: closestNodeDistance};
+
+    }
     // scan the Oculus Touch for controls
     var scanOculusTouch = function () {
     //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
@@ -745,7 +765,59 @@ function PreviewArea(canvas_, model_, name_) {
     //     var v3Origin = new THREE.Vector3(0, 0, 0);
     //     var v3UnitUp = new THREE.Vector3(0, 0, -100.0);
     //     // var v3UnitFwd = new THREE.Vector3(0,0,1);
-    //
+
+    var nearLeft=getNearestNodes(controllerLeft);
+    var nearRight=getNearestNodes(controllerRight);
+    var closestNodeIndexLeft = nearLeft.closestNodeIndex;
+    var closestNodeDistanceLeft = nearLeft.closestNodeDistance;
+    var closestNodeIndexRight = nearRight.closestNodeIndex;
+    var closestNodeDistanceRight = nearRight.closestNodeDistance;
+
+    //console.log("Left: " + closestNodeIndexLeft + ", " + closestNodeDistanceLeft);
+    //console.log("Right: " + closestNodeIndexRight + ", " + closestNodeDistanceRight);
+
+
+
+
+    if(controllerLeft.userData.isSelecting){
+        var isLeft = true;
+        var pointedObject = getPointedObject(controllerLeft);
+        updateNodeSelection(model, pointedObject, isLeft);
+        updateNodeMoveOver(model, pointedObject);
+
+        //log event to console
+        console.log("Left controller: " + controllerLeft.userData.isSelecting);
+        //log selection to console
+        console.log("Left controller: ");
+        console.log(pointedObject);
+
+
+    }
+    if(controllerRight.userData.isSelecting){
+        var isLeft = false;
+        var pointedObject = getPointedObject(controllerRight);
+        updateNodeSelection(model, pointedObject, isLeft);
+        //log event to console
+        console.log("Right controller: " + controllerRight.userData.isSelecting);
+        //log selection to console
+        console.log("Right controller: ")
+        console.log(pointedObject);
+    }
+
+    //updatenodemoveover
+    var pointedObjectLeft = getPointedObject(controllerLeft);
+    updateNodeMoveOver(model, pointedObjectLeft);
+    var pointedObjectRight = getPointedObject(controllerRight);
+    updateNodeMoveOver(model, pointedObjectLeft);
+    if(!pointedObjectLeft && !pointedObjectRight){
+        updateNodeMoveOver(model, null);
+    }
+
+
+
+
+
+
     //     // Find all nodes within 0.1 distance from left Touch Controller
     //     var closestNodeIndexLeft = 0, closestNodeDistanceLeft = 99999.9;
     //     var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
@@ -954,12 +1026,14 @@ function PreviewArea(canvas_, model_, name_) {
         shortestPathEdges = [];
     };
     var lastTime = 0;
+ //   var fps = 240;
+    //todo: add fps slider
     var animatePV = function () {
-        //limit this function to 60fps
-        if (Date.now() - lastTime < 1000 / 60) {
-            return;
-        }
-        lastTime = Date.now();
+        //limit this function to (fps)fps)
+        // if (Date.now() - lastTime < 1000 / fps) {
+        //     return;
+        // }
+        // lastTime = Date.now();
 
 
         // if (enableVR && activateVR) {
@@ -1441,19 +1515,17 @@ function PreviewArea(canvas_, model_, name_) {
     // return undefined if no object was found
     var getPointedObject = function (controller) {
 
-        var gamePad = controller.getGamepad();
-        if (gamePad) {
-            var orientation = new THREE.Quaternion().fromArray(gamePad.pose.orientation);
-            var v3orientation = new THREE.Vector3(0, 0, -1.0);
-            v3orientation.applyQuaternion(orientation);
-            var ray = new THREE.Raycaster(controller.position, v3orientation);
-            var objectsIntersected = ray.intersectObjects(glyphs);
-            if (objectsIntersected[0]) {
-                //console.log(objectsIntersected[0]);
-                return objectsIntersected[0];
-            }
+        var pointer = controller;
+        if(pointer){
+            var pointerWorldDirection = new THREE.Vector3();
+            pointer.getWorldDirection(pointerWorldDirection);
+            raycaster.set(controller.position, pointerWorldDirection);
+            var objectsIntersected = raycaster.intersectObjects(glyphs);
+            return (objectsIntersected[0]) ? objectsIntersected[0] : undefined;
+        } else {
+            console.log("No pointer found");
+            return undefined;
         }
-        return undefined;
     };
 
     // Update the text and position according to selected node
