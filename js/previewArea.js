@@ -39,8 +39,8 @@ import {scaleColorGroup} from './utils/scale'
 //import {WebXRButton} from './external-libraries/vr/webxr-button.js'; //Prettier button but not working so well
 //import { VRButton } from './external-libraries/vr/VRButton.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
-import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
-import { WebXRController } from "three/src/renderers/webxr/WebXRController";
+//import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
+import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
