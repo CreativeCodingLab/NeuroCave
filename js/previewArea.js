@@ -803,15 +803,15 @@ function PreviewArea(canvas_, model_, name_) {
     // };
 
     // draw a pointing line
-    var drawPointer = function (start, end) {
+    function drawPointer(start, end) {
         var material = new THREE.LineBasicMaterial();
-        var geometry = new THREE.Geometry();
-        geometry.vertices.push(
-            start,
-            end
-        );
+        var points = [];
+        points.push(start);
+        points.push(end);
+
+        var geometry = new THREE.BufferGeometry().setFromPoints(points);
         return new THREE.Line(geometry, material);
-    };
+    }
 
     // get the object pointed by the controller
     var getPointedObject = function (controller) {
