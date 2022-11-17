@@ -1056,7 +1056,6 @@ function PreviewArea(canvas_, model_, name_) {
             console.log("controlMode: " + controlMode);
             return;
         }
-
         if(controlMode == 'transform'){
             controls = new OrbitControls(camera, renderer.domElement);
             controlMode = 'orbit';
