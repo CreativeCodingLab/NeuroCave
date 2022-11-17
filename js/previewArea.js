@@ -1022,31 +1022,46 @@ function PreviewArea(canvas_, model_, name_) {
         if(controlMode == ''){
             controls = new OrbitControls(camera, renderer.domElement);
             controlMode = 'orbit';
+            console.log("controlMode: " + controlMode);
             return;
         }
+
         if(controlMode == 'orbit'){
             controls = new TrackballControls(camera, renderer.domElement);
             controlMode = 'trackball';
+            console.log("controlMode: " + controlMode);
             return;
         }
         if(controlMode == 'trackball'){
             controls = new FlyControls(camera, renderer.domElement);
             controlMode = 'fly';
+            console.log("controlMode: " + controlMode);
             return;
         }
         if(controlMode == 'fly'){
             controls = new FirstPersonControls(camera, renderer.domElement);
             controlMode = 'firstperson';
+            console.log("controlMode: " + controlMode);
             return;
         }
         if(controlMode == 'firstperson'){
             controls = new ArcballControls(camera, renderer.domElement);
             controlMode = 'arcball';
+            console.log("controlMode: " + controlMode);
             return;
         }
         if(controlMode == 'arcball'){
+            controls = new TransformControls(camera, renderer.domElement);
+            controlMode = 'transform';
+            console.log("controlMode: " + controlMode);
+            return;
+        }
+
+        if(controlMode == 'transform'){
             controls = new OrbitControls(camera, renderer.domElement);
             controlMode = 'orbit';
+            console.log("controlMode: " + controlMode);
+            return;
         }
 
 
@@ -1163,12 +1178,20 @@ function PreviewArea(canvas_, model_, name_) {
         // } else {
         //calculate delta for controls
 
-        //get time since 1970 in milliseconds
-        var time = performance.now();
-        var delta = (time - lastTime) / 1000;
-        //controls.update();
-        controls.update(time - lastTime);
-        lastTime = time;
+        //get delta for three.js controls
+
+        var clock = new THREE.Clock();
+        var delta = clock.getDelta();
+        //update controls
+        if (controlMode != 'transform') {
+            controls.update(delta);
+        } else {
+
+        }
+
+
+
+
 
 
 
