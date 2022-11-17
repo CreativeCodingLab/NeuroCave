@@ -12,6 +12,12 @@
 
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {FirstPersonControls} from "three/examples/jsm/controls/FirstPersonControls";
+import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
+import {FlyControls} from "three/examples/jsm/controls/FlyControls";
+import {TrackballControls} from "three/examples/jsm/controls/TrackballControls";
+import {TransformControls} from "three/examples/jsm/controls/TransformControls";
+
 
 //import * as quat from "./external-libraries/gl-matrix/quat.js";
 
@@ -44,6 +50,7 @@ import {scaleColorGroup} from './utils/scale'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 //import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
+import {timerDelta} from "three/examples/jsm/nodes/shadernode/ShaderNodeElements";
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -82,6 +89,7 @@ function PreviewArea(canvas_, model_, name_) {
     this.initXR = function () {
         //init VR //todo: this is stub now
 
+        document.addEventListener('keypress', this.keyPress.bind(this), false);
         console.log("Init XR for PV: " + name);
         enableVR = true;
         activateVR = false;
@@ -101,15 +109,6 @@ function PreviewArea(canvas_, model_, name_) {
             this.userData.isSelecting = false;
             console.log("Select end");
         }
-        function sleep(ms) {
-            //can't use a promise so we have to use a loop
-            for(var start = Date.now(); Date.now() - start < ms;)
-            {
-                //do nothing
-
-            }
-        }
-
 
         controllerLeft = renderer.xr.getController( 0 );
         controllerLeft.addEventListener( 'selectstart', onSelectStart );
@@ -1017,6 +1016,58 @@ function PreviewArea(canvas_, model_, name_) {
         console.log("createCanvas");
         addSkybox();
     };
+    var controlMode = '';
+    //toggle between control modes when 'c' is pressed
+    this.toggleControlMode = function () {
+        if(controlMode == ''){
+            controls = new OrbitControls(camera, renderer.domElement);
+            controlMode = 'orbit';
+            return;
+        }
+        if(controlMode == 'orbit'){
+            controls = new TrackballControls(camera, renderer.domElement);
+            controlMode = 'trackball';
+            return;
+        }
+        if(controlMode == 'trackball'){
+            controls = new FlyControls(camera, renderer.domElement);
+            controlMode = 'fly';
+            return;
+        }
+        if(controlMode == 'fly'){
+            controls = new FirstPersonControls(camera, renderer.domElement);
+            controlMode = 'firstperson';
+            return;
+        }
+        if(controlMode == 'firstperson'){
+            controls = new ArcballControls(camera, renderer.domElement);
+            controlMode = 'arcball';
+            return;
+        }
+        if(controlMode == 'arcball'){
+            controls = new OrbitControls(camera, renderer.domElement);
+            controlMode = 'orbit';
+        }
+
+
+
+    }
+
+    //listen for key presses
+    this.keyPress = function (event) {
+        if (event.key == 'c') {
+            console.log("toggle control mode");
+            this.toggleControlMode();
+        }
+        if (event.key == 'r') {
+            this.resetCamera();
+        }
+        if (event.key == 's') {
+            this.resetBrainPosition();
+        }
+    }
+
+
 
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     //todo is this sort of infinite recursion intentional?
@@ -1110,8 +1161,17 @@ function PreviewArea(canvas_, model_, name_) {
         //     //vrControl.update();  // todo: get code working then enable
         //     console.log("vrControl.update()");
         // } else {
+        //calculate delta for controls
 
-        controls.update();   // todo: this only executes when not VR or Mobile in Old WebVR Model. Consider in WebXR
+        //get time since 1970 in milliseconds
+        var time = performance.now();
+        var delta = (time - lastTime) / 1000;
+        //controls.update();
+        controls.update(time - lastTime);
+        lastTime = time;
+
+
+
             //console.log("controls.update() called");
         //}
 
