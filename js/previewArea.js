@@ -101,15 +101,25 @@ function PreviewArea(canvas_, model_, name_) {
             this.userData.isSelecting = false;
             console.log("Select end");
         }
+        function sleep(ms) {
+            //can't use a promise so we have to use a loop
+            for(var start = Date.now(); Date.now() - start < ms;)
+            {
+                //do nothing
+
+            }
+        }
+
 
         controllerLeft = renderer.xr.getController( 0 );
         controllerLeft.addEventListener( 'selectstart', onSelectStart );
         controllerLeft.addEventListener( 'selectend', onSelectEnd );
         controllerLeft.addEventListener( 'connected', function ( event ) {
-
+            //controllerLeft.gamepad = event.data.gamepad;
             this.add( buildController( event.data ) );
 
         } );
+
         controllerLeft.addEventListener( 'disconnected', function () {
 
             this.remove( this.children[ 0 ] );
@@ -121,7 +131,7 @@ function PreviewArea(canvas_, model_, name_) {
         controllerRight.addEventListener( 'selectstart', onSelectStart );
         controllerRight.addEventListener( 'selectend', onSelectEnd );
         controllerRight.addEventListener( 'connected', function ( event ) {
-
+            controllerRight.gamepad = event.data.gamepad;
             this.add( buildController( event.data ) );
 
         } );
@@ -172,6 +182,8 @@ function PreviewArea(canvas_, model_, name_) {
                 return new THREE.Mesh( geometry, material );
 
         }
+
+
 
     }
 
@@ -736,6 +748,82 @@ function PreviewArea(canvas_, model_, name_) {
     }
     // scan the Oculus Touch for controls
     var scanOculusTouch = function () {
+        //exit if no controllers
+        if(!controllerLeft || !controllerRight) return;
+        //exit if no brain
+        if(!brain) return;
+
+
+
+
+
+
+                            // //move using gamepad axes
+                            // var angleX = null, angleY = null;
+                            // var gamePadLeft = controllerLeft.gamepad;
+                            // var gamePadRight = controllerRight.gamepad;
+                            // console.log(controllerLeft.gamepad);
+                            // if (gamePadLeft && (gamePadLeft.axes[2] > 0 || gamePadLeft.axes[3] > 0)) {
+                            //     angleX = gamePadLeft.axes[2];
+                            //     angleY = gamePadLeft.axes[3];
+                            //     //move camera forward/backward left/right relative to camera direction and position
+                            //     camera.position.x += 5 * angleX * Math.sin(camera.rotation.y);
+                            //     camera.position.z += 5 * angleX * Math.cos(camera.rotation.y);
+                            //     camera.position.z += 5 * angleY * Math.sin(camera.rotation.y);
+                            //     camera.position.x -= 5 * angleY * Math.cos(camera.rotation.y);
+                            //     camera.matrixWorldNeedsUpdate = true;
+                            //     console.log('thumbstick moved');
+                            //     console.log('camera position: ' + camera.position.x + ', ' + camera.position.y + ', ' + camera.position.z);
+                            // }
+                            // if (gamePadRight && (gamePadRight.axes[0] > 0 || gamePadRight.axes[1] > 0)) {
+                            //     //rotate camera left/right up/down relative to camera direction and position
+                            //     angleX = gamePadRight.axes[0];
+                            //     angleY = gamePadRight.axes[1];
+                            //     camera.rotation.y += 0.2 * angleX;
+                            //     camera.rotation.x += 0.2 * angleY;
+                            //     camera.matrixWorldNeedsUpdate = true;
+                            //     console.log('thumbstick moved');
+                            //     console.log('camera rotation: ' + camera.rotation.x + ', ' + camera.rotation.y + ', ' + camera.rotation.z);
+                            // }
+        //update camera position
+        camera.updateMatrixWorld();
+
+
+
+
+
+
+        // var leftTrigger = controllerLeft.buttons[1].value;
+        // var rightTrigger = controllerRight.buttons[1].value;
+        // var leftThumbPad = controllerLeft.buttons[0].pressed;
+        // var rightThumbPad = controllerRight.buttons[0].pressed;
+        // var leftGrip = controllerLeft.buttons[2].pressed;
+        // var rightGrip = controllerRight.buttons[2].pressed;
+        // var leftA = controllerLeft.buttons[0].pressed;
+        // var rightA = controllerRight.buttons[0].pressed;
+        // var leftB = controllerLeft.buttons[1].pressed;
+        // var rightB = controllerRight.buttons[1].pressed;
+        // var leftX = controllerLeft.buttons[2].pressed;
+        // var rightX = controllerRight.buttons[2].pressed;
+        // var leftY = controllerLeft.buttons[3].pressed;
+        // var rightY = controllerRight.buttons[3].pressed;
+        // var leftMenu = controllerLeft.buttons[4].pressed;
+        // var rightMenu = controllerRight.buttons[4].pressed;
+        // var leftThumbStick = controllerLeft.buttons[5].pressed;
+        // var rightThumbStick = controllerRight.buttons[5].pressed;
+        // var leftIndexTrigger = controllerLeft.buttons[6].pressed;
+        // var rightIndexTrigger = controllerRight.buttons[6].pressed;
+        // var leftThumbRest = controllerLeft.buttons[7].pressed;
+        // var rightThumbRest = controllerRight.buttons[7].pressed;
+        // var leftTouchpad = controllerLeft.buttons[8].pressed;
+        // var rightTouchpad = controllerRight.buttons[8].pressed;
+        // var leftTouchpadTouch = controllerLeft.buttons[9].pressed;
+        // var rightTouchpadTouch = controllerRight.buttons[9].pressed;
+        // var leftTouchpadPress = controllerLeft.buttons[10].pressed;
+        // var rightTouchpadPress = controllerRight.buttons[10].pressed;
+        // var leftTouchpadNearTouch = controllerLeft.buttons[11].pressed;
+        // var rightTouchpadNearTouch = controllerRight.buttons[11].pressed;
+
     //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
     //     var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
     //     var angleX = null, angleY = null;
@@ -818,6 +906,7 @@ function PreviewArea(canvas_, model_, name_) {
 
 
 
+
     //     // Find all nodes within 0.1 distance from left Touch Controller
     //     var closestNodeIndexLeft = 0, closestNodeDistanceLeft = 99999.9;
     //     var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
@@ -890,18 +979,7 @@ function PreviewArea(canvas_, model_, name_) {
         return new THREE.Line(geometry, material);
     }
 
-    // get the object pointed by the controller
-    var getPointedObject = function (controller) {
-        var raycaster = new THREE.Raycaster();
-        //raycaster from controller
-        raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-        //raycaster.setFromCamera({x: 0, y: 0}, camera);
-        var intersects = raycaster.intersectObjects(brain.children, true);
-        if (intersects.length > 0) {
-            return intersects[0].object;
-        }
-        return null;
-    }
+
 
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     var initScene = function () {
@@ -1514,19 +1592,29 @@ function PreviewArea(canvas_, model_, name_) {
     // get intersected object pointed to by Vive/Touch Controller pointer
     // return undefined if no object was found
     var getPointedObject = function (controller) {
+        var controllerPosition = controller.position;
+        var forwardVector = new THREE.Vector3(0, 0, -1);
+        //get object in front of controller
+        forwardVector.applyQuaternion(controller.quaternion);
+        var raycaster = new THREE.Raycaster(controllerPosition, forwardVector);
+        var objectsIntersected = raycaster.intersectObjects(glyphs);
+        return (objectsIntersected[0]) ? objectsIntersected[0] : undefined;
 
-        var pointer = controller;
-        if(pointer){
-            var pointerWorldDirection = new THREE.Vector3();
-            pointer.getWorldDirection(pointerWorldDirection);
-            raycaster.set(controller.position, pointerWorldDirection);
-            var objectsIntersected = raycaster.intersectObjects(glyphs);
-            return (objectsIntersected[0]) ? objectsIntersected[0] : undefined;
-        } else {
-            console.log("No pointer found");
-            return undefined;
-        }
-    };
+    }
+
+    // // get the object pointed by the controller
+    // var getPointedObject = function (controller) {
+    //     var raycaster = new THREE.Raycaster();
+    //     //raycaster from controller
+    //     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    //     //raycaster.setFromCamera({x: 0, y: 0}, camera);
+    //     var intersects = raycaster.intersectObjects(brain.children, true);
+    //     if (intersects.length > 0) {
+    //         return intersects[0].object;
+    //     }
+    //     return null;
+    // }
+
 
     // Update the text and position according to selected node
     // The alignment, size and offset parameters are set by experimentation
