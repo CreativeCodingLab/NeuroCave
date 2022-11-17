@@ -115,7 +115,7 @@ function PreviewArea(canvas_, model_, name_) {
         controllerLeft.addEventListener( 'selectstart', onSelectStart );
         controllerLeft.addEventListener( 'selectend', onSelectEnd );
         controllerLeft.addEventListener( 'connected', function ( event ) {
-            //controllerLeft.gamepad = event.data.gamepad;
+            controllerLeft.gamepad = event.data.gamepad;
             this.add( buildController( event.data ) );
 
         } );
@@ -754,75 +754,52 @@ function PreviewArea(canvas_, model_, name_) {
         if(!brain) return;
 
 
+        //check if in VR mode
+        if (enableVR && vrControl && vrControl.isPresenting()) {
+            var cameraMaxTranslationSpeed = 0.1;
+            var cameraMaxRotationSpeed = 0.1;
+            var translationDecay = 0.01;
+            var rotationDecay = 0.01;
+
+            var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
+            var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
+
+            //get value of left thumbstick x axis
+            var leftThumbstickX = controllerLeft.gamepad.axes[2];
+            var leftThubstickY = controllerLeft.gamepad.axes[3];
+            //get value of right thumbstick x axis
+            var rightThumbstickX = controllerRight.gamepad.axes[2];
+            var rightThumbstickY = controllerRight.gamepad.axes[3];
+
+            //multiply by max increment
+            var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
+            var leftThumbstickYIncrement = leftThubstickY * cameraMaxTranslationSpeed;
+            var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
+            var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
+            //apply acceleration
+            currentTranslationSpeed.x += leftThumbstickXIncrement;
+            currentTranslationSpeed.y += leftThumbstickYIncrement;
+            currentRotationSpeed.x += rightThumbstickXIncrement;
+            currentRotationSpeed.y += rightThumbstickYIncrement;
+            //apply decay to up to or down to 0
+            currentTranslationSpeed.x = currentTranslationSpeed.x > 0 ? Math.max(0, currentTranslationSpeed.x - translationDecay) : Math.min(0, currentTranslationSpeed.x + translationDecay);
+            currentTranslationSpeed.y = currentTranslationSpeed.y > 0 ? Math.max(0, currentTranslationSpeed.y - translationDecay) : Math.min(0, currentTranslationSpeed.y + translationDecay);
+            currentRotationSpeed.x = currentRotationSpeed.x > 0 ? Math.max(0, currentRotationSpeed.x - rotationDecay) : Math.min(0, currentRotationSpeed.x + rotationDecay);
+            currentRotationSpeed.y = currentRotationSpeed.y > 0 ? Math.max(0, currentRotationSpeed.y - rotationDecay) : Math.min(0, currentRotationSpeed.y + rotationDecay);
+            //apply to camera
+            camera.translateX(currentTranslationSpeed.x);
+            camera.translateY(currentTranslationSpeed.y);
+            camera.rotateX(currentRotationSpeed.x);
+            camera.rotateY(currentRotationSpeed.y);
+            //update camera
+            camera.updateProjectionMatrix();
+        }
 
 
 
 
-                            // //move using gamepad axes
-                            // var angleX = null, angleY = null;
-                            // var gamePadLeft = controllerLeft.gamepad;
-                            // var gamePadRight = controllerRight.gamepad;
-                            // console.log(controllerLeft.gamepad);
-                            // if (gamePadLeft && (gamePadLeft.axes[2] > 0 || gamePadLeft.axes[3] > 0)) {
-                            //     angleX = gamePadLeft.axes[2];
-                            //     angleY = gamePadLeft.axes[3];
-                            //     //move camera forward/backward left/right relative to camera direction and position
-                            //     camera.position.x += 5 * angleX * Math.sin(camera.rotation.y);
-                            //     camera.position.z += 5 * angleX * Math.cos(camera.rotation.y);
-                            //     camera.position.z += 5 * angleY * Math.sin(camera.rotation.y);
-                            //     camera.position.x -= 5 * angleY * Math.cos(camera.rotation.y);
-                            //     camera.matrixWorldNeedsUpdate = true;
-                            //     console.log('thumbstick moved');
-                            //     console.log('camera position: ' + camera.position.x + ', ' + camera.position.y + ', ' + camera.position.z);
-                            // }
-                            // if (gamePadRight && (gamePadRight.axes[0] > 0 || gamePadRight.axes[1] > 0)) {
-                            //     //rotate camera left/right up/down relative to camera direction and position
-                            //     angleX = gamePadRight.axes[0];
-                            //     angleY = gamePadRight.axes[1];
-                            //     camera.rotation.y += 0.2 * angleX;
-                            //     camera.rotation.x += 0.2 * angleY;
-                            //     camera.matrixWorldNeedsUpdate = true;
-                            //     console.log('thumbstick moved');
-                            //     console.log('camera rotation: ' + camera.rotation.x + ', ' + camera.rotation.y + ', ' + camera.rotation.z);
-                            // }
-        //update camera position
-        camera.updateMatrixWorld();
 
 
-
-
-
-
-        // var leftTrigger = controllerLeft.buttons[1].value;
-        // var rightTrigger = controllerRight.buttons[1].value;
-        // var leftThumbPad = controllerLeft.buttons[0].pressed;
-        // var rightThumbPad = controllerRight.buttons[0].pressed;
-        // var leftGrip = controllerLeft.buttons[2].pressed;
-        // var rightGrip = controllerRight.buttons[2].pressed;
-        // var leftA = controllerLeft.buttons[0].pressed;
-        // var rightA = controllerRight.buttons[0].pressed;
-        // var leftB = controllerLeft.buttons[1].pressed;
-        // var rightB = controllerRight.buttons[1].pressed;
-        // var leftX = controllerLeft.buttons[2].pressed;
-        // var rightX = controllerRight.buttons[2].pressed;
-        // var leftY = controllerLeft.buttons[3].pressed;
-        // var rightY = controllerRight.buttons[3].pressed;
-        // var leftMenu = controllerLeft.buttons[4].pressed;
-        // var rightMenu = controllerRight.buttons[4].pressed;
-        // var leftThumbStick = controllerLeft.buttons[5].pressed;
-        // var rightThumbStick = controllerRight.buttons[5].pressed;
-        // var leftIndexTrigger = controllerLeft.buttons[6].pressed;
-        // var rightIndexTrigger = controllerRight.buttons[6].pressed;
-        // var leftThumbRest = controllerLeft.buttons[7].pressed;
-        // var rightThumbRest = controllerRight.buttons[7].pressed;
-        // var leftTouchpad = controllerLeft.buttons[8].pressed;
-        // var rightTouchpad = controllerRight.buttons[8].pressed;
-        // var leftTouchpadTouch = controllerLeft.buttons[9].pressed;
-        // var rightTouchpadTouch = controllerRight.buttons[9].pressed;
-        // var leftTouchpadPress = controllerLeft.buttons[10].pressed;
-        // var rightTouchpadPress = controllerRight.buttons[10].pressed;
-        // var leftTouchpadNearTouch = controllerLeft.buttons[11].pressed;
-        // var rightTouchpadNearTouch = controllerRight.buttons[11].pressed;
 
     //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
     //     var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
@@ -1112,6 +1089,7 @@ function PreviewArea(canvas_, model_, name_) {
         //     return;
         // }
         // lastTime = Date.now();
+
 
 
         // if (enableVR && activateVR) {
