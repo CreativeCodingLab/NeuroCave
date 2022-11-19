@@ -58,6 +58,7 @@ function PreviewArea(canvas_, model_, name_) {
     var canvas = canvas_;
     var camera = null, renderer = null, controls = null, scene = null, raycaster = null, gl = null;
     var nodeLabelSprite = null, nodeNameMap = null, nspCanvas = null;
+    var clock = new THREE.Clock();
 
     // VR stuff
     var vrControl = null, effect = null;
@@ -841,42 +842,43 @@ function PreviewArea(canvas_, model_, name_) {
     //console.log("Right: " + closestNodeIndexRight + ", " + closestNodeDistanceRight);
 
 
+        if (true ||  VRButton.xrSessionIsGranted) {
+
+            if (controllerLeft.userData.isSelecting) {
+                var isLeft = true;
+                var pointedObject = getPointedObject(controllerLeft);
+                updateNodeSelection(model, pointedObject, isLeft);
+                updateNodeMoveOver(model, pointedObject, 2);
+
+                //log event to console
+                console.log("Left controller: " + controllerLeft.userData.isSelecting);
+                //log selection to console
+                console.log("Left controller: ");
+                console.log(pointedObject);
 
 
-    if(controllerLeft.userData.isSelecting){
-        var isLeft = true;
-        var pointedObject = getPointedObject(controllerLeft);
-        updateNodeSelection(model, pointedObject, isLeft);
-        updateNodeMoveOver(model, pointedObject);
+            }
+            if (controllerRight.userData.isSelecting) {
+                var isLeft = false;
+                var pointedObject = getPointedObject(controllerRight);
+                updateNodeSelection(model, pointedObject, isLeft);
+                //log event to console
+                console.log("Right controller: " + controllerRight.userData.isSelecting);
+                //log selection to console
+                console.log("Right controller: ")
+                console.log(pointedObject);
+            }
 
-        //log event to console
-        console.log("Left controller: " + controllerLeft.userData.isSelecting);
-        //log selection to console
-        console.log("Left controller: ");
-        console.log(pointedObject);
+            //updatenodemoveover
+            var pointedObjectLeft = getPointedObject(controllerLeft);
+            updateNodeMoveOver(model, pointedObjectLeft, 2);
+            var pointedObjectRight = getPointedObject(controllerRight);
+            updateNodeMoveOver(model, pointedObjectLeft, 2);
+            if (!pointedObjectLeft && !pointedObjectRight) {
+                updateNodeMoveOver(model, null, 2);
+            }
 
-
-    }
-    if(controllerRight.userData.isSelecting){
-        var isLeft = false;
-        var pointedObject = getPointedObject(controllerRight);
-        updateNodeSelection(model, pointedObject, isLeft);
-        //log event to console
-        console.log("Right controller: " + controllerRight.userData.isSelecting);
-        //log selection to console
-        console.log("Right controller: ")
-        console.log(pointedObject);
-    }
-
-    //updatenodemoveover
-    var pointedObjectLeft = getPointedObject(controllerLeft);
-    updateNodeMoveOver(model, pointedObjectLeft);
-    var pointedObjectRight = getPointedObject(controllerRight);
-    updateNodeMoveOver(model, pointedObjectLeft);
-    if(!pointedObjectLeft && !pointedObjectRight){
-        updateNodeMoveOver(model, null);
-    }
-
+        }
 
 
 
@@ -988,7 +990,7 @@ function PreviewArea(canvas_, model_, name_) {
         controls.minDistance = 10;
         controls.maxDistance = 1000;
 
-        //addNodeLabel();
+        addNodeLabel();
     };
 
     this.resetCamera = function () {
@@ -1098,18 +1100,25 @@ function PreviewArea(canvas_, model_, name_) {
     // update node scale according to selection status
     this.updateNodeGeometry = function (nodeIndex, status) {
         var scale = 1.0;
+        var dataset = model.getDataset();
         switch (status) {
             case 'normal':
                 scale = 1.0;
+                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
             case 'mouseover':
-                scale = 1.2;
+                scale = 1.72;
+                var delta = clock.getDelta();
+                glyphs[nodeIndex].material.color = new THREE.Color( (delta * 10.0 ), (1.0-delta * 10.0 ), (0.5 + delta * 5.0 )  );
+                console.log("Delta:" + (delta * 10.0 )) + " " + (1.0-delta * 10.0 ) + " " + (0.5 + delta * 5.0 );
                 break;
             case 'selected':
                 scale = (8 / 3);
+                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
             case 'root':
                 scale = (10 / 3);
+                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
         }
         glyphs[nodeIndex].scale.set(scale, scale, scale);
@@ -1179,7 +1188,7 @@ function PreviewArea(canvas_, model_, name_) {
 
         //get delta for three.js controls
 
-        var clock = new THREE.Clock();
+        //var clock = new THREE.Clock();
         var delta = clock.getDelta();
         //update controls
         if (controlMode != 'transform') {
@@ -1633,7 +1642,7 @@ function PreviewArea(canvas_, model_, name_) {
         this.removeShortestPathEdgesFromScene();
 
         var i = target;
-        var prev;
+        var prev; // previous node
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
@@ -1709,7 +1718,7 @@ function PreviewArea(canvas_, model_, name_) {
 
         var mat = new THREE.SpriteMaterial({
             map: nodeNameMap,
-            transparent: false,
+            transparent: true,
             useScreenCoordinates: false,
             color: 0xffffff
         });
