@@ -68,6 +68,7 @@ function PreviewArea(canvas_, model_, name_) {
     var enableVR = false;
     var activateVR = false;
     var vrButton = null;
+    let controllerLeftSelectState = false, controllerRightSelectState = false;
 
     // XR stuff
     var xrButton = null;
@@ -111,12 +112,16 @@ function PreviewArea(canvas_, model_, name_) {
             console.log("Select end");
         }
 
+        var v3Origin = new THREE.Vector3(0, 0, 0);
+        var v3UnitUp = new THREE.Vector3(0, 0, -100);
+
         controllerLeft = renderer.xr.getController( 0 );
         controllerLeft.addEventListener( 'selectstart', onSelectStart );
         controllerLeft.addEventListener( 'selectend', onSelectEnd );
         controllerLeft.addEventListener( 'connected', function ( event ) {
             controllerLeft.gamepad = event.data.gamepad;
-            this.add( buildController( event.data ) );
+            //  this.add( buildController( event.data ) );
+            this.add( drawPointer(v3Origin, v3UnitUp) );
 
         } );
 
@@ -132,7 +137,9 @@ function PreviewArea(canvas_, model_, name_) {
         controllerRight.addEventListener( 'selectend', onSelectEnd );
         controllerRight.addEventListener( 'connected', function ( event ) {
             controllerRight.gamepad = event.data.gamepad;
-            this.add( buildController( event.data ) );
+            //this.add( buildController( event.data ) );
+            this.add( drawPointer(v3Origin, v3UnitUp) );
+            //
 
         } );
         controllerRight.addEventListener( 'disconnected', function () {
@@ -844,7 +851,7 @@ function PreviewArea(canvas_, model_, name_) {
 
         if (true ||  VRButton.xrSessionIsGranted) {
 
-            if (controllerLeft.userData.isSelecting) {
+            if (controllerLeftSelectState && !controllerLeft.userData.isSelecting) {  //release Left Trigger
                 var isLeft = true;
                 var pointedObject = getPointedObject(controllerLeft);
                 updateNodeSelection(model, pointedObject, isLeft);
@@ -858,8 +865,8 @@ function PreviewArea(canvas_, model_, name_) {
 
 
             }
-            if (controllerRight.userData.isSelecting) {
-                var isLeft = false;
+            if (controllerRightSelectState && !controllerRight.userData.isSelecting) {  //release Right Trigger
+                var isLeft = true; //false;
                 var pointedObject = getPointedObject(controllerRight);
                 updateNodeSelection(model, pointedObject, isLeft);
                 //log event to console
@@ -882,6 +889,8 @@ function PreviewArea(canvas_, model_, name_) {
 
 
 
+        controllerLeftSelectState = controllerLeft.userData.isSelecting;
+        controllerRightSelectState = controllerRight.userData.isSelecting;
 
 
 
@@ -1339,7 +1348,7 @@ function PreviewArea(canvas_, model_, name_) {
         // setEdgesColor();
     };
 
-    // skew the color distribution according to the nodes strength
+    // skew the color distributio n according to the nodes strength
     var computeColorGradient = function (c1, c2, n, p) {
         var gradient = new Float32Array(n * 3);
         var p1 = p;
