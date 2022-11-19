@@ -64,6 +64,16 @@ function onDocumentMouseMove(model, event) {
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+// This logic is a bit complicated, because it needs to handle all the cases where the user mouses over or
+// points a VR controller at a node and then moves the mouse or controller away from the node.
+//
+// It updates any glyphs that may be hovered over or pointed at in VR and resets them to their normal state
+// INPUT: model, inrtersetedObject: self explanatory, mode: 1 = mouse hover, 2 = VR Touch point
+// Since there are two preview areas and the mouse and Touch controllers can work independently when one is in VR mode,
+// any pointed-at or hovered-over glyphs need to be highlighted in both preview areas and if EITHER pointing device's ray
+// intersects with a glyph, that glyph should be highlighted
+///////////////////////////////////////////////////////////////////////////////////////////
 var updateNodeMoveOver = function (model, intersectedObject, mode) {
     var nodeIdx, region, nodeRegion;
     if ( intersectedObject ) {
@@ -91,7 +101,7 @@ var updateNodeMoveOver = function (model, intersectedObject, mode) {
             // console.log("Drawing edges from node ", nodeIdx);
             pointedNodeIdx = nodeIdx;
             hoverTimeout = false;
-            hoverMode = hoverMode | mode;
+            hoverMode = hoverMode | mode;  // set the hover mode to the mode that triggered this function
         } else {
             setTimeout(function () {hoverTimeout = true;}, 500);
             oldNodeIndex = nodeIdx;
@@ -102,10 +112,11 @@ var updateNodeMoveOver = function (model, intersectedObject, mode) {
             nodeIdx = glyphNodeDictionary[pointedObject.uuid];
             if (nodeIdx === undefined)
                 return;
-            hoverMode = hoverMode & ~mode;
+            hoverMode = hoverMode & ~mode; // clear the hover mode that triggered this function
             if (hoverMode != 0) {
                 return;
             }
+            // only proceed to de-hovering a node if both the mouse and the VR controller are not hovering over it
             pointedNodeIdx = -1;
             if(nodeIdx == root) {
                 console.log("Root creation");
