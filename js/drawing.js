@@ -60,7 +60,7 @@ function onDocumentMouseMove(model, event) {
     event.preventDefault();
     var intersectedObject = getIntersectedObject(event);
     // var isLeft = event.clientX < window.innerWidth/2;
-    updateNodeMoveOver(model, intersectedObject, 1);
+    updateNodeMoveOver(model, intersectedObject, 1); // 1 = mouse hover
 
 }
 
@@ -69,7 +69,7 @@ function onDocumentMouseMove(model, event) {
 // points a VR controller at a node and then moves the mouse or controller away from the node.
 //
 // It updates any glyphs that may be hovered over or pointed at in VR and resets them to their normal state
-// INPUT: model, inrtersetedObject: self explanatory, mode: 1 = mouse hover, 2 = VR Touch point
+// INPUT: model, inrtersetedObject: self explanatory, mode: 1 = mouse , 2,4 = VR controllers
 // Since there are two preview areas and the mouse and Touch controllers can work independently when one is in VR mode,
 // any pointed-at or hovered-over glyphs need to be highlighted in both preview areas and if EITHER pointing device's ray
 // intersects with a glyph, that glyph should be highlighted
@@ -116,7 +116,7 @@ var updateNodeMoveOver = function (model, intersectedObject, mode) {
             if (hoverMode != 0) {
                 return;
             }
-            // only proceed to de-hovering a node if both the mouse and the VR controller are not hovering over it
+            // only proceed to de-hovering a node if both the mouse and all VR controllers are not hovering over it
             pointedNodeIdx = -1;
             if(nodeIdx == root) {
                 console.log("Root creation");

@@ -855,7 +855,7 @@ function PreviewArea(canvas_, model_, name_) {
                 var isLeft = true;
                 var pointedObject = getPointedObject(controllerLeft);
                 updateNodeSelection(model, pointedObject, isLeft);
-                updateNodeMoveOver(model, pointedObject, 2); //2 is for touch controller
+                updateNodeMoveOver(model, pointedObject, 2); //2 is for left touch controller
 
                 //log event to console
                 console.log("Left controller: " + controllerLeft.userData.isSelecting);
@@ -869,7 +869,7 @@ function PreviewArea(canvas_, model_, name_) {
                 var isLeft = true; //false;
                 var pointedObject = getPointedObject(controllerRight);
                 updateNodeSelection(model, pointedObject, isLeft);
-                updateNodeMoveOver(model, pointedObject, 2); //2 is for touch controller
+                updateNodeMoveOver(model, pointedObject, 4); //4 is for right touch controller
 
                 //log event to console
                 console.log("Right controller: " + controllerRight.userData.isSelecting);
@@ -882,9 +882,9 @@ function PreviewArea(canvas_, model_, name_) {
             var pointedObjectLeft = getPointedObject(controllerLeft);
             updateNodeMoveOver(model, pointedObjectLeft, 2); //todo: enum for hover mode type
             var pointedObjectRight = getPointedObject(controllerRight);
-            updateNodeMoveOver(model, pointedObjectLeft, 2);
+            updateNodeMoveOver(model, pointedObjectRight, 4);
             if (!pointedObjectLeft && !pointedObjectRight) {
-                updateNodeMoveOver(model, null, 2);
+                updateNodeMoveOver(model, null, 6);
             }
 
         }
