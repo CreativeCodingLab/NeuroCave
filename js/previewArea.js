@@ -763,7 +763,11 @@ function PreviewArea(canvas_, model_, name_) {
 
     }
     // scan the Oculus Touch for controls
+
+    var xrDolly = new THREE.Object3D();
+
     var scanOculusTouch = function () {
+
         //exit if no controllers
         if(!controllerLeft || !controllerRight) return;
         //exit if no brain
@@ -772,73 +776,133 @@ function PreviewArea(canvas_, model_, name_) {
 
         //check if in VR mode
         if (renderer.xr.isPresenting && xrInputLeft && xrInputRight) {
+            //disable the mouse controls
+            controls.enabled = false;
+
             //check if xrInputLeft and xrInputRight are defined, if they are check if they have a gamepad
             if (xrInputLeft.gamepad) {
-                //check if the gamepad has a button called trigger
-                console.log("xrInputLeft.gamepad: ")
-                console.log(xrInputLeft.gamepad)
+                //
+                // console.log("xrInputLeft.gamepad: ")
+                // console.log(xrInputLeft.gamepad)
 
             }
 
             if (xrInputRight.gamepad) {
-                console.log("xrInputRight.gamepad: ");
-                console.log(xrInputRight.gamepad);
+                // console.log("xrInputRight.gamepad: ");
+                // console.log(xrInputRight.gamepad);
             }
 
-            //get webxr camera //is this the secret sauce?
-            var camera = renderer.xr.getCamera(camera);
-            // get the position of the camera
-            var cameraPosition = camera.getWorldPosition()
-            var cameraRotation = camera.getWorldRotation()
-            var cameraQuaternion = camera.getWorldQuaternion()
-            //get the position of the left controller
-            var controllerLeftPosition = controllerLeft.getWorldPosition()
-            var controllerLeftRotation = controllerLeft.getWorldRotation()
-            var controllerLeftQuaternion = controllerLeft.getWorldQuaternion()
-            //get the position of the right controller
-            var controllerRightPosition = controllerRight.getWorldPosition()
-            var controllerRightRotation = controllerRight.getWorldRotation()
-            var controllerRightQuaternion = controllerRight.getWorldQuaternion()
+            //check if camera is the same as the webxr camera
+            if (camera !== renderer.xr.getCamera()) {
+                //if not, set the camera to the webxr camera
+                camera = renderer.xr.getCamera();
+                //display console, camera changed
+                console.log("camera changed to vr camera");
+            }
 
-            var cameraMaxTranslationSpeed = 1;
-            var cameraMaxRotationSpeed = 1;
-            var translationDecay = 1;
-            var rotationDecay = 1;
+            //check if the camera is a child of the xrDolly
+            if (!camera.parent) {
+                //if not, add the camera to the xrDolly
+                xrDolly.add(camera);
+                //add the xrDolly to the scene
+                scene.add(xrDolly);
+                console.log("camera added to dolly, dolly added to scene");
+            }
+
+            // get the position of the camera
+            var cameraPosition = camera.position
+            var cameraRotation = camera.rotation
+            var cameraQuaternion = camera.quaternion
+            //get the position of the left controller
+            var controllerLeftPosition = controllerLeft.position
+            var controllerLeftRotation = controllerLeft.rotation
+            var controllerLeftQuaternion = controllerLeft.quaternion
+            //get the position of the right controller
+            var controllerRightPosition = controllerRight.position
+            var controllerRightRotation = controllerRight.rotation
+            var controllerRightQuaternion = controllerRight.quaternion
+
+            var cameraMaxTranslationSpeed = 0.01;
+            var cameraMaxRotationSpeed = 0.01;
+            var translationDecay = 0.001;
+            var rotationDecay = 0.001;
 
             var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
             var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
-
+            let delta = clock.getDelta();
             //get value of left thumbstick x axis
-            var leftThumbstickX = controllerLeft.gamepad.axes[2];
-            var leftThumbstickY = controllerLeft.gamepad.axes[3];
+            if(xrInputLeft.gamepad.axes.length > 0) {
+                var leftThumbstickX = controllerLeft.gamepad.axes[2];
+                var leftThumbstickY = controllerLeft.gamepad.axes[3];
+                //multiply by max increment
+                var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
+                var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
+                //apply translation
+                currentTranslationSpeed.x += leftThumbstickXIncrement;
+                currentTranslationSpeed.y += leftThumbstickYIncrement;
+
+            }
             //get value of right thumbstick x axis
-            var rightThumbstickX = controllerRight.gamepad.axes[2];
-            var rightThumbstickY = controllerRight.gamepad.axes[3];
+            if(xrInputRight.gamepad.axes.length > 0) {
+                //use to rotate left right up or down
+                var rightThumbstickX = controllerRight.gamepad.axes[3];
+                var rightThumbstickY = controllerRight.gamepad.axes[2];
+                //multiply by max increment
+                var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
+                var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
+                //apply rotation
+                currentRotationSpeed.x += rightThumbstickXIncrement;
+                currentRotationSpeed.y += rightThumbstickYIncrement;
 
-            //multiply by max increment
-            var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
-            var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
-            var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
-            var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
-            //apply acceleration
-            currentTranslationSpeed.x += leftThumbstickXIncrement;
-            currentTranslationSpeed.y += leftThumbstickYIncrement;
-            currentRotationSpeed.x += rightThumbstickXIncrement;
-            currentRotationSpeed.y += rightThumbstickYIncrement;
-            //apply decay to up to or down to 0
-            currentTranslationSpeed.x = currentTranslationSpeed.x > 0 ? Math.max(0, currentTranslationSpeed.x - translationDecay) : Math.min(0, currentTranslationSpeed.x + translationDecay);
-            currentTranslationSpeed.y = currentTranslationSpeed.y > 0 ? Math.max(0, currentTranslationSpeed.y - translationDecay) : Math.min(0, currentTranslationSpeed.y + translationDecay);
-            currentRotationSpeed.x = currentRotationSpeed.x > 0 ? Math.max(0, currentRotationSpeed.x - rotationDecay) : Math.min(0, currentRotationSpeed.x + rotationDecay);
-            currentRotationSpeed.y = currentRotationSpeed.y > 0 ? Math.max(0, currentRotationSpeed.y - rotationDecay) : Math.min(0, currentRotationSpeed.y + rotationDecay);
-            //apply to camera
-            camera.translateX(currentTranslationSpeed.x);
-            camera.translateY(currentTranslationSpeed.y);
-            camera.rotateX(currentRotationSpeed.x);
-            camera.rotateY(currentRotationSpeed.y);
+            }
+            //
+            //
+            //
+            // //calculate new position
+            // var newCameraPosition = new THREE.Vector3(cameraPosition.x + currentTranslationSpeed.x, cameraPosition.y + currentTranslationSpeed.y, cameraPosition.z);
+            // //calculate new rotation
+            // var newCameraRotation = new THREE.Vector3(cameraRotation.x + currentRotationSpeed.x, cameraRotation.y + currentRotationSpeed.y, cameraRotation.z);
+            // //calculate new quaternion
+            // var newCameraQuaternion = new THREE.Quaternion(cameraQuaternion.x, cameraQuaternion.y, cameraQuaternion.z, cameraQuaternion.w);
 
 
-            //update camera
-            camera.updateProjectionMatrix();
+            //move the xrDolly
+            xrDolly.translateY(currentTranslationSpeed.y);
+            xrDolly.translateX(currentTranslationSpeed.x);
+            xrDolly.translateZ(currentTranslationSpeed.z);
+            //rotate the xrDolly
+            xrDolly.rotateX(currentRotationSpeed.x);
+            xrDolly.rotateY(currentRotationSpeed.y);
+            xrDolly.rotateZ(currentRotationSpeed.z);
+
+            //decay the translation speed using the decay value and delta time
+            currentTranslationSpeed.x -= currentTranslationSpeed.x * translationDecay * delta;
+            currentTranslationSpeed.y -= currentTranslationSpeed.y * translationDecay * delta;
+            currentTranslationSpeed.z -= currentTranslationSpeed.z * translationDecay * delta;
+            //decay the rotation speed using the decay value and delta time
+            currentRotationSpeed.x -= currentRotationSpeed.x * rotationDecay * delta;
+            currentRotationSpeed.y -= currentRotationSpeed.y * rotationDecay * delta;
+            currentRotationSpeed.z -= currentRotationSpeed.z * rotationDecay * delta;
+
+            if(Math.abs(currentTranslationSpeed.x) < 0.001) {
+                //if so, set it to 0
+                currentTranslationSpeed.x = 0;
+            }
+            //check if the translation speed is less than 0.001
+            if(Math.abs(currentTranslationSpeed.y) < 0.001) {
+                //if so, set it to 0
+                currentTranslationSpeed.y = 0;
+            }
+
+            // //if current speeds are not 0, log to console
+            // if(currentTranslationSpeed.x != 0 || currentTranslationSpeed.y != 0 || currentTranslationSpeed.z != 0 || currentRotationSpeed.x != 0 || currentRotationSpeed.y != 0 || currentRotationSpeed.z != 0) {
+            //     console.log("currentTranslationSpeed: ");
+            //     console.log(currentTranslationSpeed);
+            //     console.log("currentRotationSpeed: ");
+            //     console.log(currentRotationSpeed);
+            // }
+
+
         } else {
             //every minute or so, log the controller object to the console if we still don't have inputs
             var lastControllerLog = new Date();
