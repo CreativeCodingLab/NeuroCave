@@ -51,6 +51,8 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 //import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import {timerDelta} from "three/examples/jsm/nodes/shadernode/ShaderNodeElements";
+import {WebXRManager} from "three/src/renderers/webxr/WebXRManager";
+
 
 function PreviewArea(canvas_, model_, name_) {
     var name = name_;
@@ -62,7 +64,7 @@ function PreviewArea(canvas_, model_, name_) {
 
     // VR stuff
     var vrControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false,
+    var controllerLeft = null, controllerRight = null, xrInputLeft = null, xrInputRight = null,
         enableRender = true;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
     var enableVR = false;
@@ -120,6 +122,10 @@ function PreviewArea(canvas_, model_, name_) {
         controllerLeft.addEventListener( 'selectend', onSelectEnd );
         controllerLeft.addEventListener( 'connected', function ( event ) {
             controllerLeft.gamepad = event.data.gamepad;
+            console.log("Left controller connected");
+            console.log("event data: ");
+            console.log(event.data);
+            xrInputLeft = event.data;
             //  this.add( buildController( event.data ) );
             this.add( drawPointer(v3Origin, v3UnitUp) );
 
@@ -138,9 +144,12 @@ function PreviewArea(canvas_, model_, name_) {
         controllerRight.addEventListener( 'connected', function ( event ) {
             controllerRight.gamepad = event.data.gamepad;
             //this.add( buildController( event.data ) );
-            this.add( drawPointer(v3Origin, v3UnitUp) );
-            //
+            console.log("Right controller connected: ");
+            console.log("event data: ");
+            xrInputRight = event.data;
+            console.log(event.data);
 
+            this.add( drawPointer(v3Origin, v3UnitUp) );//
         } );
         controllerRight.addEventListener( 'disconnected', function () {
 
@@ -762,25 +771,53 @@ function PreviewArea(canvas_, model_, name_) {
 
 
         //check if in VR mode
-        if (enableVR && vrControl && vrControl.isPresenting()) {
-            var cameraMaxTranslationSpeed = 0.1;
-            var cameraMaxRotationSpeed = 0.1;
-            var translationDecay = 0.01;
-            var rotationDecay = 0.01;
+        if (renderer.xr.isPresenting && xrInputLeft && xrInputRight) {
+            //check if xrInputLeft and xrInputRight are defined, if they are check if they have a gamepad
+            if (xrInputLeft.gamepad) {
+                //check if the gamepad has a button called trigger
+                console.log("xrInputLeft.gamepad: ")
+                console.log(xrInputLeft.gamepad)
+
+            }
+
+            if (xrInputRight.gamepad) {
+                console.log("xrInputRight.gamepad: ");
+                console.log(xrInputRight.gamepad);
+            }
+
+            //get webxr camera //is this the secret sauce?
+            var camera = renderer.xr.getCamera(camera);
+            // get the position of the camera
+            var cameraPosition = camera.getWorldPosition()
+            var cameraRotation = camera.getWorldRotation()
+            var cameraQuaternion = camera.getWorldQuaternion()
+            //get the position of the left controller
+            var controllerLeftPosition = controllerLeft.getWorldPosition()
+            var controllerLeftRotation = controllerLeft.getWorldRotation()
+            var controllerLeftQuaternion = controllerLeft.getWorldQuaternion()
+            //get the position of the right controller
+            var controllerRightPosition = controllerRight.getWorldPosition()
+            var controllerRightRotation = controllerRight.getWorldRotation()
+            var controllerRightQuaternion = controllerRight.getWorldQuaternion()
+
+            var cameraMaxTranslationSpeed = 1;
+            var cameraMaxRotationSpeed = 1;
+            var translationDecay = 1;
+            var rotationDecay = 1;
 
             var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
             var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
 
             //get value of left thumbstick x axis
             var leftThumbstickX = controllerLeft.gamepad.axes[2];
-            var leftThubstickY = controllerLeft.gamepad.axes[3];
+            var leftThumbstickY = controllerLeft.gamepad.axes[3];
             //get value of right thumbstick x axis
             var rightThumbstickX = controllerRight.gamepad.axes[2];
             var rightThumbstickY = controllerRight.gamepad.axes[3];
 
             //multiply by max increment
             var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
-            var leftThumbstickYIncrement = leftThubstickY * cameraMaxTranslationSpeed;
+            var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
             var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
             var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
             //apply acceleration
@@ -798,8 +835,18 @@ function PreviewArea(canvas_, model_, name_) {
             camera.translateY(currentTranslationSpeed.y);
             camera.rotateX(currentRotationSpeed.x);
             camera.rotateY(currentRotationSpeed.y);
+
+
             //update camera
             camera.updateProjectionMatrix();
+        } else {
+            //every minute or so, log the controller object to the console if we still don't have inputs
+            var lastControllerLog = new Date();
+            if (Date.now() - lastControllerLog > 60000) {
+                console.log(controllerLeft);
+                console.log(controllerRight);
+                lastControllerLog = Date.now();
+            }
         }
 
 
@@ -1121,7 +1168,7 @@ function PreviewArea(canvas_, model_, name_) {
                 scale = 1.72;
                 var delta = clock.getDelta();
                 glyphs[nodeIndex].material.color = new THREE.Color( (delta * 10.0 ), (1.0-delta * 10.0 ), (0.5 + delta * 5.0 )  );
-                console.log("Delta:" + (delta * 10.0 )) + " " + (1.0-delta * 10.0 ) + " " + (0.5 + delta * 5.0 );
+                //console.log("Delta:" + (delta * 10.0 )) + " " + (1.0-delta * 10.0 ) + " " + (0.5 + delta * 5.0 );
                 break;
             case 'selected':
                 scale = (8 / 3);
@@ -1197,25 +1244,25 @@ function PreviewArea(canvas_, model_, name_) {
         // } else {
         //calculate delta for controls
 
-        //get delta for three.js controls
 
         //var clock = new THREE.Clock();
         var delta = clock.getDelta();
+
+
         //update controls
-        if (controlMode != 'transform') {
+        if (controlMode !== 'transform') {
             controls.update(delta);
         } else {
-
+            controls.update();
         }
 
 
 
-
-
-
+        //update camera position
+        camera.updateProjectionMatrix();
 
             //console.log("controls.update() called");
-        //}
+
 
 
         if (enableRender)
@@ -1227,14 +1274,14 @@ function PreviewArea(canvas_, model_, name_) {
 
         //window.requestAnimationFrame(animatePV); // todo: this is the old way of doing it. Consider in WebXR
         renderer.setAnimationLoop( animatePV ); // todo: this is the new way to do it in WebXR
-    };
+    }
 
     this.requestAnimate = function () {
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
         //window.requestAnimationFrame(animatePV);
         animatePV();
-        controls.update()
-        renderer.render(scene, camera);
+        // controls.update()
+        // renderer.render(scene, camera);
         console.log("requestAnimate called");
     };
 
@@ -1385,7 +1432,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.updateEdgeOpacity = function (opacity) {
-        edgeOpacity = opacity;
+        var edgeOpacity = opacity;
         for (var i = 0; i < displayedEdges.length; i++) {
             displayedEdges[i].material.opacity = opacity;
         }
@@ -1539,7 +1586,7 @@ function PreviewArea(canvas_, model_, name_) {
     // toggle skybox visibility
     this.setSkyboxVisibility = function (visible) {
         var results = scene.children.filter(function (d) {
-            return d.name == "skybox"
+            return d.name === "skybox"
         });
         var skybox = results[0];
         skybox.visible = visible;
