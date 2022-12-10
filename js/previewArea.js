@@ -830,10 +830,12 @@ function PreviewArea(canvas_, model_, name_) {
             var controllerRightRotation = controllerRight.rotation
             var controllerRightQuaternion = controllerRight.quaternion
 
-            var cameraMaxTranslationSpeed = 0.01;
+            var cameraMaxTranslationSpeed = 1;
             var cameraMaxRotationSpeed = 0.01;
-            var translationDecay = 0.001;
+            var translationDecay = 0.01;
             var rotationDecay = 0.001;
+            var maxTranslationAcceleration = 0.1;
+            var maxRotationAcceleration = 0.001;
 
             var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
             var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
@@ -845,9 +847,13 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
                 var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
-                //apply translation
+                // account for max acceleration
+                if (leftThumbstickXIncrement > maxTranslationAcceleration) {
+                    leftThumbstickXIncrement = maxTranslationAcceleration;
+                }
+                //apply translation to current translation speed forward and backward
                 currentTranslationSpeed.x += leftThumbstickXIncrement;
-                currentTranslationSpeed.y += leftThumbstickYIncrement;
+                currentTranslationSpeed.z += leftThumbstickYIncrement;
 
             }
             //get value of right thumbstick x axis
@@ -858,6 +864,10 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
                 var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
+                // account for max acceleration
+                if (rightThumbstickXIncrement > maxRotationAcceleration) {
+                    rightThumbstickXIncrement = maxRotationAcceleration;
+                }
                 //apply rotation
                 currentRotationSpeed.x += rightThumbstickXIncrement;
                 currentRotationSpeed.y += rightThumbstickYIncrement;
