@@ -780,17 +780,17 @@ function PreviewArea(canvas_, model_, name_) {
             controls.enabled = false;
 
             //check if xrInputLeft and xrInputRight are defined, if they are check if they have a gamepad
-            if (xrInputLeft.gamepad) {
-                //
-                // console.log("xrInputLeft.gamepad: ")
-                // console.log(xrInputLeft.gamepad)
+            // if (xrInputLeft.gamepad) {
+            //     //
+            //     // console.log("xrInputLeft.gamepad: ")
+            //     // console.log(xrInputLeft.gamepad)
+            //
+            // }
 
-            }
-
-            if (xrInputRight.gamepad) {
-                // console.log("xrInputRight.gamepad: ");
-                // console.log(xrInputRight.gamepad);
-            }
+            // if (xrInputRight.gamepad) {
+            //     // console.log("xrInputRight.gamepad: ");
+            //     // console.log(xrInputRight.gamepad);
+            // }
 
             //check if camera is the same as the webxr camera
             if (camera !== renderer.xr.getCamera()) {
@@ -804,8 +804,16 @@ function PreviewArea(canvas_, model_, name_) {
             if (!camera.parent) {
                 //if not, add the camera to the xrDolly
                 xrDolly.add(camera);
+                //add controllers to dolly
+                xrDolly.add(controllerLeft);
+                xrDolly.add(controllerRight);
+                xrDolly.add(controllerGripLeft);
+                xrDolly.add(controllerGripRight);
                 //add the xrDolly to the scene
                 scene.add(xrDolly);
+                //move xrDolly back to fit brain in view
+                xrDolly.position.z = -100;
+                console.log("xrDolly moved back to fit brain in view");
                 console.log("camera added to dolly, dolly added to scene");
             }
 
@@ -866,14 +874,7 @@ function PreviewArea(canvas_, model_, name_) {
             // var newCameraQuaternion = new THREE.Quaternion(cameraQuaternion.x, cameraQuaternion.y, cameraQuaternion.z, cameraQuaternion.w);
 
 
-            //move the xrDolly
-            xrDolly.translateY(currentTranslationSpeed.y);
-            xrDolly.translateX(currentTranslationSpeed.x);
-            xrDolly.translateZ(currentTranslationSpeed.z);
-            //rotate the xrDolly
-            xrDolly.rotateX(currentRotationSpeed.x);
-            xrDolly.rotateY(currentRotationSpeed.y);
-            xrDolly.rotateZ(currentRotationSpeed.z);
+
 
             //decay the translation speed using the decay value and delta time
             currentTranslationSpeed.x -= currentTranslationSpeed.x * translationDecay * delta;
@@ -893,6 +894,26 @@ function PreviewArea(canvas_, model_, name_) {
                 //if so, set it to 0
                 currentTranslationSpeed.y = 0;
             }
+
+            //check if the rotation speed is less than 0.001
+            if(Math.abs(currentRotationSpeed.x) < 0.001) {
+                //if so, set it to 0
+                currentRotationSpeed.x = 0;
+            }
+            //check if the rotation speed is less than 0.001
+            if(Math.abs(currentRotationSpeed.y) < 0.001) {
+                //if so, set it to 0
+                currentRotationSpeed.y = 0;
+            }
+
+            //apply the translation speed to the xrDolly
+            xrDolly.translateX(currentTranslationSpeed.x);
+            xrDolly.translateY(currentTranslationSpeed.y);
+            xrDolly.translateZ(currentTranslationSpeed.z);
+            //apply the rotation speed to the camera
+            xrDolly.rotateX(currentRotationSpeed.x);
+            xrDolly.rotateY(currentRotationSpeed.y);
+            xrDolly.rotateZ(currentRotationSpeed.z);
 
             // //if current speeds are not 0, log to console
             // if(currentTranslationSpeed.x != 0 || currentTranslationSpeed.y != 0 || currentTranslationSpeed.z != 0 || currentRotationSpeed.x != 0 || currentRotationSpeed.y != 0 || currentRotationSpeed.z != 0) {
