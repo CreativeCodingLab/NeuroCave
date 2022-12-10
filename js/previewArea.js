@@ -52,6 +52,7 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
 import {timerDelta} from "three/examples/jsm/nodes/shadernode/ShaderNodeElements";
 import {WebXRManager} from "three/src/renderers/webxr/WebXRManager";
+import {abs,sign} from "mathjs";
 
 
 function PreviewArea(canvas_, model_, name_) {
@@ -847,10 +848,8 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
                 var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
-                // account for max acceleration
-                if (leftThumbstickXIncrement > maxTranslationAcceleration) {
-                    leftThumbstickXIncrement = maxTranslationAcceleration;
-                }
+
+
                 //apply translation to current translation speed forward and backward
                 currentTranslationSpeed.x += leftThumbstickXIncrement;
                 currentTranslationSpeed.z += leftThumbstickYIncrement;
@@ -864,13 +863,10 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
                 var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
-                // account for max acceleration
-                if (rightThumbstickXIncrement > maxRotationAcceleration) {
-                    rightThumbstickXIncrement = maxRotationAcceleration;
-                }
+
                 //apply rotation
                 currentRotationSpeed.x += rightThumbstickXIncrement;
-                currentRotationSpeed.y += rightThumbstickYIncrement;
+                currentRotationSpeed.y -= rightThumbstickYIncrement;
 
             }
             //
