@@ -780,19 +780,6 @@ function PreviewArea(canvas_, model_, name_) {
             //disable the mouse controls
             controls.enabled = false;
 
-            //check if xrInputLeft and xrInputRight are defined, if they are check if they have a gamepad
-            // if (xrInputLeft.gamepad) {
-            //     //
-            //     // console.log("xrInputLeft.gamepad: ")
-            //     // console.log(xrInputLeft.gamepad)
-            //
-            // }
-
-            // if (xrInputRight.gamepad) {
-            //     // console.log("xrInputRight.gamepad: ");
-            //     // console.log(xrInputRight.gamepad);
-            // }
-
             //check if camera is the same as the webxr camera
             if (camera !== renderer.xr.getCamera()) {
                 //if not, set the camera to the webxr camera
@@ -818,25 +805,13 @@ function PreviewArea(canvas_, model_, name_) {
                 console.log("camera added to dolly, dolly added to scene");
             }
 
-            // get the position of the camera
-            var cameraPosition = camera.position
-            var cameraRotation = camera.rotation
-            var cameraQuaternion = camera.quaternion
-            //get the position of the left controller
-            var controllerLeftPosition = controllerLeft.position
-            var controllerLeftRotation = controllerLeft.rotation
-            var controllerLeftQuaternion = controllerLeft.quaternion
-            //get the position of the right controller
-            var controllerRightPosition = controllerRight.position
-            var controllerRightRotation = controllerRight.rotation
-            var controllerRightQuaternion = controllerRight.quaternion
 
             var cameraMaxTranslationSpeed = 1;
             var cameraMaxRotationSpeed = 0.01;
             var translationDecay = 0.01;
-            var rotationDecay = 0.001;
+            var rotationDecay = 0.01;
             var maxTranslationAcceleration = 0.1;
-            var maxRotationAcceleration = 0.001;
+            var maxRotationAcceleration = 0.1;
 
             var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
             var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
@@ -848,7 +823,19 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
                 var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
-
+                //limit increment to max increment
+                if (leftThumbstickXIncrement > maxTranslationAcceleration) {
+                    leftThumbstickXIncrement = maxTranslationAcceleration;
+                }
+                if (leftThumbstickXIncrement < -maxTranslationAcceleration) {
+                    leftThumbstickXIncrement = -maxTranslationAcceleration;
+                }
+                if (leftThumbstickYIncrement > maxTranslationAcceleration) {
+                    leftThumbstickYIncrement = maxTranslationAcceleration;
+                }
+                if (leftThumbstickYIncrement < -maxTranslationAcceleration) {
+                    leftThumbstickYIncrement = -maxTranslationAcceleration;
+                }
 
                 //apply translation to current translation speed forward and backward
                 currentTranslationSpeed.x += leftThumbstickXIncrement;
@@ -863,7 +850,19 @@ function PreviewArea(canvas_, model_, name_) {
                 //multiply by max increment
                 var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
                 var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
-
+                //limit increment to max increment
+                if (rightThumbstickXIncrement > maxRotationAcceleration) {
+                    rightThumbstickXIncrement = maxRotationAcceleration;
+                }
+                if (rightThumbstickXIncrement < -maxRotationAcceleration) {
+                    rightThumbstickXIncrement = -maxRotationAcceleration;
+                }
+                if (rightThumbstickYIncrement > maxRotationAcceleration) {
+                    rightThumbstickYIncrement = maxRotationAcceleration;
+                }
+                if (rightThumbstickYIncrement < -maxRotationAcceleration) {
+                    rightThumbstickYIncrement = -maxRotationAcceleration;
+                }
                 //apply rotation
                 currentRotationSpeed.x += rightThumbstickXIncrement;
                 currentRotationSpeed.y -= rightThumbstickYIncrement;
