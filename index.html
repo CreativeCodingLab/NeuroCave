@@ -64,13 +64,27 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
 
 <div class = "menu" id  = 'full'>
     <h2>Use your own data:</h2>
-    In order to use your own data, follow these instructions:
+    In order to use your own data on your own computer, follow these instructions:
+
+    <h3> Setup and Run NeuroCave on your own computer:</h3>
     <ul style="list-style-type:circle">
         <li><a href="https://github.com/CreativeCodingLab/NeuroCave/archive/master.zip">Download</a> <b>NeuroCave</b> to
             your local drive</li>
+	<li> Install NodeJS: 
+		<p> Windows/MacOS/Source:
+		<a href="https://nodejs.org/en/download/">Download | Node.js (nodejs.org) </a>
+		<p> RedHat,Centos,Fedora,Amazon Linux, etc.: sudo dnf install nodejs
+		<p> Ubuntu,Debian,Raspbian,etc.: sudo apt install nodejs
+	<li> Install Dependecy Packages:
+		<p> npm install d3 http-server mathjs papaparse queue three @babel/core "babel-loader" path webpack webpack-cli
+	<li> Start Neurocave in "local" mode
+		  <p> npm run local 
+	<li>Run the local version of NeuroCave by Navigating the browser to one of the "Available on:" links in the above command's output  </li>
+    </ul>
+    <h3> Import your own Data into your local NeuroCave server:</h3>
+    <ul style="list-style-type:circle">
         <li>In the local copy, put the folder containing your data in <b>.\NeuroCave\data\</b>. Your data should follow the description in
             <a href="https://github.com/CreativeCodingLab/NeuroCave#how-to-use-it">here</a>. </li>
-        <li>Run the local version of the <b>'index.html'</b> file</li>
         <li>Browse for the folder using the below <b>'Browse'</b> button</li>
         <li>Choose an <b>Atlas</b>. You could create your own Atlas following the instructions in
             <a href="https://github.com/CreativeCodingLab/NeuroCave#creating-an-atlas">here</a>. </li>
@@ -90,7 +104,7 @@ Olusola Ajilore, and Allen Ye, all belonging to UIC Department of Psychiatry.
 <script type="text/Javascript">
     var list = null;
     var atlas = null;
-    // it is assumed all data folder should have an index.txt file describing its contents
+    // it is assumed all data folders should have an index.txt file describing its contents
     var lookForAtlases = function (callback) {
         Papa.parse("data/index.txt", {
             download: true,

@@ -15,12 +15,14 @@
     "babel-loader": "^8.2.5",
     "path": "^0.12.7",
     "webpack": "^5.75.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "http-server": "^14.1.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --watch --mode=development",
-    "prod": "webpack --mode=production"
+    "prod": "webpack --mode=production",
+    "local": "webpack --mode=production && http-server ./"
   },
   "repository": {
     "type": "git",
