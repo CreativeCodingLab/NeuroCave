@@ -24,7 +24,6 @@ var spt = false;                    // enabling shortest path
 var click = false;
 var hoverTimeout = false;
 var oldNodeIndex = -1;
-var hoverMode = 0;
 
 import * as THREE from 'three'
 import {isLoaded, dataFiles,mobile} from "./globals";
@@ -41,6 +40,8 @@ import {
     addShortestPathHopsSlider,
     enableShortestPathFilterButton,
     addDimensionFactorSlider,
+    addDimensionFactorSliderLeft,
+    addDimensionFactorSliderRight,
     createLegend,
     //hideVRMaximizeButtons,
     toggleMenus
@@ -60,21 +61,11 @@ function onDocumentMouseMove(model, event) {
     event.preventDefault();
     var intersectedObject = getIntersectedObject(event);
     // var isLeft = event.clientX < window.innerWidth/2;
-    updateNodeMoveOver(model, intersectedObject, 1); // 1 = mouse hover
+    updateNodeMoveOver(model, intersectedObject);
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// This logic is a bit complicated, because it needs to handle all the cases where the user mouses over or
-// points a VR controller at a node and then moves the mouse or controller away from the node.
-//
-// It updates any glyphs that may be hovered over or pointed at in VR and resets them to their normal state
-// INPUT: model, inrtersetedObject: self explanatory, mode: 1 = mouse , 2,4 = VR controllers
-// Since there are two preview areas and the mouse and Touch controllers can work independently when one is in VR mode,
-// any pointed-at or hovered-over glyphs need to be highlighted in both preview areas and if EITHER pointing device's ray
-// intersects with a glyph, that glyph should be highlighted
-///////////////////////////////////////////////////////////////////////////////////////////
-var updateNodeMoveOver = function (model, intersectedObject, mode) {
+var updateNodeMoveOver = function (model, intersectedObject) {
     var nodeIdx, region, nodeRegion;
     if ( intersectedObject ) {
         nodeIdx = glyphNodeDictionary[intersectedObject.object.uuid];
@@ -87,8 +78,8 @@ var updateNodeMoveOver = function (model, intersectedObject, mode) {
     if ( nodeExistAndVisible ) {
         setNodeInfoPanel(region, nodeIdx);
         // if (vr) {  //todo: this can be used outside of VR to help get node label info next to the node itself, not in the screen corner
-             previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
-             previewAreaRight.updateNodeLabel(region.name, nodeIdx);
+        //     previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
+        //     previewAreaRight.updateNodeLabel(region.name, nodeIdx);
         // }
     }
 
@@ -101,22 +92,16 @@ var updateNodeMoveOver = function (model, intersectedObject, mode) {
             // console.log("Drawing edges from node ", nodeIdx);
             pointedNodeIdx = nodeIdx;
             hoverTimeout = false;
-            hoverMode = hoverMode | mode;  // set the hover mode to the mode that triggered this function
         } else {
             setTimeout(function () {hoverTimeout = true;}, 500);
             oldNodeIndex = nodeIdx;
 
         }
     } else {
-        if(pointedObject ){
+        if(pointedObject){
             nodeIdx = glyphNodeDictionary[pointedObject.uuid];
             if (nodeIdx === undefined)
                 return;
-            hoverMode = hoverMode & ~mode; // clear the hover mode that triggered this function
-            if (hoverMode != 0) {
-                return;
-            }
-            // only proceed to de-hovering a node if both the mouse and all VR controllers are not hovering over it
             pointedNodeIdx = -1;
             if(nodeIdx == root) {
                 console.log("Root creation");
@@ -327,7 +312,10 @@ var initControls = function () {
     enableShortestPathFilterButton(false);
 
     // addSkyboxButton();
-    addDimensionFactorSlider();
+    addDimensionFactorSliderLeft('Left');
+    addDimensionFactorSliderRight('Left');
+    addDimensionFactorSliderLeft('Right');
+    addDimensionFactorSliderRight('Right');
     // addFslRadioButton();
     // addSearchPanel();
 
@@ -578,4 +566,4 @@ var getThresholdModality = function () { return thresholdModality }
 
 var setThresholdModality = function (modality) { thresholdModality = modality }
 
-export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, changeColorGroup, setRoot, getRoot, getSpt, updateScenes, updateNodesVisiblity, redrawEdges, updateOpacity, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB, getThresholdModality, setThresholdModality, updateNodeSelection, updateNodeMoveOver };
+export {changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, changeColorGroup, setRoot, getRoot, getSpt, updateScenes, updateNodesVisiblity, redrawEdges, updateOpacity, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, getEnableEB, getThresholdModality, setThresholdModality };

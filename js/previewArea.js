@@ -12,14 +12,8 @@
 
 import * as THREE from 'three'
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {FirstPersonControls} from "three/examples/jsm/controls/FirstPersonControls";
-import {ArcballControls} from "three/examples/jsm/controls/ArcballControls";
-import {FlyControls} from "three/examples/jsm/controls/FlyControls";
-import {TrackballControls} from "three/examples/jsm/controls/TrackballControls";
-import {TransformControls} from "three/examples/jsm/controls/TransformControls";
 
-
-//import * as quat from "./external-libraries/gl-matrix/quat.js";
+import * as quat from "./external-libraries/gl-matrix/quat.js";
 
 // import {isLoaded, dataFiles  , mobile} from "./globals";
 import {mobile, atlas} from './globals';
@@ -38,21 +32,11 @@ import {
     getEnableEB,
     getThresholdModality,
     vr,
-    activeVR,
-    updateNodeSelection,
-    updateNodeMoveOver,
-
+    activeVR
 } from './drawing'
 import {getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS} from './GUI'
 import {scaleColorGroup} from './utils/scale'
-//import {WebXRButton} from './external-libraries/vr/webxr-button.js'; //Prettier button but not working so well
-//import { VRButton } from './external-libraries/vr/VRButton.js';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
-//import { XRControllerModelFactory } from './external-libraries/vr/XRControllerModelFactory.js';
-import { XRControllerModelFactory } from "three/examples/jsm/webxr/XRControllerModelFactory.js";
-import {timerDelta} from "three/examples/jsm/nodes/shadernode/ShaderNodeElements";
-import {WebXRManager} from "three/src/renderers/webxr/WebXRManager";
-import {abs,sign} from "mathjs";
+import {WebXRButton} from './external-libraries/vr/webxr-button.js';
 
 
 function PreviewArea(canvas_, model_, name_) {
@@ -61,17 +45,15 @@ function PreviewArea(canvas_, model_, name_) {
     var canvas = canvas_;
     var camera = null, renderer = null, controls = null, scene = null, raycaster = null, gl = null;
     var nodeLabelSprite = null, nodeNameMap = null, nspCanvas = null;
-    var clock = new THREE.Clock();
 
     // VR stuff
     var vrControl = null, effect = null;
-    var controllerLeft = null, controllerRight = null, xrInputLeft = null, xrInputRight = null,
+    var controllerLeft = null, controllerRight = null, oculusTouchExist = false, gearVRControllerExist = false,
         enableRender = true;
     var pointerLeft = null, pointerRight = null;      // left and right controller pointers for pointing at things
     var enableVR = false;
     var activateVR = false;
     var vrButton = null;
-    let controllerLeftSelectState = false, controllerRightSelectState = false;
 
     // XR stuff
     var xrButton = null;
@@ -79,7 +61,7 @@ function PreviewArea(canvas_, model_, name_) {
     let xrImmersiveRefSpace = null;
     let xrInlineRefSpace = null;
     let inlineSession = null;
-    let controller, controllerGrip, controllerGripLeft, controllerGripRight;
+
 
     // nodes and edges
     var brain = null; // three js group housing all glyphs and edges
@@ -90,120 +72,6 @@ function PreviewArea(canvas_, model_, name_) {
     var shortestPathEdges = [];
 
     var edgeOpacity = 1.0;
-
-    this.initXR = function () {
-        //init VR //todo: this is stub now
-
-        document.addEventListener('keypress', this.keyPress.bind(this), false);
-        console.log("Init XR for PV: " + name);
-        enableVR = true;
-        activateVR = false;
-
-        //renderer.outputEncoding = THREE.sRGBEncoding; //The robot says this makes the colors look better in VR but it makes the colors look worse in the browser
-        renderer.xr.enabled = true;
-
-
-        function onSelectStart() {
-
-            this.userData.isSelecting = true;
-            console.log("Select start");
-        }
-
-        function onSelectEnd() {
-
-            this.userData.isSelecting = false;
-            console.log("Select end");
-        }
-
-        var v3Origin = new THREE.Vector3(0, 0, 0);
-        var v3UnitUp = new THREE.Vector3(0, 0, -100);
-
-        controllerLeft = renderer.xr.getController( 0 );
-        controllerLeft.addEventListener( 'selectstart', onSelectStart );
-        controllerLeft.addEventListener( 'selectend', onSelectEnd );
-        controllerLeft.addEventListener( 'connected', function ( event ) {
-            controllerLeft.gamepad = event.data.gamepad;
-            console.log("Left controller connected");
-            console.log("event data: ");
-            console.log(event.data);
-            xrInputLeft = event.data;
-            //  this.add( buildController( event.data ) );
-            this.add( drawPointer(v3Origin, v3UnitUp) );
-
-        } );
-
-        controllerLeft.addEventListener( 'disconnected', function () {
-
-            this.remove( this.children[ 0 ] );
-
-        } );
-        scene.add( controllerLeft );
-
-        controllerRight = renderer.xr.getController( 1 );
-        controllerRight.addEventListener( 'selectstart', onSelectStart );
-        controllerRight.addEventListener( 'selectend', onSelectEnd );
-        controllerRight.addEventListener( 'connected', function ( event ) {
-            controllerRight.gamepad = event.data.gamepad;
-            //this.add( buildController( event.data ) );
-            console.log("Right controller connected: ");
-            console.log("event data: ");
-            xrInputRight = event.data;
-            console.log(event.data);
-
-            this.add( drawPointer(v3Origin, v3UnitUp) );//
-        } );
-        controllerRight.addEventListener( 'disconnected', function () {
-
-            this.remove( this.children[ 0 ] );
-
-        } );
-        scene.add( controllerRight );
-
-        const controllerModelFactory = new XRControllerModelFactory();
-
-        controllerGripLeft = renderer.xr.getControllerGrip( 0 );
-        controllerGripLeft.add( controllerModelFactory.createControllerModel( controllerGripLeft ) );
-        scene.add( controllerGripLeft );
-
-        controllerGripRight = renderer.xr.getControllerGrip( 1 );
-        controllerGripRight.add( controllerModelFactory.createControllerModel( controllerGripRight ) );
-        scene.add( controllerGripRight );
-
-
-        //document.body
-        document.getElementById('vrButton' + name).appendChild( VRButton.createButton( renderer ) );
-
-    }
-
-
-    function buildController( data ) {
-
-        let geometry, material;
-
-        switch ( data.targetRayMode ) {
-
-            case 'tracked-pointer':
-
-                geometry = new THREE.BufferGeometry();
-                geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
-                geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
-
-                material = new THREE.LineBasicMaterial( { vertexColors: true, blending: THREE.AdditiveBlending } );
-
-                return new THREE.Line( geometry, material );
-
-            case 'gaze':
-
-                geometry = new THREE.RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
-                material = new THREE.MeshBasicMaterial( { opacity: 0.5, transparent: true } );
-                return new THREE.Mesh( geometry, material );
-
-        }
-
-
-
-    }
-
 
     // request VR activation - desktop case
     // advise renaming this function to avoid conflict with variable
@@ -222,7 +90,7 @@ function PreviewArea(canvas_, model_, name_) {
     // };
 
 
- /*   // Called when the user selects a device to present to. In response we
+    // Called when the user selects a device to present to. In response we
     // will request an exclusive session from that device.
     function onRequestSession() {
         return navigator.xr.requestSession('immersive-vr').then((session) => { // onSessionStarted);
@@ -544,7 +412,7 @@ function PreviewArea(canvas_, model_, name_) {
             {x: invOrientation[0], y: invOrientation[1], z: invOrientation[2], w: invOrientation[3]});
         return refSpace.getOffsetReferenceSpace(xform);
     }
-*/
+
     // vrButton.addEventListener('mouseover', function () {
         //         //vrButton.style.display = 'none';
         //         //vrButton.innerHTML = 'Enter VR NOW';
@@ -745,218 +613,20 @@ function PreviewArea(canvas_, model_, name_) {
     //         pointerRight = null;
     //     }
     // };
-    function getNearestNodes(controller) {
-        if(!controller) return;
-        if(!controller.position) return;
-        if(!brain) return;
-        if(!brain.children) return;
-        // Find all nodes within 0.1 distance from given Touch Controller
-        var closestNodeIndex = 0, closestNodeDistance = 99999.9;
-        for (var i = 0; i < brain.children.length; i++) {
-            var distToNodeI = controller.position.distanceTo(brain.children[i].position);
-            if ((distToNodeI < closestNodeDistance)) {
-                closestNodeDistance = distToNodeI;
-                closestNodeIndex = i;
-            }
 
-        }
-        return {closestNodeIndex: closestNodeIndex, closestNodeDistance: closestNodeDistance};
-
-    }
     // scan the Oculus Touch for controls
-
-    var xrDolly = new THREE.Object3D();
-
-    var scanOculusTouch = function () {
-
-        //exit if no controllers
-        if(!controllerLeft || !controllerRight) return;
-        //exit if no brain
-        if(!brain) return;
-
-
-        //check if in VR mode
-        if (renderer.xr.isPresenting && xrInputLeft && xrInputRight) {
-            //disable the mouse controls
-            controls.enabled = false;
-
-            //check if camera is the same as the webxr camera
-            if (camera !== renderer.xr.getCamera()) {
-                //if not, set the camera to the webxr camera
-                camera = renderer.xr.getCamera();
-                //display console, camera changed
-                console.log("camera changed to vr camera");
-            }
-
-            //check if the camera is a child of the xrDolly
-            if (!camera.parent) {
-                //if not, add the camera to the xrDolly
-                xrDolly.add(camera);
-                //add controllers to dolly
-                xrDolly.add(controllerLeft);
-                xrDolly.add(controllerRight);
-                xrDolly.add(controllerGripLeft);
-                xrDolly.add(controllerGripRight);
-                //add the xrDolly to the scene
-                scene.add(xrDolly);
-                //move xrDolly back to fit brain in view
-                xrDolly.position.z = -100;
-                console.log("xrDolly moved back to fit brain in view");
-                console.log("camera added to dolly, dolly added to scene");
-            }
-
-
-            var cameraMaxTranslationSpeed = 1;
-            var cameraMaxRotationSpeed = 0.01;
-            var translationDecay = 0.01;
-            var rotationDecay = 0.01;
-            var maxTranslationAcceleration = 0.1;
-            var maxRotationAcceleration = 0.1;
-
-            var currentTranslationSpeed = new THREE.Vector3(0, 0, 0);
-            var currentRotationSpeed = new THREE.Vector3(0, 0, 0);
-            let delta = clock.getDelta();
-            //get value of left thumbstick x axis
-            if(xrInputLeft.gamepad.axes.length > 0) {
-                var leftThumbstickX = controllerLeft.gamepad.axes[2];
-                var leftThumbstickY = controllerLeft.gamepad.axes[3];
-                //multiply by max increment
-                var leftThumbstickXIncrement = leftThumbstickX * cameraMaxTranslationSpeed;
-                var leftThumbstickYIncrement = leftThumbstickY * cameraMaxTranslationSpeed;
-                //limit increment to max increment
-                if (leftThumbstickXIncrement > maxTranslationAcceleration) {
-                    leftThumbstickXIncrement = maxTranslationAcceleration;
-                }
-                if (leftThumbstickXIncrement < -maxTranslationAcceleration) {
-                    leftThumbstickXIncrement = -maxTranslationAcceleration;
-                }
-                if (leftThumbstickYIncrement > maxTranslationAcceleration) {
-                    leftThumbstickYIncrement = maxTranslationAcceleration;
-                }
-                if (leftThumbstickYIncrement < -maxTranslationAcceleration) {
-                    leftThumbstickYIncrement = -maxTranslationAcceleration;
-                }
-
-                //apply translation to current translation speed forward and backward
-                currentTranslationSpeed.x += leftThumbstickXIncrement;
-                currentTranslationSpeed.z += leftThumbstickYIncrement;
-
-            }
-            //get value of right thumbstick x axis
-            if(xrInputRight.gamepad.axes.length > 0) {
-                //use to rotate left right up or down
-                var rightThumbstickX = controllerRight.gamepad.axes[3];
-                var rightThumbstickY = controllerRight.gamepad.axes[2];
-                //multiply by max increment
-                var rightThumbstickXIncrement = rightThumbstickX * cameraMaxRotationSpeed;
-                var rightThumbstickYIncrement = rightThumbstickY * cameraMaxRotationSpeed;
-                //limit increment to max increment
-                if (rightThumbstickXIncrement > maxRotationAcceleration) {
-                    rightThumbstickXIncrement = maxRotationAcceleration;
-                }
-                if (rightThumbstickXIncrement < -maxRotationAcceleration) {
-                    rightThumbstickXIncrement = -maxRotationAcceleration;
-                }
-                if (rightThumbstickYIncrement > maxRotationAcceleration) {
-                    rightThumbstickYIncrement = maxRotationAcceleration;
-                }
-                if (rightThumbstickYIncrement < -maxRotationAcceleration) {
-                    rightThumbstickYIncrement = -maxRotationAcceleration;
-                }
-                //apply rotation
-                currentRotationSpeed.x += rightThumbstickXIncrement;
-                currentRotationSpeed.y -= rightThumbstickYIncrement;
-
-            }
-            //
-            //
-            //
-            // //calculate new position
-            // var newCameraPosition = new THREE.Vector3(cameraPosition.x + currentTranslationSpeed.x, cameraPosition.y + currentTranslationSpeed.y, cameraPosition.z);
-            // //calculate new rotation
-            // var newCameraRotation = new THREE.Vector3(cameraRotation.x + currentRotationSpeed.x, cameraRotation.y + currentRotationSpeed.y, cameraRotation.z);
-            // //calculate new quaternion
-            // var newCameraQuaternion = new THREE.Quaternion(cameraQuaternion.x, cameraQuaternion.y, cameraQuaternion.z, cameraQuaternion.w);
-
-
-
-
-            //decay the translation speed using the decay value and delta time
-            currentTranslationSpeed.x -= currentTranslationSpeed.x * translationDecay * delta;
-            currentTranslationSpeed.y -= currentTranslationSpeed.y * translationDecay * delta;
-            currentTranslationSpeed.z -= currentTranslationSpeed.z * translationDecay * delta;
-            //decay the rotation speed using the decay value and delta time
-            currentRotationSpeed.x -= currentRotationSpeed.x * rotationDecay * delta;
-            currentRotationSpeed.y -= currentRotationSpeed.y * rotationDecay * delta;
-            currentRotationSpeed.z -= currentRotationSpeed.z * rotationDecay * delta;
-
-            if(Math.abs(currentTranslationSpeed.x) < 0.001) {
-                //if so, set it to 0
-                currentTranslationSpeed.x = 0;
-            }
-            //check if the translation speed is less than 0.001
-            if(Math.abs(currentTranslationSpeed.y) < 0.001) {
-                //if so, set it to 0
-                currentTranslationSpeed.y = 0;
-            }
-
-            //check if the rotation speed is less than 0.001
-            if(Math.abs(currentRotationSpeed.x) < 0.001) {
-                //if so, set it to 0
-                currentRotationSpeed.x = 0;
-            }
-            //check if the rotation speed is less than 0.001
-            if(Math.abs(currentRotationSpeed.y) < 0.001) {
-                //if so, set it to 0
-                currentRotationSpeed.y = 0;
-            }
-
-            //apply the translation speed to the xrDolly
-            xrDolly.translateX(currentTranslationSpeed.x);
-            xrDolly.translateY(currentTranslationSpeed.y);
-            xrDolly.translateZ(currentTranslationSpeed.z);
-            //apply the rotation speed to the camera
-            xrDolly.rotateX(currentRotationSpeed.x);
-            xrDolly.rotateY(currentRotationSpeed.y);
-            xrDolly.rotateZ(currentRotationSpeed.z);
-
-            // //if current speeds are not 0, log to console
-            // if(currentTranslationSpeed.x != 0 || currentTranslationSpeed.y != 0 || currentTranslationSpeed.z != 0 || currentRotationSpeed.x != 0 || currentRotationSpeed.y != 0 || currentRotationSpeed.z != 0) {
-            //     console.log("currentTranslationSpeed: ");
-            //     console.log(currentTranslationSpeed);
-            //     console.log("currentRotationSpeed: ");
-            //     console.log(currentRotationSpeed);
-            // }
-
-
-        } else {
-            //every minute or so, log the controller object to the console if we still don't have inputs
-            var lastControllerLog = new Date();
-            if (Date.now() - lastControllerLog > 60000) {
-                console.log(controllerLeft);
-                console.log(controllerRight);
-                lastControllerLog = Date.now();
-            }
-        }
-
-
-
-
-
-
-
+    // var scanOculusTouch = function () {
     //     var boostRotationSpeed = controllerLeft.getButtonState('grips') ? 0.1 : 0.02;
     //     var boostMoveSpeed = controllerRight.getButtonState('grips') ? 5.0 : 1.0;
     //     var angleX = null, angleY = null;
-    //     var gamePadLeft = controllerLeft? controllerLeft.getGamepad() : nulll;
-    //     var gamePadRight = controllerRight? controllerRight.getGamepad() : null;
+    //     var gamePadLeft = controllerLeft.getGamepad();
+    //     var gamePadRight = controllerRight.getGamepad();
     //     if (gamePadLeft) {
     //         angleX = gamePadLeft.axes[0];
     //         angleY = gamePadLeft.axes[1];
     //         brain.rotateX(boostRotationSpeed * angleX);
     //         brain.rotateZ(boostRotationSpeed * angleY);
     //         brain.matrixWorldNeedsUpdate = true;
-    //         console.log("Left controller: " + angleX + ", " + angleY);
     //     }
     //
     //     if (gamePadRight) {
@@ -974,65 +644,7 @@ function PreviewArea(canvas_, model_, name_) {
     //     var v3Origin = new THREE.Vector3(0, 0, 0);
     //     var v3UnitUp = new THREE.Vector3(0, 0, -100.0);
     //     // var v3UnitFwd = new THREE.Vector3(0,0,1);
-
-    var nearLeft=getNearestNodes(controllerLeft);
-    var nearRight=getNearestNodes(controllerRight);
-    var closestNodeIndexLeft = nearLeft.closestNodeIndex;
-    var closestNodeDistanceLeft = nearLeft.closestNodeDistance;
-    var closestNodeIndexRight = nearRight.closestNodeIndex;
-    var closestNodeDistanceRight = nearRight.closestNodeDistance;
-
-    //console.log("Left: " + closestNodeIndexLeft + ", " + closestNodeDistanceLeft);
-    //console.log("Right: " + closestNodeIndexRight + ", " + closestNodeDistanceRight);
-
-
-        if (true ||  VRButton.xrSessionIsGranted) {
-
-            if (controllerLeftSelectState && !controllerLeft.userData.isSelecting) {  //release Left Trigger
-                var isLeft = true;
-                var pointedObject = getPointedObject(controllerLeft);
-                updateNodeSelection(model, pointedObject, isLeft);
-                updateNodeMoveOver(model, pointedObject, 2); //2 is for left touch controller
-
-                //log event to console
-                console.log("Left controller: " + controllerLeft.userData.isSelecting);
-                //log selection to console
-                console.log("Left controller: ");
-                console.log(pointedObject);
-
-
-            }
-            if (controllerRightSelectState && !controllerRight.userData.isSelecting) {  //release Right Trigger
-                var isLeft = true; //false;
-                var pointedObject = getPointedObject(controllerRight);
-                updateNodeSelection(model, pointedObject, isLeft);
-                updateNodeMoveOver(model, pointedObject, 4); //4 is for right touch controller
-
-                //log event to console
-                console.log("Right controller: " + controllerRight.userData.isSelecting);
-                //log selection to console
-                console.log("Right controller: ")
-                console.log(pointedObject);
-            }
-
-            //updatenodemoveover
-            var pointedObjectLeft = getPointedObject(controllerLeft);
-            updateNodeMoveOver(model, pointedObjectLeft, 2); //todo: enum for hover mode type
-            var pointedObjectRight = getPointedObject(controllerRight);
-            updateNodeMoveOver(model, pointedObjectRight, 4);
-            if (!pointedObjectLeft && !pointedObjectRight) {
-                updateNodeMoveOver(model, null, 6);
-            }
-
-        }
-
-
-
-        controllerLeftSelectState = controllerLeft.userData.isSelecting;
-        controllerRightSelectState = controllerRight.userData.isSelecting;
-
-
-
+    //
     //     // Find all nodes within 0.1 distance from left Touch Controller
     //     var closestNodeIndexLeft = 0, closestNodeDistanceLeft = 99999.9;
     //     var closestNodeIndexRight = 0, closestNodeDistanceRight = 99999.9;
@@ -1071,11 +683,9 @@ function PreviewArea(canvas_, model_, name_) {
     //         pointerLeft = null;
     //     }
     //
-         if (controllerRight.userData.isSelecting) {  //getButtonState('trigger')) {
+    //     if (controllerRight.getButtonState('trigger')) {
     //         pointedNodeIdx = (closestNodeDistanceRight < 2.0) ? closestNodeIndexRight : -1;
-
-             //
-             console.log("Right controller Trigger: " + controllerRight.userData.isSelecting);
+    //
     //         if (pointerRight) {
     //             // Touch Controller pointer already on! scan for selection
     //             if (controllerRight.getButtonState('grips')) {
@@ -1086,26 +696,34 @@ function PreviewArea(canvas_, model_, name_) {
     //             controllerRight.add(pointerRight);
     //         }
     //         updateNodeMoveOver(model, getPointedObject(controllerRight));
-         } else {
+    //     } else {
     //         if (pointerRight) {
     //             controllerRight.remove(pointerRight);
     //         }
-             pointerRight = null;
-         }
-    }; // scanOculusTouch
+    //         pointerRight = null;
+    //     }
+    // };
 
     // draw a pointing line
-    function drawPointer(start, end) {
-        var material = new THREE.LineBasicMaterial();
+    var drawPointer = function (start, end) {
+        var material = new THREE.LineBasicMaterial({color: 0xFFFFFF});
         var points = [];
         points.push(start);
         points.push(end);
-
         var geometry = new THREE.BufferGeometry().setFromPoints(points);
         return new THREE.Line(geometry, material);
+    };
+
+    // get the object pointed by the controller
+    var getPointedObject = function (controller) {
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera({x: 0, y: 0}, camera);
+        var intersects = raycaster.intersectObjects(brain.children, true);
+        if (intersects.length > 0) {
+            return intersects[0].object;
+        }
+        return null;
     }
-
-
 
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     var initScene = function () {
@@ -1138,7 +756,7 @@ function PreviewArea(canvas_, model_, name_) {
         controls.minDistance = 10;
         controls.maxDistance = 1000;
 
-        addNodeLabel();
+        //addNodeLabel();
     };
 
     this.resetCamera = function () {
@@ -1166,72 +784,6 @@ function PreviewArea(canvas_, model_, name_) {
         console.log("createCanvas");
         addSkybox();
     };
-    var controlMode = '';
-    //toggle between control modes when 'c' is pressed
-    this.toggleControlMode = function () {
-        if(controlMode == ''){
-            controls = new OrbitControls(camera, renderer.domElement);
-            controlMode = 'orbit';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-
-        if(controlMode == 'orbit'){
-            controls = new TrackballControls(camera, renderer.domElement);
-            controlMode = 'trackball';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-        if(controlMode == 'trackball'){
-            controls = new FlyControls(camera, renderer.domElement);
-            controlMode = 'fly';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-        if(controlMode == 'fly'){
-            controls = new FirstPersonControls(camera, renderer.domElement);
-            controlMode = 'firstperson';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-        if(controlMode == 'firstperson'){
-            controls = new ArcballControls(camera, renderer.domElement);
-            controlMode = 'arcball';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-        if(controlMode == 'arcball'){
-            controls = new TransformControls(camera, renderer.domElement);
-            controlMode = 'transform';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-        if(controlMode == 'transform'){
-            controls = new OrbitControls(camera, renderer.domElement);
-            controlMode = 'orbit';
-            console.log("controlMode: " + controlMode);
-            return;
-        }
-
-
-
-    }
-
-    //listen for key presses
-    this.keyPress = function (event) {
-        if (event.key == 'c') {
-            console.log("toggle control mode");
-            this.toggleControlMode();
-        }
-        if (event.key == 'r') {
-            this.resetCamera();
-        }
-        if (event.key == 's') {
-            this.resetBrainPosition();
-        }
-    }
-
-
 
     // initialize scene: init 3js scene, canvas, renderer and camera; add axis and light to the scene
     //todo is this sort of infinite recursion intentional?
@@ -1248,25 +800,18 @@ function PreviewArea(canvas_, model_, name_) {
     // update node scale according to selection status
     this.updateNodeGeometry = function (nodeIndex, status) {
         var scale = 1.0;
-        var dataset = model.getDataset();
         switch (status) {
             case 'normal':
                 scale = 1.0;
-                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
             case 'mouseover':
-                scale = 1.72;
-                var delta = clock.getDelta();
-                glyphs[nodeIndex].material.color = new THREE.Color( (delta * 10.0 ), (1.0-delta * 10.0 ), (0.5 + delta * 5.0 )  );
-                //console.log("Delta:" + (delta * 10.0 )) + " " + (1.0-delta * 10.0 ) + " " + (0.5 + delta * 5.0 );
+                scale = 1.2;
                 break;
             case 'selected':
                 scale = (8 / 3);
-                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
             case 'root':
                 scale = (10 / 3);
-                glyphs[nodeIndex].material.color = new THREE.Color(scaleColorGroup(model, dataset[nodeIndex].group));
                 break;
         }
         glyphs[nodeIndex].scale.set(scale, scale, scale);
@@ -1302,24 +847,14 @@ function PreviewArea(canvas_, model_, name_) {
         }
         shortestPathEdges = [];
     };
-    var lastTime = 0;
- //   var fps = 240;
-    //todo: add fps slider
+
     var animatePV = function () {
-        //limit this function to (fps)fps)
-        // if (Date.now() - lastTime < 1000 / fps) {
-        //     return;
-        // }
-        // lastTime = Date.now();
-
-
-
         // if (enableVR && activateVR) {
         //     // if (oculusTouchExist) { //todo: Change old WebVR code to WebXR
         //     //     controllerLeft.update();
         //     //     controllerRight.update();
-                  scanOculusTouch();
-             //     console.log("scanOculusTouch");
+        //     //     scanOculusTouch();
+        //     //     console.log("scanOculusTouch");
         //     // }
         //     //vrControl.update(); //todo: Change old WebVR code to WebXR
         //     console.log("vrControl.update()");
@@ -1332,27 +867,10 @@ function PreviewArea(canvas_, model_, name_) {
         //     //vrControl.update();  // todo: get code working then enable
         //     console.log("vrControl.update()");
         // } else {
-        //calculate delta for controls
 
-
-        //var clock = new THREE.Clock();
-        var delta = clock.getDelta();
-
-
-        //update controls
-        if (controlMode !== 'transform') {
-            controls.update(delta);
-        } else {
-            controls.update();
-        }
-
-
-
-        //update camera position
-        camera.updateProjectionMatrix();
-
+        controls.update();   // todo: this only executes when not VR or Mobile in Old WebVR Model. Consider in WebXR
             //console.log("controls.update() called");
-
+        //}
 
 
         if (enableRender)
@@ -1362,16 +880,15 @@ function PreviewArea(canvas_, model_, name_) {
 
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
 
-        //window.requestAnimationFrame(animatePV); // todo: this is the old way of doing it. Consider in WebXR
-        renderer.setAnimationLoop( animatePV ); // todo: this is the new way to do it in WebXR
-    }
+        window.requestAnimationFrame(animatePV);
+    };
 
     this.requestAnimate = function () {
         //effect.requestAnimationFrame(animatePV); //effect no longer has this function. Maybe it is no longer required
         //window.requestAnimationFrame(animatePV);
         animatePV();
-        // controls.update()
-        // renderer.render(scene, camera);
+        controls.update()
+        renderer.render(scene, camera);
         console.log("requestAnimate called");
     };
 
@@ -1413,7 +930,7 @@ function PreviewArea(canvas_, model_, name_) {
         var material, geometry;
 
         for (var i = 0; i < dataset.length; i++) {
-            geometry = getNormalGeometry(dataset[i].hemisphere);
+            geometry = getNormalGeometry(dataset[i].hemisphere,name);
             material = getNormalMaterial(model, dataset[i].group);
             glyphs[i] = new THREE.Mesh(geometry, material);
             brain.add(glyphs[i]);
@@ -1487,7 +1004,7 @@ function PreviewArea(canvas_, model_, name_) {
         // setEdgesColor();
     };
 
-    // skew the color distributio n according to the nodes strength
+    // skew the color distribution according to the nodes strength
     var computeColorGradient = function (c1, c2, n, p) {
         var gradient = new Float32Array(n * 3);
         var p1 = p;
@@ -1522,7 +1039,7 @@ function PreviewArea(canvas_, model_, name_) {
     };
 
     this.updateEdgeOpacity = function (opacity) {
-        var edgeOpacity = opacity;
+        edgeOpacity = opacity;
         for (var i = 0; i < displayedEdges.length; i++) {
             displayedEdges[i].material.opacity = opacity;
         }
@@ -1676,7 +1193,7 @@ function PreviewArea(canvas_, model_, name_) {
     // toggle skybox visibility
     this.setSkyboxVisibility = function (visible) {
         var results = scene.children.filter(function (d) {
-            return d.name === "skybox"
+            return d.name == "skybox"
         });
         var skybox = results[0];
         skybox.visible = visible;
@@ -1790,7 +1307,7 @@ function PreviewArea(canvas_, model_, name_) {
         this.removeShortestPathEdgesFromScene();
 
         var i = target;
-        var prev; // previous node
+        var prev;
         var edges = model.getActiveEdges();
         var edgeIdx = model.getEdgesIndeces();
         var previousMap = model.getPreviousMap();
@@ -1809,29 +1326,21 @@ function PreviewArea(canvas_, model_, name_) {
     // get intersected object pointed to by Vive/Touch Controller pointer
     // return undefined if no object was found
     var getPointedObject = function (controller) {
-        var controllerPosition = controller.position;
-        var forwardVector = new THREE.Vector3(0, 0, -1);
-        //get object in front of controller
-        forwardVector.applyQuaternion(controller.quaternion);
-        var raycaster = new THREE.Raycaster(controllerPosition, forwardVector);
-        var objectsIntersected = raycaster.intersectObjects(glyphs);
-        return (objectsIntersected[0]) ? objectsIntersected[0] : undefined;
 
-    }
-
-    // // get the object pointed by the controller
-    // var getPointedObject = function (controller) {
-    //     var raycaster = new THREE.Raycaster();
-    //     //raycaster from controller
-    //     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-    //     //raycaster.setFromCamera({x: 0, y: 0}, camera);
-    //     var intersects = raycaster.intersectObjects(brain.children, true);
-    //     if (intersects.length > 0) {
-    //         return intersects[0].object;
-    //     }
-    //     return null;
-    // }
-
+        var gamePad = controller.getGamepad();
+        if (gamePad) {
+            var orientation = new THREE.Quaternion().fromArray(gamePad.pose.orientation);
+            var v3orientation = new THREE.Vector3(0, 0, -1.0);
+            v3orientation.applyQuaternion(orientation);
+            var ray = new THREE.Raycaster(controller.position, v3orientation);
+            var objectsIntersected = ray.intersectObjects(glyphs);
+            if (objectsIntersected[0]) {
+                //console.log(objectsIntersected[0]);
+                return objectsIntersected[0];
+            }
+        }
+        return undefined;
+    };
 
     // Update the text and position according to selected node
     // The alignment, size and offset parameters are set by experimentation
@@ -1866,7 +1375,7 @@ function PreviewArea(canvas_, model_, name_) {
 
         var mat = new THREE.SpriteMaterial({
             map: nodeNameMap,
-            transparent: true,
+            transparent: false,
             useScreenCoordinates: false,
             color: 0xffffff
         });
