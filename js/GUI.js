@@ -11,7 +11,7 @@ var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
-import {changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, previewAreaLeft, previewAreaRight, setThresholdModality} from './drawing'
+import {changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, previewAreaLeft, previewAreaRight, setThresholdModality, enableIpsilaterality, enableContralaterality} from './drawing'
 import {modelLeft,modelRight} from './model'
 import {setDimensionFactorLeftSphere,setDimensionFactorRightSphere,setDimensionFactorLeftBox,setDimensionFactorRightBox} from './graphicsUtils.js'
 import {scaleColorGroup} from "./utils/scale";
@@ -221,6 +221,40 @@ var addEdgeBundlingCheck = function () {
             enableEdgeBundling(this.checked);
         });
     menu.append("br");
+};
+
+// add laterality checkboxes
+var addLateralityCheck = function () {
+    var menu = d3.select("#edgeInfoPanel");
+    menu.append("br");
+    menu.append("label")
+        .attr("for", "enableIpsiCheck")
+        .attr("id", "enableIpsiCheckLabel")
+        .text("Ipsilateral");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enableIpsiCheck")
+        .on("change", function () {
+            enableIpsilaterality(this.checked);
+        });
+    menu.append("br");
+    menu.append("label")
+        .attr("for", "enableContraCheck")
+        .attr("id", "enableContraCheckLabel")
+        .text("Contralateral");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enableContraCheck")
+        .on("change", function () {
+            enableContralaterality(this.checked);
+        });
+    //menu.append("br");
+    //menu.append("label")
+      //  .attr("for", "enableLateralityCheck")
+        //.attr("id", "enableLateralityCheckLabel")
+        //.text("laterality");
 };
 
 // remove threshold slider and its labels
@@ -836,4 +870,4 @@ var toggleMenus = function (e) {
 
 var getShortestPathVisMethod = function () { return shortestPathVisMethod }
 
-export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSliderLeft, addDimensionFactorSliderRight, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons
+export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addLateralityCheck,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSliderLeft, addDimensionFactorSliderRight, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons

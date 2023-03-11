@@ -335,6 +335,56 @@ function Model() {
     };
 
     // get top n edges connected to a specific node
+    this.getTopIpsiLateralConnectionsByNode = function (indexNode, n) {
+        var row = this.getConnectionMatrixRow(indexNode);
+	var tmprow = row.slice();
+	var hemisphere = dataset[indexNode].hemisphere;
+	if (hemisphere) {
+		console.log("Hemi:", hemisphere);
+		for (var i = 0; i < row.length; i++){
+			if(dataset[i].hemisphere !== hemisphere) {
+				tmprow[i] = 0;
+			}
+		}
+	}
+	console.log(row,tmprow);
+        //var sortedRow = this.getConnectionMatrixRow(indexNode).sort(function (a, b) {
+        var sortedRow = tmprow.sort(function (a, b) {
+            return b - a
+        }); //sort in a descending flavor
+        var indexes = new Array(n);
+        for (var i = 0; i < n; i++) {
+            indexes[i] = row.indexOf(sortedRow[i]);
+        }
+        return indexes;
+    };
+
+    // get top n edges connected to a specific node
+    this.getTopContraLateralConnectionsByNode = function (indexNode, n) {
+        var row = this.getConnectionMatrixRow(indexNode);
+	var tmprow = row.slice();
+	var hemisphere = dataset[indexNode].hemisphere;
+	if (hemisphere) {
+		console.log("Hemi:", hemisphere);
+		for (var i = 0; i < row.length; i++){
+			if(dataset[i].hemisphere === hemisphere) {
+				tmprow[i] = 0;
+			}
+		}
+	}
+	console.log(row,tmprow);
+        //var sortedRow = this.getConnectionMatrixRow(indexNode).sort(function (a, b) {
+        var sortedRow = tmprow.sort(function (a, b) {
+            return b - a
+        }); //sort in a descending flavor
+        var indexes = new Array(n);
+        for (var i = 0; i < n; i++) {
+            indexes[i] = row.indexOf(sortedRow[i]);
+        }
+        return indexes;
+    };
+
+	// get top n edges connected to a specific node
     this.getTopConnectionsByNode = function (indexNode, n) {
         var row = this.getConnectionMatrixRow(indexNode);
         var sortedRow = this.getConnectionMatrixRow(indexNode).sort(function (a, b) {
@@ -346,6 +396,7 @@ function Model() {
         }
         return indexes;
     };
+
 
     this.getMaximumWeight = function () {
         return d3.max(connectionMatrix, function (d) {
