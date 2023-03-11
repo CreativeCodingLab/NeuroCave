@@ -226,7 +226,7 @@ button > input[type="checkbox"] {
 #nodeInfoPanel {
     position: absolute;
     width: 300px;
-    height: 130px;
+    height: 120px;
     bottom: 10px;
     left: 10px;
     z-index: 2;
@@ -238,10 +238,40 @@ button > input[type="checkbox"] {
     vertical-align: middle;
 }
 
+#nodeInfoPanelLeft {
+    position: absolute;
+    width: 300px;
+    height: 160px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 3;
+    color: antiquewhite;
+}
+
+#nodeInfoPanelLeft > p {
+    text-align:center;
+    vertical-align: middle;
+}
+
+#nodeInfoPanelRight {
+    position: absolute;
+    width: 300px;
+    height: 160px;
+    bottom: 10px;
+    right: 35%;
+    z-index: 3;
+    color: antiquewhite;
+}
+
+#nodeInfoPanelRight > p {
+    text-align:center;
+    vertical-align: middle;
+}
+
 #edgeInfoPanel {
     position: absolute;
     width: 200px;
-    height: 200px;
+    height: 300px;
     top: 10px;
     right: 10px;
     z-index: 2

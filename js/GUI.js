@@ -43,7 +43,10 @@ var initSubjectMenu = function (side) {
 /* Node stuff at nodeInfoPanel */
 // adds a slider to control Left of Right Sphere glyphs size
 var addDimensionFactorSliderLeft = function (side) {
-    var panel = d3.select("#nodeInfoPanel");
+    var panel = d3.select("#nodeInfoPanel"+side);
+
+	console.log("#nodeInfoPanel"+side);
+	//console.log(side);
 
     if(side == 'Left') {
       panel.append("input")
@@ -80,8 +83,9 @@ var addDimensionFactorSliderLeft = function (side) {
 /* Node stuff at nodeInfoPanel */
 // adds a slider to control Left or Right Box glyphs size
 var addDimensionFactorSliderRight = function (side) {
-    var panel = d3.select("#nodeInfoPanel");
+    var panel = d3.select("#nodeInfoPanel"+side);
 
+	console.log("#nodeInfoPanel"+side);
 	
     if(side == 'Left') {
       panel.append("input")
