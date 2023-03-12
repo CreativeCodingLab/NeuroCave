@@ -151,6 +151,20 @@ button > input[type="checkbox"] {
     z-index: 3;
 }
 
+#syncColorLeft {
+    position: relative;
+    height: 25px;
+    top: 5px;
+    left: 20px;
+}
+
+#syncColorRight {
+    position: relative;
+    height: 25px;
+    top: 5px;
+    left: 20px;
+}
+
 #viewLeft {
     position: absolute;
     height: 100px;

@@ -579,6 +579,11 @@ var addColorGroupList = function() {
     }
 
     setColorClusteringSliderVisibility("hidden");
+
+
+    document.getElementById("syncColorRight").hidden = true; //.onclick = function () {
+        //previewAreaRight.syncCameraWith(previewAreaLeft.getCamera());
+    //};
 };
 
 
@@ -631,6 +636,16 @@ var addColorGroupListLeft = function () {
     }
 
     setColorClusteringSliderVisibility("hidden");
+
+    // Get the button, and when the user clicks on it, execute myFunction
+    document.getElementById("syncColorLeft").onclick = function () {
+        //previewAreaLeft.syncCameraWith(previewAreaRight.getCamera());
+        var selection = document.getElementById("colorCodingMenu");
+        var target = document.getElementById("colorCodingMenuLeft");
+        //modelRight.getActiveGroup();
+        target.value = selection.value;
+        changeColorGroup(selection.value, "Left");
+    };
 };
 
 
