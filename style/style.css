@@ -114,6 +114,15 @@ button > input[type="checkbox"] {
     z-index: 2
 }
 
+#legendLeft {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    bottom: 10px;
+    left: 35%;
+    z-index: 2
+}
+
 
 
 #shortestPath {
@@ -130,6 +139,15 @@ button > input[type="checkbox"] {
     height: 25px;
     top: 400px;
     right: 30px;
+    z-index: 3;
+}
+
+#colorCodingLeft {
+    position: absolute;
+    width: 175px;
+    height: 25px;
+    top: 400px;
+    left: 35%;
     z-index: 3;
 }
 
@@ -258,7 +276,7 @@ button > input[type="checkbox"] {
     width: 300px;
     height: 160px;
     bottom: 10px;
-    right: 35%;
+    right: 30%;
     z-index: 3;
     color: antiquewhite;
 }

@@ -12,7 +12,7 @@ import {Platonics} from "./polyhedron";
 import * as math from 'mathjs'
 import {sunflower} from "./graphicsUtils";
 
-function Model() {
+function Model(side) {
     var groups = {};                    // contain nodes group affiliation according to Anatomy, place, rich club, id
     var activeGroup;                    // active group name
     var regions = {};                   // activeGroup activation (T/F) and state: active, transparent or inactive
@@ -31,7 +31,7 @@ function Model() {
     var distanceMatrix = [];            // contains the distance matrix of the model: 1/(adjacency matrix)
     var nodesStrength = [];
 
-    var threshold;                      // threshold for the edge value
+    var threshold = 1;                  // threshold for the edge value, default to 1, max, no edges
     var numberOfEdges = 5;              // threshold the number of edges for shortest paths
 
     var edges = [];                     // contains the edges per dataType
@@ -51,10 +51,12 @@ function Model() {
     var clusteringGroupLevel = 4;       // clustering group level used for color coding, 1 to 4
     var clusteringRadius = 5;           // sphere radius of PLACE/PACE visualization
 
+    var name = side;
+
     // disable edge bundling for now to get rest of code working
     //var fbundling = d3.GPUForceEdgeBundling().cycles(6).iterations(60).enable_keep_programs(true);
 
-    this.clearModel = function () {
+    this.clearModel = function (side) {
         groups = [];
         regions = {};
         icColorTable = [];
@@ -70,6 +72,10 @@ function Model() {
 
         edges = [];
         edgeIdx = [];
+
+        if (side) {
+            name = side;
+        }
     };
 
 
@@ -77,6 +83,7 @@ function Model() {
     this.ready = function () {
         return (labelKeys && centroids && connectionMatrix);
     };
+
 
     // set the iso center color table ???
     this.setICColor = function (icData) {
@@ -108,6 +115,10 @@ function Model() {
 
     this.getActiveGroupName = function () {
         return activeGroup;
+    };
+
+    this.getName = function () {
+        return name;
     };
 
     // create groups in order: Anatomy, place, rich club, id
@@ -537,11 +548,11 @@ function Model() {
 
         if (maxNumberOfClusters < 4)
             platonic.createTetrahedron();
-        else if (maxNumberOfClusters < 7)
+        else if (maxNumberOfClusters < 8)
             platonic.createCube();
-        else if (maxNumberOfClusters < 10)
+        else if (maxNumberOfClusters < 12)
             platonic.createDodecahedron();
-        else if (maxNumberOfClusters < 20)
+        else if (maxNumberOfClusters <= 20)
             platonic.createIcosahedron();
         else {
             console.error("Can not visualize clustering data.");
@@ -815,6 +826,6 @@ function Model() {
     }
 }
 
-var modelLeft = new Model();
-var modelRight = new Model();
+var modelLeft = new Model("Left");
+var modelRight = new Model("Right");
 export {modelRight, modelLeft}

@@ -62,8 +62,15 @@ var scaleColorGroup = function(model, group) {
 };
 
 // set group color according to the activeGroup number of elements
-var setColorGroupScale = function() {
-    groupColor = (modelLeft.getActiveGroup().length <= 10) ? d3.scale.category10() : d3.scale.category20();
+var setColorGroupScale = function (side) { //model) {
+    var model;
+    if (side !== "Left") {
+        model = modelRight
+    } else {
+        model = modelLeft;
+    }
+    //groupColor = (modelLeft.getActiveGroup().length <= 10) ? d3.scale.category10() : d3.scale.category20();
+    groupColor = (model.getActiveGroup().length <= 10) ? d3.scale.category10() : d3.scale.category20();
 };
 
 // return a power scale function for the adjacency matrix

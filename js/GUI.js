@@ -350,14 +350,29 @@ var changeModality = function (modality) {
 /* Edges legend */
 // create legend panel containing different groups
 // the state of each group can be either: active, transparent or inactive
-var createLegend = function(model) {
-    var legendMenu = document.getElementById("legend");
+var createLegend = function(model,side) {
+    //var legendMenu = document.getElementById("legend");
+    var legendMenu;
+    
+    if (side === "Left") {
+        legendMenu = document.getElementById("legendLeft");
+    } else {
+        legendMenu = document.getElementById("legend");
+    }
 
-    while(legendMenu.hasChildNodes()){
+    //if (model && modelLeft) { legendMenu = (model.getName() === "Left") ? document.getElementById("legendLeft") : document.getElementById("legend"); }
+
+    console.log(side, legendMenu, model.getName())
+
+    while (legendMenu.hasChildNodes()) {
         legendMenu.removeChild(legendMenu.childNodes[0]);
     }
 
-    legendMenu = d3.select("#legend");
+    var legendDocElmt = legendMenu;
+    legendMenu = (side === "Left") ? d3.select("#legendLeft") : d3.select("#legend");
+    //if (model && modelLeft) { legendMenu = (model.getName() === "Left") ? d3.select("#legendLeft") : d3.select("#legend"); }
+
+    console.log(side, legendMenu, model.name)
 
     if(model.getActiveGroupName() != 4) {
         var activeGroup = model.getActiveGroup();
@@ -368,12 +383,14 @@ var createLegend = function(model) {
         }
 
         var l = activeGroup.length;
-        document.getElementById("legend").style.height = 25*l+"px";
+        //document.getElementById("legend").style.height = 25*l+"px";
+        legendDocElmt.style.height = 25 * l + "px";
 
-        for(var i=0; i < l; i++){
+        for (var i = 0; i < l; i++) {
             var opacity;
 
-            switch (modelLeft.getRegionState(activeGroup[i])){
+            //switch (modelLeft.getRegionState(activeGroup[i])) {
+            switch (model.getRegionState(activeGroup[i])) {
                 case 'active':
                     opacity = 1;
                     break;
@@ -385,19 +402,38 @@ var createLegend = function(model) {
                     break;
             }
 
-            var elementGroup = legendMenu.append("g")
-                .attr("transform","translate(10,"+i*25+")")
-                .attr("id",activeGroup[i])
-                .style("cursor","pointer")
-                .on("click", function(){
-                    modelLeft.toggleRegion(this.id);
-                    modelRight.toggleRegion(this.id);
-                    if (modelLeft.getRegionState(this.id) == 'transparent')
-                        updateNodesVisiblity();
-                    else
-                        updateScenes();
-                });
+            var elementGroup;
+            if ((side === "Left")) { // || (model && modelLeft && (model.getName() === "Left")) ){
+                elementGroup = legendMenu.append("g")
+                    .attr("transform", "translate(10," + i * 25 + ")")
+                    .attr("id", activeGroup[i])
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        modelLeft.toggleRegion(this.id);//,"Left");
+                        console.log("LEFTmodel:"+side + model.getName());
+                        //model.toggleRegion(this.id);
+                        if (model.getRegionState(this.id) == 'transparent')
+                            updateNodesVisiblity("Left");
+                        else
+                            updateScenes("Left");
+                    });
+            } else { // if { (side === "Right") {
+                elementGroup = legendMenu.append("g")
+                    .attr("transform", "translate(10," + i * 25 + ")")
+                    .attr("id", activeGroup[i])
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        //modelLeft.toggleRegion(this.id);
+                        console.log("RIGHTmodel:" + side + model.getName());
+                        modelRight.toggleRegion(this.id);//,"Right");
+                        if (model.getRegionState(this.id) == 'transparent')
+                            updateNodesVisiblity("Right");
+                        else
+                            updateScenes("Right");
+                    });
 
+            }
+        
             if(typeof(activeGroup[i]) != 'number' && activeGroup[i].indexOf("right") > -1){
                 elementGroup.append("rect")
                     .attr("x",-5)
@@ -417,7 +453,8 @@ var createLegend = function(model) {
 
             //choose color of the text
             var textColor;
-            if(modelLeft.getRegionActivation(activeGroup[i])){
+            //if (modelLeft.getRegionActivation(activeGroup[i])) {
+            if (model.getRegionActivation(activeGroup[i])) {
                 textColor = "rgb(191,191,191)";
             } else{
                 textColor = "rgb(0,0,0)";
@@ -442,7 +479,8 @@ var createLegend = function(model) {
 
         console.log("custom group color");
         l = quantiles.length+1;
-        document.getElementById("legend").style.height =30*l+"px";
+        //document.getElementById("legend").style.height = 30 * l + "px";
+        legendDocElmt.style.height = 30 * l + "px";
 
         for(i = 0; i < quantiles.length + 1 ; i++){
             var elementGroup = legendMenu.append("g")
@@ -491,7 +529,7 @@ var createLegend = function(model) {
 };
 
 
-/* Color coding area at upload */
+/* Color coding area for Right Viewport at upload */
 // add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
 var addColorGroupList = function() {
 
@@ -508,7 +546,8 @@ var addColorGroupList = function() {
 
     var hierarchicalClusteringExist = false;
     if (modelLeft.hasClusteringData() && modelRight.hasClusteringData()) {
-        var clusterNames = modelLeft.getClusteringTopologiesNames();
+        //var clusterNames = modelLeft.getClusteringTopologiesNames();
+        var clusterNames = modelRight.getClusteringTopologiesNames();
 
         for (var i = 0; i < clusterNames.length; ++i) {
             var name = clusterNames[i];
@@ -532,7 +571,7 @@ var addColorGroupList = function() {
                     setColorClusteringSliderVisibility("hidden");
                     break;
             }
-            changeColorGroup(selection);
+            changeColorGroup(selection,"Right");
         };
 
         if (hierarchicalClusteringExist)
@@ -541,6 +580,59 @@ var addColorGroupList = function() {
 
     setColorClusteringSliderVisibility("hidden");
 };
+
+
+/* Color coding area for Left Viewport at upload */
+// add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
+var addColorGroupListLeft = function () {
+
+    var select = document.getElementById("colorCodingMenuLeft");
+    var names = atlas.getGroupsNames();
+
+    for (var i = 0; i < names.length; ++i) {
+        var el = document.createElement("option");
+        el.textContent = names[i];
+        el.value = names[i];
+        el.selected = (i == 0);
+        select.appendChild(el);
+    }
+
+    var hierarchicalClusteringExist = false;
+    if (modelLeft.hasClusteringData() && modelRight.hasClusteringData()) {
+        var clusterNames = modelLeft.getClusteringTopologiesNames();
+
+        for (var i = 0; i < clusterNames.length; ++i) {
+            var name = clusterNames[i];
+            var isHierarchical = false; // name == "PLACE" || name == "PACE"; // Todo: Enable later
+            hierarchicalClusteringExist |= isHierarchical;
+
+            var el = document.createElement("option");
+            el.textContent = name;
+            el.value = name;
+            select.appendChild(el);
+        }
+
+        select.onchange = function () {
+            var selection = this.options[this.selectedIndex].value;
+            switch (selection) {
+                case ("PLACE"):
+                case ("PACE"):
+                    //setColorClusteringSliderVisibility("visible"); // Todo: Let Main Color Menu Control Slider for now. Enable Later
+                    break;
+                default:
+                    setColorClusteringSliderVisibility("hidden");
+                    break;
+            }
+            changeColorGroup(selection, "Left");
+        };
+
+        if (false && hierarchicalClusteringExist) // Todo: Let Main Color Menu Control Slider for now. Enable Later
+            addColorClusteringSlider();
+    }
+
+    setColorClusteringSliderVisibility("hidden");
+};
+
 
 var addColorClusteringSlider = function () {
     var menu = d3.select("#colorCoding");
@@ -870,4 +962,4 @@ var toggleMenus = function (e) {
 
 var getShortestPathVisMethod = function () { return shortestPathVisMethod }
 
-export {toggleMenus,initSubjectMenu,removeGeometryButtons,addOpacitySlider,addModalityButton,addThresholdSlider,addLateralityCheck,addColorGroupList,addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSliderLeft, addDimensionFactorSliderRight, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons
+export { toggleMenus, initSubjectMenu, removeGeometryButtons, addOpacitySlider, addModalityButton, addThresholdSlider, addLateralityCheck, addColorGroupList, addColorGroupListLeft, addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSliderLeft, addDimensionFactorSliderRight, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons

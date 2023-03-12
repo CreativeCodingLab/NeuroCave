@@ -18,8 +18,8 @@ var root;                           // the index of the root node = start point 
 
 var thresholdModality = true;
 var enableEB = false;
-var enableIpsi = false;
-var enableContra = false;
+var enableIpsi = true;
+var enableContra = true;
 
 var vr = false;                     // enable VR
 var spt = false;                    // enabling shortest path
@@ -36,7 +36,7 @@ import {
     removeGeometryButtons,
     addOpacitySlider,
     addThresholdSlider,
-    addColorGroupList,
+    addColorGroupList, addColorGroupListLeft,
     addTopologyMenu,
     addShortestPathFilterButton,
     addDistanceSlider,
@@ -307,6 +307,7 @@ var initControls = function () {
     addThresholdSlider();
 	addLateralityCheck();
     addColorGroupList();
+    addColorGroupListLeft();
     addTopologyMenu(modelLeft, 'Left');
     addTopologyMenu(modelRight, 'Right');
 
@@ -435,17 +436,27 @@ var enableEdgeBundling = function (enable) {
 };
 
 // updating scenes: redrawing glyphs and displayed edges
-var updateScenes = function () {
-    console.log("Scene update");
-    previewAreaLeft.updateScene();
-    previewAreaRight.updateScene();
-    createLegend(modelLeft);
+var updateScenes = function (side) {
+    console.log("Scene update "+side);
+    if (side !== "Right") {
+        previewAreaLeft.updateScene();
+        createLegend(modelLeft,"Left");
+    } 
+    if (side !== "Left") {
+        previewAreaRight.updateScene();
+        createLegend(modelRight,"Right");
+    }
 };
 
-var updateNodesVisiblity = function () {
-    previewAreaLeft.updateNodesVisibility();
-    previewAreaRight.updateNodesVisibility();
-    createLegend(modelLeft);
+var updateNodesVisiblity = function (side) {
+    if (side !== "Right") {
+        previewAreaLeft.updateNodesVisibility();
+        createLegend(modelLeft,"Left");
+    }
+    if (side !== "Left") {
+        previewAreaRight.updateNodesVisibility();
+        createLegend(modelRight,"Right");
+    }
 };
 
 var redrawEdges = function () {
@@ -482,21 +493,41 @@ var getIntersectedObject = function(event) {
     return isLeft ? previewAreaLeft.getIntersectedObject(vector) : previewAreaRight.getIntersectedObject(vector);
 };
 
-var changeColorGroup = function (name) {
+// This now only changes the Right color group
+var changeColorGroup = function (name, side) {
+    if (side !== "Right") { modelLeft.setActiveGroup(name); }
+    if (side !== "Left") { modelRight.setActiveGroup(name); }
+
+    if (side !== "Right") { modelLeft.setAllRegionsActivated(); }
+    if (side !== "Left") { modelRight.setAllRegionsActivated(); }
+    setColorGroupScale(side);
+
+    if (side !== "Right") { previewAreaLeft.updateNodesVisibility(); }
+    if (side !== "Left") { previewAreaRight.updateNodesVisibility(); }
+    if (side !== "Right") { previewAreaLeft.updateNodesColor(); }
+    if (side !== "Left") { previewAreaRight.updateNodesColor(); }
+    redrawEdges();
+    if (side !== "Right") { createLegend(modelLeft,"Left"); }
+    if (side !== "Left") { createLegend(modelRight,"Right"); }
+};
+
+/* Instead of two functions just add an arguement to original one
+// This One now Does the Left Color Group
+var changeColorGroupLeft = function (name) {
     modelLeft.setActiveGroup(name);
-    modelRight.setActiveGroup(name);
+    //modelRight.setActiveGroup(name);
 
     modelLeft.setAllRegionsActivated();
-    modelRight.setAllRegionsActivated();
+    //modelRight.setAllRegionsActivated();
     setColorGroupScale();
 
     previewAreaLeft.updateNodesVisibility();
-    previewAreaRight.updateNodesVisibility();
+    //previewAreaRight.updateNodesVisibility();
     previewAreaLeft.updateNodesColor();
-    previewAreaRight.updateNodesColor();
+    //previewAreaRight.updateNodesColor();
     redrawEdges();
     createLegend(modelLeft);
-};
+};*/
 
 var redrawScene = function (side) {
     setUpdateNeeded(true);
