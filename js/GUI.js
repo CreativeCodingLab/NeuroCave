@@ -9,6 +9,8 @@ const SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
 var lockLegend = true;
+var enableLeftDimLock = true;
+var enableRightDimLock = true;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
@@ -59,7 +61,10 @@ var addDimensionFactorSliderLeft = function (side) {
         .attr("step","0.1")
         .on("change", function () {
             setDimensionFactorLeftSphere(this.value);
-        });
+            if (enableLeftDimLock) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }        });
     } else {
       panel.append("input")
         .attr("type", "range")
@@ -70,7 +75,10 @@ var addDimensionFactorSliderLeft = function (side) {
         .attr("step","0.1")
         .on("change", function () {
             setDimensionFactorRightSphere(this.value);
-        });
+            if (enableRightDimLock) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }        });
     }
 
     panel.append("label")
@@ -98,6 +106,10 @@ var addDimensionFactorSliderRight = function (side) {
         .attr("step","0.1")
         .on("change", function () {
             setDimensionFactorLeftBox(this.value);
+            if (enableLeftDimLock) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
         });
     } else {
       panel.append("input")
@@ -109,14 +121,28 @@ var addDimensionFactorSliderRight = function (side) {
         .attr("step","0.1")
         .on("change", function () {
             setDimensionFactorRightBox(this.value);
+            if (enableRightDimLock) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+                }
         });
     }
 
     panel.append("label")
         .attr("for", "dimensionSlider")
         .attr("id", "dimensionSliderLabel"+side)
-        .text(side+" Box Size");
+        .text(side + " Box Size ");
 
+    panel.append("label")
+        .attr("for", "enable"+side+"DimLock")
+        .attr("id", "enable"+side+"DimLockLabel")
+        .text('\u0020\uD83D\uDD12');
+
+    panel.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enable"+side+"DimLock")
+        .on("change", (side == 'Left') ? function () { enableLeftDimLock = this.checked } : function () { enableRightDimLock = this.checked });
     panel.append("br");
 };
 
