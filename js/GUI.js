@@ -645,6 +645,24 @@ var addColorGroupListLeft = function () {
         //modelRight.getActiveGroup();
         target.value = selection.value;
         changeColorGroup(selection.value, "Left");
+
+        modelLeft.setCurrentRegionsInformation(modelRight.getCurrentRegionsInformation());
+        updateNodesVisiblity("Left");
+        updateScenes("Left");
+        /*
+        var activeGroup = model.getActiveGroup();
+
+        var l = activeGroup.length;
+
+        for (var i = 0; i < l; i++) {
+            var opacity;
+
+            //switch (modelLeft.getRegionState(activeGroup[i])) {
+            var state = modelRight.getRegionState(activeGroup[i]);
+
+            modelLeft.toggleRegion(modelRight.getRegionByIndex[i], state);
+            */
+
     };
 };
 

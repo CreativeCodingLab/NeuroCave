@@ -289,20 +289,29 @@ function Model(side) {
 
     // toggle a specific region in order: active, transparent, inactive
     // set activation to false if inactive
-    this.toggleRegion = function (regionName) {
-        switch (regions[regionName].state) {
-            case 'active':
-                regions[regionName].state = 'transparent';
-                regions[regionName].active = true;
-                break;
-            case 'transparent':
-                regions[regionName].state = 'inactive';
+    this.toggleRegion = function (regionName, state) {
+        if (state) {
+            regions[regionName].state = state;
+            if (state === 'inactive') {
                 regions[regionName].active = false;
-                break;
-            case 'inactive':
-                regions[regionName].state = 'active';
+            } else {
                 regions[regionName].active = true;
-                break;
+            }
+        } else {
+            switch (regions[regionName].state) {
+                case 'active':
+                    regions[regionName].state = 'transparent';
+                    regions[regionName].active = true;
+                    break;
+                case 'transparent':
+                    regions[regionName].state = 'inactive';
+                    regions[regionName].active = false;
+                    break;
+                case 'inactive':
+                    regions[regionName].state = 'active';
+                    regions[regionName].active = true;
+                    break;
+            }
         }
     };
 
