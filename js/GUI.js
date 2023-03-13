@@ -8,6 +8,7 @@
 const SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
+var lockLegend = true;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
@@ -423,13 +424,13 @@ var createLegend = function(model,side) {
                     .attr("id", activeGroup[i])
                     .style("cursor", "pointer")
                     .on("click", function () {
-                        //modelLeft.toggleRegion(this.id);
+                        if (lockLegend) { modelLeft.toggleRegion(this.id); }
                         console.log("RIGHTmodel:" + side + model.getName());
                         modelRight.toggleRegion(this.id);//,"Right");
                         if (model.getRegionState(this.id) == 'transparent')
-                            updateNodesVisiblity("Right");
+                            updateNodesVisiblity(lockLegend?"Both":"Right");
                         else
-                            updateScenes("Right");
+                            updateScenes(lockLegend?"Both":"Right");
                     });
 
             }
@@ -571,7 +572,7 @@ var addColorGroupList = function() {
                     setColorClusteringSliderVisibility("hidden");
                     break;
             }
-            changeColorGroup(selection,"Right");
+            changeColorGroup(selection,lockLegend?"Both":"Right");
         };
 
         if (hierarchicalClusteringExist)
@@ -581,9 +582,37 @@ var addColorGroupList = function() {
     setColorClusteringSliderVisibility("hidden");
 
 
-    document.getElementById("syncColorRight").hidden = true; //.onclick = function () {
+    //document.getElementById("syncColorRight").hidden = true; //.onclick = function () {
+    document.getElementById("syncColorRight").onclick = function () {
         //previewAreaRight.syncCameraWith(previewAreaLeft.getCamera());
-    //};
+        if (this.innerHTML === "Unlock") {
+            document.getElementById("colorCodingLeft").hidden = false;
+            document.getElementById("colorCodingMenu").label = "Right ColorCoding:";
+            document.getElementById("legendLeft").hidden = false;
+            var selection = document.getElementById("colorCodingMenu");
+            var target = document.getElementById("colorCodingMenuLeft");
+            //modelRight.getActiveGroup();
+            target.value = selection.value;
+            this.value = 'Unlocked';
+            this.innerHTML = "Lock";
+            lockLegend = false;
+        } else {
+            document.getElementById("colorCodingLeft").hidden = true;
+            document.getElementById("colorCodingMenu").label = "ColorCoding:";
+            document.getElementById("legendLeft").hidden = true;
+            this.value = 'Locked';
+            this.innerHTML = "Unlock";
+            var selection = document.getElementById("colorCodingMenu");
+            var target = document.getElementById("colorCodingMenuLeft");
+            //modelRight.getActiveGroup();
+            target.value = selection.value;
+            changeColorGroup(selection.value, "Left");
+            modelLeft.setCurrentRegionsInformation(modelRight.getCurrentRegionsInformation());
+            updateNodesVisiblity("Left");
+            updateScenes("Left");
+            lockLegend = true;
+        }
+    };
 };
 
 
