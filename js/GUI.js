@@ -11,6 +11,8 @@ var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 
 var lockLegend = true;
 var enableLeftDimLock = true;
 var enableRightDimLock = true;
+var enableSphereDimLock = true;
+var enableBoxDimLock = true;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
@@ -64,9 +66,30 @@ var addDimensionFactorSliderLeft = function (side) {
             if (enableLeftDimLock) {
                 setDimensionFactorLeftBox(this.value);
                 document.getElementById("dimensionSliderRightLeft").value = this.value;
-            }        });
+            }
+            if (enableSphereDimLock) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+            }
+            if ((enableBoxDimLock && enableLeftDimLock) ||
+                (enableSphereDimLock && enableRightDimLock)) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }
+        });
     } else {
-      panel.append("input")
+        panel.append("label")
+            .attr("for", "enableSphereDimLock")
+            .attr("id", "enableSphereDimLockLabel")
+            .text('\u0020\uD83D\uDD12');
+
+        panel.append("input")
+            .attr("type", "checkbox")
+            .attr("checked", false)
+            .attr("id", "enableSphereDimLock")
+            .on("change", function () { enableSphereDimLock = this.checked });
+
+        panel.append("input")
         .attr("type", "range")
         .attr("value", "1")
         .attr("id", "dimensionSliderLeft"+side)
@@ -78,7 +101,17 @@ var addDimensionFactorSliderLeft = function (side) {
             if (enableRightDimLock) {
                 setDimensionFactorRightBox(this.value);
                 document.getElementById("dimensionSliderRightRight").value = this.value;
-            }        });
+            }
+            if (enableSphereDimLock) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
+            if ((enableBoxDimLock && enableRightDimLock) ||
+                (enableSphereDimLock && enableLeftDimLock)) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }
+        });
     }
 
     panel.append("label")
@@ -110,9 +143,29 @@ var addDimensionFactorSliderRight = function (side) {
                 setDimensionFactorLeftSphere(this.value);
                 document.getElementById("dimensionSliderLeftLeft").value = this.value;
             }
+            if (enableBoxDimLock) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }
+            if ((enableBoxDimLock && enableRightDimLock) ||
+                (enableSphereDimLock && enableLeftDimLock)) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+            }
         });
     } else {
-      panel.append("input")
+        panel.append("label")
+            .attr("for", "enableBoxDimLock")
+            .attr("id", "enableBoxDimLockLabel")
+            .text('\u0020\uD83D\uDD12');
+
+        panel.append("input")
+            .attr("type", "checkbox")
+            .attr("checked", false)
+            .attr("id", "enableBoxDimLock")
+            .on("change", function () { enableBoxDimLock = this.checked });
+
+        panel.append("input")
         .attr("type", "range")
         .attr("value", "1")
         .attr("id", "dimensionSliderRight"+side)
@@ -124,7 +177,17 @@ var addDimensionFactorSliderRight = function (side) {
             if (enableRightDimLock) {
                 setDimensionFactorRightSphere(this.value);
                 document.getElementById("dimensionSliderLeftRight").value = this.value;
-                }
+            }
+            if (enableBoxDimLock) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }
+            if ((enableBoxDimLock && enableLeftDimLock) ||
+                (enableSphereDimLock && enableRightDimLock)) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
+
         });
     }
 
