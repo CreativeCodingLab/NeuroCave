@@ -6,7 +6,8 @@ private variables
  */
 import * as d3 from './external-libraries/d3'
 import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "./globals";
-import {Graph} from './utils/Dijkstra'
+import { Graph } from './utils/Dijkstra'
+//import { GPUForceEdgeBundling } from "./utils/gpu-forcebundling.js"; // Todo: Fix Edge Bundling
 import * as THREE from 'three'
 import {Platonics} from "./polyhedron";
 import * as math from 'mathjs'
@@ -53,8 +54,9 @@ function Model(side) {
 
     var name = side;
 
-    // disable edge bundling for now to get rest of code working
-    //var fbundling = d3.GPUForceEdgeBundling().cycles(6).iterations(60).enable_keep_programs(true);
+    // TODO: disable edge bundling for now to get rest of code working
+    // enabling again... re-disabling... things got complicated...
+    //var fbundling = GPUForceEdgeBundling().cycles(6).iterations(60).enable_keep_programs(true);
 
     this.clearModel = function (side) {
         groups = [];
@@ -749,10 +751,11 @@ function Model(side) {
                 }
             }
         }
-        // disable edge bundling for now, just to get the rest of the code upgraded and working
+        // TODO: disable edge bundling for now, just to get the rest of the code upgraded and working
+        // stable enought to try enabling EB... Disabling again... things got complicated 
         //fbundling.edges(edges_);
         //var results = fbundling();
-
+        //
         //for (i = 0; i <edges_.length; i++) {
         //    edges[edgeIndices[i]] = results[i];
         //}

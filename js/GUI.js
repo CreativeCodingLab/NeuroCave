@@ -16,10 +16,12 @@ var enableBoxDimLock = true;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
-import {changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, previewAreaLeft, previewAreaRight, setThresholdModality, enableIpsilaterality, enableContralaterality} from './drawing'
+import { changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, getNodesSelected, previewAreaLeft, previewAreaRight, setThresholdModality, enableIpsilaterality, enableContralaterality, enableEdgeBundling } from './drawing'
 import {modelLeft,modelRight} from './model'
 import {setDimensionFactorLeftSphere,setDimensionFactorRightSphere,setDimensionFactorLeftBox,setDimensionFactorRightBox} from './graphicsUtils.js'
-import {scaleColorGroup} from "./utils/scale";
+import { scaleColorGroup } from "./utils/scale";
+import { PreviewArea }  from './previewArea.js';
+import { forEach } from "./external-libraries/gl-matrix/vec3.js";
 
 var initSubjectMenu = function (side) {
 
@@ -1081,18 +1083,32 @@ var addSearchPanel = function(){
 };
 
 // search by index callback
-var searchElement = function(index) {
-    index = parseInt(index);
-    console.log(index);
-    if(typeof(index) != 'number' || isNaN(index)){
-        alert("The value inserted is not a number");
+var searchElement = function(intext) {
+    var index = -1;
+
+    console.log("Search Text" + intext);
+
+    if ((typeof (parseInt(intext)) != 'number') || isNaN(parseInt(intext))) {
+           // alert("The value inserted is not a number");
+        
+
+        // if search field is text search regions for match and continue with index
+        for (var i = 0; i < previewAreaRight.getGlyphCount(); i++) {
+            //if (intext === modelRight.getRegionByIndex(i)) { index = i; break; }
+            var teststri = modelRight.getRegionByIndex(i);
+            if (teststri && teststri.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
+        }
+    } else { // It is a number
+        index = parseInt(intext)-1;
     }
 
-    if(index < 0 || index > glyphs.length){
-        alert("Node not found");
+    //if (index < 0 || index > glyphs.length) {
+    if (index < 0 || index > previewAreaRight.getGlyphCount()) {
+            alert("Node not found");
     }
 
-    drawSelectedNode(index, glyphs[index]);
+    //drawSelectedNode(index, glyphs[index]);
+    previewAreaRight.drawSelectedNode(index, previewAreaRight.getGlyph[index]);
 };
 
 // toggle labels check boxes on right click
@@ -1113,4 +1129,4 @@ var toggleMenus = function (e) {
 
 var getShortestPathVisMethod = function () { return shortestPathVisMethod }
 
-export { toggleMenus, initSubjectMenu, removeGeometryButtons, addOpacitySlider, addModalityButton, addThresholdSlider, addLateralityCheck, addColorGroupList, addColorGroupListLeft, addTopologyMenu,addShortestPathFilterButton,addDistanceSlider,addShortestPathHopsSlider,enableShortestPathFilterButton,addDimensionFactorSliderLeft, addDimensionFactorSliderRight, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons
+export { toggleMenus, initSubjectMenu, removeGeometryButtons, addOpacitySlider, addModalityButton, addThresholdSlider, addLateralityCheck, addColorGroupList, addColorGroupListLeft, addTopologyMenu, addShortestPathFilterButton, addDistanceSlider, addShortestPathHopsSlider, enableShortestPathFilterButton, addDimensionFactorSliderLeft, addEdgeBundlingCheck, addDimensionFactorSliderRight, addSearchPanel, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons

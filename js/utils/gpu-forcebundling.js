@@ -4,8 +4,10 @@
  * Jieting Wu et.al. 'Texture-Based Edge Bundling: A Web-Based Approach for Interactively Visualizing Large Graphs'
  */
 
-(function() {
-    d3.GPUForceEdgeBundling = function () {
+import * as vizit from './GPGPUtility';
+
+//(function() {
+var GPUForceEdgeBundling = function () {
         var nodes = [], // {'nodeid':{'x':,'y':},..}
             edges = [], // [{'source':'nodeid1', 'target':'nodeid2'},..]
             nEdges, // number of edges
@@ -450,4 +452,6 @@
 
         return forcebundle;
     }
-})();
+//})();
+
+export { GPUForceEdgeBundling }
