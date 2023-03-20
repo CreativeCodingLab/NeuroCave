@@ -13,6 +13,8 @@ var enableLeftDimLock = true;
 var enableRightDimLock = true;
 var enableSphereDimLock = true;
 var enableBoxDimLock = true;
+var rightSearching = false;
+var leftSearching = false;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
@@ -22,6 +24,7 @@ import {setDimensionFactorLeftSphere,setDimensionFactorRightSphere,setDimensionF
 import { scaleColorGroup } from "./utils/scale";
 import { PreviewArea }  from './previewArea.js';
 import { forEach } from "./external-libraries/gl-matrix/vec3.js";
+//import * as math from 'mathjs'
 
 var initSubjectMenu = function (side) {
 
@@ -1073,17 +1076,54 @@ var addSearchPanel = function(){
         .attr("type", "text")
         .attr("id", "nodeSearch")
         .attr("name","nodeid");
+    menu.append("br");
 
+    menu.append("label")
+        .attr("for", "enableSearchLeftCheck")
+        .attr("id", "enableSearchLeftCheckLabel")
+        .attr("hidden", true)
+        .html("&larr;");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("hidden", true)
+        .attr("id", "enableSearchLeftCheck")
+        .on("change", function () {
+            enableLeftSearching(this.checked);
+        });
     menu.append("button")
         .text("Search")
         .on("click",function(){
             var text = document.getElementById("nodeSearch");
-            searchElement(text.value);
+            if (leftSearching) { searchElement(text.value, 'Left'); }
+            if (rightSearching) { searchElement(text.value, 'Right'); }
+            if (!leftSearching && !rightSearching) { searchElement(text.value); }
         });
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("hidden", true)
+        .attr("id", "enableSearchRightCheck")
+        .on("change", function () {
+            enableRightSearching(this.checked);
+        });
+    menu.append("label")
+        .attr("for", "enableSearchRightCheck")
+        .attr("id", "enableSearchRightCheckLabel")
+        .attr("hidden", true)
+        .html("&rarr;");
 };
 
+var enableLeftSearching = function (value) {
+    leftSearching = value;
+}
+
+var enableRightSearching = function (value) {
+    rightSearching = value;
+}
+
 // search by index callback
-var searchElement = function(intext) {
+var searchElement = function(intext,side) {
     var index = -1;
 
     console.log("Search Text" + intext);
@@ -1093,22 +1133,42 @@ var searchElement = function(intext) {
         
 
         // if search field is text search regions for match and continue with index
-        for (var i = 0; i < previewAreaRight.getGlyphCount(); i++) {
+        var glyphCountLeft = previewAreaLeft.getGlyphCount();
+        var glyphCountRight = previewAreaRight.getGlyphCount();
+                //max(previewAreaLeft.getGlyphCount(), previewAreaRight.getGlyphCount())); 
+        var glyphCount = ((side === 'Left') ? glyphCountLeft : (side === 'Right') ? glyphCountRight :
+            (glyphCountLeft > glyphCountRight) ? glyphCountLeft : glyphCountRight);
+                          //math.max((glyphCountLeft, glyphCountRight));
+        for (var i = 0; i < glyphCount; i++) {
             //if (intext === modelRight.getRegionByIndex(i)) { index = i; break; }
-            var teststri = modelRight.getRegionByIndex(i);
-            if (teststri && teststri.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
+            var teststriLeft = modelLeft.getRegionByIndex(i);
+            var teststriRight = modelRight.getRegionByIndex(i);
+            //var teststri = ((side !== 'Left') ? teststriRight:     
+            //               (side !== 'Right') ? teststriLeft : '');
+            if ((side !== 'Left') && teststriRight && teststriRight.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
+            if ((side !== 'Right') && teststriLeft && teststriLeft.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
         }
     } else { // It is a number
         index = parseInt(intext)-1;
     }
 
     //if (index < 0 || index > glyphs.length) {
-    if (index < 0 || index > previewAreaRight.getGlyphCount()) {
+    if (index < 0 || index > glyphCount) {
+        //((side === 'Left') ? previewAreaLeft.getGlyphCount() :
+        //(side === 'Right') ? previewAreaRight.getGlyphCount() : 
+        //   max(previewAreaLeft.getGlyphCount() , previewAreaRight.getGlyphCount()) )) {
             alert("Node not found");
     }
 
     //drawSelectedNode(index, glyphs[index]);
-    previewAreaRight.drawSelectedNode(index, previewAreaRight.getGlyph[index]);
+    if (side !== 'Right' || leftSearching) {
+        previewAreaLeft.drawSelectedNode(index, previewAreaLeft.getGlyph[index]);
+    }
+    if (side !== 'Left' || rightSearching) {
+        previewAreaRight.drawSelectedNode(index, previewAreaRight.getGlyph[index]);
+    }
+    redrawEdges();
+
 };
 
 // toggle labels check boxes on right click

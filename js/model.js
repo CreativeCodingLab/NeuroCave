@@ -559,7 +559,7 @@ function Model(side) {
 
         if (maxNumberOfClusters < 4)
             platonic.createTetrahedron();
-        else if (maxNumberOfClusters < 8)
+        else if (maxNumberOfClusters < 7)
             platonic.createCube();
         else if (maxNumberOfClusters < 12)
             platonic.createDodecahedron();

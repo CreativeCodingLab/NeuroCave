@@ -986,7 +986,7 @@ function PreviewArea(canvas_, model_, name_) {
         for (var i = 0; i < getNodesSelected().length; i++) {
             nodeIdx = getNodesSelected()[i];
             // draw only edges belonging to active nodes
-            if (model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
+            if ((nodeIdx >= 0) && model.isRegionActive(model.getGroupNameByNodeIndex(nodeIdx))) {
                 // two ways to draw edges
                 if (getThresholdModality()) {
                     // 1) filter edges according to threshold
