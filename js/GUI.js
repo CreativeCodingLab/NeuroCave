@@ -18,7 +18,7 @@ var leftSearching = false;
 
 // initialize subject selection drop down menus
 import {getDataFile,setDataFile,atlas} from "./globals.js";
-import { changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, getNodesSelected, previewAreaLeft, previewAreaRight, setThresholdModality, enableIpsilaterality, enableContralaterality, enableEdgeBundling } from './drawing'
+import { changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, getNodesSelected, previewAreaLeft, previewAreaRight, setThresholdModality, getEnableIpsi, getEnableContra, enableIpsilaterality, enableContralaterality, enableEdgeBundling } from './drawing'
 import {modelLeft,modelRight} from './model'
 import {setDimensionFactorLeftSphere,setDimensionFactorRightSphere,setDimensionFactorLeftBox,setDimensionFactorRightBox} from './graphicsUtils.js'
 import { scaleColorGroup } from "./utils/scale";
@@ -281,6 +281,37 @@ var addThresholdSlider = function () {
     modelRight.setThreshold(max/2/thresholdMultiplier);
 };
 
+/* Edges stuff at edgeInfoPanel */
+// add a slider to threshold Contralateral edges at specific values
+var addConThresholdSlider = function () {
+
+    var max = Math.max(modelLeft.getMaximumWeight(), modelRight.getMaximumWeight());
+    var min = Math.min(modelLeft.getMinimumWeight(), modelRight.getMinimumWeight());
+    max = Math.max(Math.abs(max), Math.abs(min));
+    thresholdMultiplier = (max < 1.0) ? 100.0 : 1.0;
+    max *= thresholdMultiplier;
+    var menu = d3.select("#edgeInfoPanel");
+    menu.append("input")
+        .attr("type", "range")
+        .attr("value", max / 2)
+        .attr("id", "conThresholdSlider")
+        .attr("min", 0.)
+        .attr("max", max)
+        .attr("step", max / 20)
+        .on("change", function () {
+            modelLeft.setConThreshold(this.value / thresholdMultiplier);
+            modelRight.setConThreshold(this.value / thresholdMultiplier);
+            redrawEdges();
+            document.getElementById("conThresholdSliderLabel").innerHTML = "Contra Threshold @ " + this.value / thresholdMultiplier;
+        });
+    menu.append("label")
+        .attr("for", "conThresholdSlider")
+        .attr("id", "conThresholdSliderLabel")
+        .text("Contra Threshold @ " + max / 2 / thresholdMultiplier);
+    modelLeft.setConThreshold(max / 2 / thresholdMultiplier);
+    modelRight.setConThreshold(max / 2 / thresholdMultiplier);
+};
+
 // add opacity slider 0 to 1
 var addOpacitySlider = function () {
     var menu = d3.select("#edgeInfoPanel");
@@ -332,6 +363,16 @@ var addLateralityCheck = function () {
         .attr("id", "enableIpsiCheck")
         .on("change", function () {
             enableIpsilaterality(this.checked);
+            var input = $('#changeModalityBtn');
+            var modChecked = input.data("checked");
+            var elem = document.getElementById('conThresholdSlider');
+
+            if (this.checked && getEnableContra() && !elem && modChecked) {
+                addConThresholdSlider();
+            } else {
+                removeConThresholdSlider();
+            }
+            updateScenes();
         });
     menu.append("br");
     menu.append("label")
@@ -344,6 +385,17 @@ var addLateralityCheck = function () {
         .attr("id", "enableContraCheck")
         .on("change", function () {
             enableContralaterality(this.checked);
+            var input = $('#changeModalityBtn');
+            var modChecked = input.data("checked");
+            var elem = document.getElementById('conThresholdSlider');
+
+            if (this.checked && getEnableIpsi() && !elem &&modChecked) {
+                addConThresholdSlider();
+            } else {
+                removeConThresholdSlider();
+            }
+            updateScenes();
+
         });
     //menu.append("br");
     //menu.append("label")
@@ -355,11 +407,25 @@ var addLateralityCheck = function () {
 // remove threshold slider and its labels
 var removeThresholdSlider = function () {
     var elem = document.getElementById('thresholdSlider');
-    if(elem) {
+    if (elem) {
         elem.parentNode.removeChild(elem);
     }
     elem = document.getElementById('thresholdSliderLabel');
-    if(elem) {
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    removeConThresholdSlider();
+}
+
+// remove threshold slider and its labels
+var removeConThresholdSlider = function () {
+
+    var elem = document.getElementById('conThresholdSlider');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    elem = document.getElementById('conThresholdSliderLabel');
+    if (elem) {
         elem.parentNode.removeChild(elem);
     }
 };
@@ -397,6 +463,14 @@ var removeTopNSlider= function () {
     if(elem) {
         elem.parentNode.removeChild(elem);
     }
+    var elem = document.getElementById('conTopNThresholdSlider');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    elem = document.getElementById('conTopNThresholdSliderLabel');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
 };
 
 // remove all DOM elements from the edgeInfoPanel
@@ -428,13 +502,19 @@ var addModalityButton = function () {
 
 // change modality callback
 var changeModality = function (modality) {
-    setThresholdModality(modality);
+    if (modality !== undefined) {
+        setThresholdModality(modality);
+    }
 
     if(modality){
         //if it is thresholdModality
         removeTopNSlider();
         addThresholdSlider();
+        var elem = document.getElementById('conThresholdSlider');
 
+        if (getEnableIpsi() && getEnableContra() && !elem) {
+            addConThresholdSlider();
+        }
     } else{
         //top N modality
         removeThresholdSlider();

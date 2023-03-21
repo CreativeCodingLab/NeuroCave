@@ -1139,14 +1139,33 @@ function PreviewArea(canvas_, model_, name_) {
         var edgeIdx = model.getEdgesIndeces();
         if (getEnableEB( )) {
             model.performEBOnNode(indexNode);
-        }
+        } 
 
-        for (var i = 0; i < row.length; i++) {
-            if ((i != indexNode) && Math.abs(row[i]) > model.getThreshold() && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i) &&
-		    ( (getEnableIpsi() && (dataset[indexNode].hemisphere === dataset[i].hemisphere)) || 
-		      (getEnableContra() && (dataset[indexNode].hemisphere !== dataset[i].hemisphere)) || 
-	    		(!getEnableIpsi() && !getEnableContra()) )  ) {
-                displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[indexNode][i]], indexNode, [indexNode, i]);
+        // It can get too cluttered if both ipsi-
+        if (getEnableIpsi() && getEnableContra()) {
+            for (var i = 0; i < row.length; i++) {
+
+                var myThreshold = model.getThreshold();
+
+                if (dataset[indexNode].hemisphere !== dataset[i].hemisphere) {
+                    myThreshold = model.getConThreshold();
+                }
+
+                if ((i != indexNode) &&
+                    (Math.abs(row[i]) > myThreshold) &&
+                    model.isRegionActive(model.getGroupNameByNodeIndex(i)) &&
+                    getVisibleNodes(i) ) {
+                    displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[indexNode][i]], indexNode, [indexNode, i]);
+                }
+            }
+        } else {
+            for (var i = 0; i < row.length; i++) {
+                if ((i != indexNode) && Math.abs(row[i]) > model.getThreshold() && model.isRegionActive(model.getGroupNameByNodeIndex(i)) && getVisibleNodes(i) &&
+                    ((getEnableIpsi() && (dataset[indexNode].hemisphere === dataset[i].hemisphere)) ||
+                        (getEnableContra() && (dataset[indexNode].hemisphere !== dataset[i].hemisphere)) ||
+                        (!getEnableIpsi() && !getEnableContra()) ) ) {
+                    displayedEdges[displayedEdges.length] = drawEdgeWithName(edges[edgeIdx[indexNode][i]], indexNode, [indexNode, i]);
+                }
             }
         }
     };

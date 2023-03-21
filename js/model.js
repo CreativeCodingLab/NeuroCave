@@ -33,6 +33,7 @@ function Model(side) {
     var nodesStrength = [];
 
     var threshold = 1;                  // threshold for the edge value, default to 1, max, no edges
+    var conthreshold = 1;               // threshold for the contralateral edge value, default to 1, max, no edges
     var numberOfEdges = 5;              // threshold the number of edges for shortest paths
 
     var edges = [];                     // contains the edges per dataType
@@ -235,6 +236,16 @@ function Model(side) {
     // get edge threshold
     this.getThreshold = function () {
         return threshold;
+    };
+
+    // store contralateral edge threshold and update GUI
+    this.setConThreshold = function (t) {
+        conthreshold = t;
+    };
+
+    // get edge threshold
+    this.getConThreshold = function () {
+        return conthreshold;
     };
 
     // set connection matrix
