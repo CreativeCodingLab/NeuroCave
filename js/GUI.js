@@ -1223,8 +1223,6 @@ var searchElement = function(intext,side) {
             //if (intext === modelRight.getRegionByIndex(i)) { index = i; break; }
             var teststriLeft = modelLeft.getRegionByIndex(i);
             var teststriRight = modelRight.getRegionByIndex(i);
-            //var teststri = ((side !== 'Left') ? teststriRight:     
-            //               (side !== 'Right') ? teststriLeft : '');
             if ((side !== 'Left') && teststriRight && teststriRight.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
             if ((side !== 'Right') && teststriLeft && teststriLeft.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
         }
@@ -1249,6 +1247,8 @@ var searchElement = function(intext,side) {
     }
     redrawEdges();
 
+    var teststri = (side !== 'Left') ?   modelRight.getRegionByIndex(index) : modelLeft.getRegionByIndex(index) ;
+    setNodeInfoPanel(teststri,index);
 };
 
 // toggle labels check boxes on right click
@@ -1257,7 +1257,7 @@ var toggleMenus = function (e) {
     $('#viewLeft').toggle();
     $('#viewRight').toggle();
     $('#legend').toggle();
-    $('#nodeInfoPanel').toggle();
+    // $('#nodeInfoPanel').toggle();
     $('#colorCoding').toggle();
     $('#edgeInfoPanel').toggle();
     $('#search').toggle();
