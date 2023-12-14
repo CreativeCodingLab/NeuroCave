@@ -2,6 +2,7 @@
  * Created by Johnson on 2/15/2017.
  */
 
+
 var previewAreaLeft, previewAreaRight;
 
 var glyphNodeDictionary ={};        /// Object that stores uuid of left and right glyphs
@@ -16,13 +17,45 @@ var pointedObject;                  // node object under mouse
 var root;                           // the index of the root node = start point of shortest path computation
 
 var thresholdModality = true;
-var enableEB = true;
+var enableEB = false;
+var enableIpsi = true;
+var enableContra = true;
 
 var vr = false;                     // enable VR
 var spt = false;                    // enabling shortest path
 var click = false;
 var hoverTimeout = false;
 var oldNodeIndex = -1;
+
+import * as THREE from 'three'
+import {isLoaded, dataFiles,mobile} from "./globals";
+import {
+    addEdgeBundlingCheck,
+    addModalityButton,
+	addLateralityCheck,
+    removeGeometryButtons,
+    addOpacitySlider,
+    addThresholdSlider,
+    addColorGroupList, addColorGroupListLeft,
+    addTopologyMenu,
+    addShortestPathFilterButton,
+    addDistanceSlider,
+    addShortestPathHopsSlider,
+    enableShortestPathFilterButton,
+    addDimensionFactorSlider,
+    addDimensionFactorSliderLeft,
+    addDimensionFactorSliderRight,
+    createLegend,
+    //hideVRMaximizeButtons,
+    toggleMenus
+} from './GUI.js';
+import {queue} from "./external-libraries/queue";
+import {scanFolder, loadLookUpTable, loadSubjectNetwork, loadSubjectTopology} from "./utils/parsingData";
+import {modelLeft,modelRight} from './model';
+import {PreviewArea} from "./previewArea";
+import {setUpdateNeeded} from './utils/Dijkstra';
+import { setNodeInfoPanel, enableThresholdControls, addSearchPanel } from './GUI'
+import {setColorGroupScale} from './utils/scale'
 
 // callback on mouse moving, expected action: node beneath pointer are drawn bigger
 function onDocumentMouseMove(model, event) {
@@ -35,7 +68,7 @@ function onDocumentMouseMove(model, event) {
 
 }
 
-updateNodeMoveOver = function (model, intersectedObject) {
+var updateNodeMoveOver = function (model, intersectedObject) {
     var nodeIdx, region, nodeRegion;
     if ( intersectedObject ) {
         nodeIdx = glyphNodeDictionary[intersectedObject.object.uuid];
@@ -47,10 +80,10 @@ updateNodeMoveOver = function (model, intersectedObject) {
     // update node information label
     if ( nodeExistAndVisible ) {
         setNodeInfoPanel(region, nodeIdx);
-        if (vr) {
-            previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
-            previewAreaRight.updateNodeLabel(region.name, nodeIdx);
-        }
+        // if (vr) {  //todo: this can be used outside of VR to help get node label info next to the node itself, not in the screen corner
+        //     previewAreaLeft.updateNodeLabel(region.name, nodeIdx);
+        //     previewAreaRight.updateNodeLabel(region.name, nodeIdx);
+        // }
     }
 
     if ( nodeExistAndVisible && (nodesSelected.indexOf(nodeIdx) == -1)) { // not selected
@@ -108,8 +141,8 @@ function onMiddleClick(event) {
             previewAreaRight.computeShortestPathForNode(nodeIndex);
         }
         updateScenes();
-        enableShortestPathFilterButton(spt);
-        enableThresholdControls(!spt);
+        enableShortestPathFilterButton(getSpt());
+        enableThresholdControls(!getSpt());
     }
 }
 
@@ -122,7 +155,7 @@ function onLeftClick(model, event) {
     updateNodeSelection(model, objectIntersected, isLeft);
 }
 
-updateNodeSelection = function (model, objectIntersected, isLeft) {
+var updateNodeSelection = function (model, objectIntersected, isLeft) {
     var nodeIndex;
     if ( objectIntersected ) {
         nodeIndex = glyphNodeDictionary[objectIntersected.object.uuid];
@@ -199,77 +232,82 @@ function onMouseUp(model, event) {
 }
 
 function onKeyPress(event) {
-    if (event.key === 'v' || event.keyCode === 118) {
-        if (!previewAreaLeft.isVRAvailable()) {
-            alert("No VR Hardware found!!!");
-            return;
-        }
-        updateVRStatus('enable');
-        console.log("Enter VR mode");
-    }
-    if (vr && (event.key === 's' || event.keyCode === 115)) {
-        updateVRStatus('left');
-        console.log("VR Active for left preview area");
-    }
-    if (vr && (event.key === 'd' || event.keyCode === 100)) {
-        updateVRStatus('right');
-        console.log("VR Active for right preview area");
-    }
-    if (event.key === 'e' || event.keyCode === 101) {
-        updateVRStatus('disable');
-        console.log("Exit VR mode");
-    }
+    // todo: this is now a stub. no move keyboard activated VR
 }
+    // if (event.key === 'v' || event.keyCode === 118) {
+    //     if (!previewAreaLeft.isVRAvailable()) {
+    //         alert("No VR Hardware found!!!");
+    //         return;
+    //     }
+    //     updateVRStatus('enable');
+    //     console.log("Enter VR mode");
+    // }
+    // if (vr && (event.key === 's' || event.keyCode === 115)) {
+    //     updateVRStatus('left');
+    //     console.log("VR Active for left preview area");
+    // }
+    // if (vr && (event.key === 'd' || event.keyCode === 100)) {
+    //     updateVRStatus('right');
+    //     console.log("VR Active for right preview area");
+    // }
+    // if (event.key === 'e' || event.keyCode === 101) {
+    //     updateVRStatus('disable');
+    //     console.log("Exit VR mode");
+    // }
+//}
 
+// todo: this is probably not needed in WebXR
 // update VR status for desktop
-updateVRStatus = function (status) {
-    switch (status)
-    {
-        case 'enable':
-            activeVR = 'none';
-            vr = true;
-            break;
-        case 'left':
-            activeVR = 'left';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            // VR allows only one canvas to perform the rendering
-            previewAreaLeft.enableRender(true);
-            previewAreaRight.enableRender(false);
-            setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
-            break;
-        case 'right':
-            activeVR = 'right';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            // VR allows only one canvas to perform the rendering
-            previewAreaLeft.enableRender(false);
-            previewAreaRight.enableRender(true);
-            setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
-            break;
-        case 'disable':
-            activeVR = 'none';
-            previewAreaLeft.activateVR(false);
-            previewAreaRight.activateVR(false);
-            vr = false;
-            previewAreaLeft.resetCamera();
-            previewAreaRight.resetCamera();
-            previewAreaLeft.resetBrainPosition();
-            previewAreaRight.resetBrainPosition();
-            previewAreaLeft.enableRender(true);
-            previewAreaRight.enableRender(true);
-            break;
-    }
-};
+// var updateVRStatus = function (status) {
+//     switch (status)
+//     {
+//         case 'enable':
+//             activeVR = 'none';
+//             vr = true;
+//             break;
+//         case 'left':
+//             activeVR = 'left';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             // VR allows only one canvas to perform the rendering
+//             previewAreaLeft.enableRender(true);
+//             previewAreaRight.enableRender(false);
+//             setTimeout(function () { previewAreaLeft.activateVR(true); }, 500);
+//             break;
+//         case 'right':
+//             activeVR = 'right';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             // VR allows only one canvas to perform the rendering
+//             previewAreaLeft.enableRender(false);
+//             previewAreaRight.enableRender(true);
+//             setTimeout(function () { previewAreaRight.activateVR(true); }, 500);
+//             break;
+//         case 'disable':
+//             activeVR = 'none';
+//             previewAreaLeft.activateVR(false);
+//             previewAreaRight.activateVR(false);
+//             vr = false;
+//             previewAreaLeft.resetCamera();
+//             previewAreaRight.resetCamera();
+//             previewAreaLeft.resetBrainPosition();
+//             previewAreaRight.resetBrainPosition();
+//             previewAreaLeft.enableRender(true);
+//             previewAreaRight.enableRender(true);
+//             break;
+//     }
+// };
 
 // init the GUI controls
-initControls = function () {
+var initControls = function () {
     // add controls
     addOpacitySlider();
-    addEdgeBundlingCheck();
+    // addEdgeBundlingCheck();
     addModalityButton();
     addThresholdSlider();
+	addLateralityCheck();
     addColorGroupList();
+    addColorGroupListLeft();
     addTopologyMenu(modelLeft, 'Left');
     addTopologyMenu(modelRight, 'Right');
 
@@ -279,24 +317,27 @@ initControls = function () {
     enableShortestPathFilterButton(false);
 
     // addSkyboxButton();
-    addDimensionFactorSlider();
+    addDimensionFactorSliderLeft('Left');
+    addDimensionFactorSliderRight('Left');
+    addDimensionFactorSliderLeft('Right');
+    addDimensionFactorSliderRight('Right');
     // addFslRadioButton();
-    // addSearchPanel();
+    addSearchPanel();
 
     modelLeft.setAllRegionsActivated();
     modelRight.setAllRegionsActivated();
 
     createLegend(modelLeft);
 
-    if (mobile) {
-        console.log("Mobile VR requested");
-    } else {
-        hideVRMaximizeButtons();
-    }
+    // if (mobile) { // todo: probably not required for webXR
+    //     console.log("Mobile VR requested");
+    // } else {
+    //     hideVRMaximizeButtons();
+    // }
 };
 
 // init the canvas where we render the brain
-initCanvas = function () {
+var initCanvas = function () {
 
     glyphNodeDictionary = {};
     visibleNodes = new Array(modelLeft.getConnectionMatrixDimension()).fill(true);
@@ -324,25 +365,68 @@ initCanvas = function () {
         previewAreaRight.resizeScene();
     });
 
-    window.addEventListener('vrdisplaypresentchange', function(e){
-            //e.preventDefault();
-            console.log("on resize event");
-            previewAreaLeft.resizeScene();
-            previewAreaRight.resizeScene();}
-        , true);
+    // todo: Not sure how this will be handled in WebXR, adding or removing a headset or controller in mid-session
+    // window.addEventListener('vrdisplaypresentchange', function(e){
+    //         //e.preventDefault();
+    //         console.log("on resize event");
+    //         previewAreaLeft.resizeScene();
+    //         previewAreaRight.resizeScene();}
+    //     , true);
 
     previewAreaLeft.requestAnimate();
     previewAreaRight.requestAnimate();
 };
 
 // set the threshold for both models
-setThreshold = function(value) {
+var setThreshold = function (value) {
     modelLeft.setThreshold(value);
     modelRight.setThreshold(value);
 };
 
+// set the threshold for both models
+var setConThreshold = function (value) {
+    modelLeft.setConThreshold(value);
+    modelRight.setConThreshold(value);
+};
+
+//enable Ipsilaterality
+var enableIpsilaterality = function (enable) {
+    //if (!enableIpsi && enable) {}
+    enableIpsi = enable;
+
+	console.log("IPSI:"+enable);
+
+    modelLeft.computeEdgesForTopology(modelLeft.getActiveTopology());
+    modelRight.computeEdgesForTopology(modelRight.getActiveTopology());
+
+    previewAreaLeft.removeEdgesFromScene();
+    previewAreaRight.removeEdgesFromScene();
+
+    previewAreaLeft.drawConnections();
+    previewAreaRight.drawConnections();
+
+}
+
+//enable Contralaterality
+var enableContralaterality = function (enable) {
+	enableContra = enable;
+
+	console.log("CONTRA:"+enable);
+
+    modelLeft.computeEdgesForTopology(modelLeft.getActiveTopology());
+    modelRight.computeEdgesForTopology(modelRight.getActiveTopology());
+
+    previewAreaLeft.removeEdgesFromScene();
+    previewAreaRight.removeEdgesFromScene();
+
+    previewAreaLeft.drawConnections();
+    previewAreaRight.drawConnections();
+
+}
+
+
 // enable edge bundling
-enableEdgeBundling = function (enable) {
+var enableEdgeBundling = function (enable) {
     if (enableEB == enable)
         return;
 
@@ -359,30 +443,40 @@ enableEdgeBundling = function (enable) {
 };
 
 // updating scenes: redrawing glyphs and displayed edges
-updateScenes = function () {
-    console.log("Scene update");
-    previewAreaLeft.updateScene();
-    previewAreaRight.updateScene();
-    createLegend(modelLeft);
+var updateScenes = function (side) {
+    console.log("Scene update "+side);
+    if (side !== "Right") {
+        previewAreaLeft.updateScene();
+        createLegend(modelLeft,"Left");
+    } 
+    if (side !== "Left") {
+        previewAreaRight.updateScene();
+        createLegend(modelRight,"Right");
+    }
 };
 
-updateNodesVisiblity = function () {
-    previewAreaLeft.updateNodesVisibility();
-    previewAreaRight.updateNodesVisibility();
-    createLegend(modelLeft);
+var updateNodesVisiblity = function (side) {
+    if (side !== "Right") {
+        previewAreaLeft.updateNodesVisibility();
+        createLegend(modelLeft,"Left");
+    }
+    if (side !== "Left") {
+        previewAreaRight.updateNodesVisibility();
+        createLegend(modelRight,"Right");
+    }
 };
 
-redrawEdges = function () {
+var redrawEdges = function () {
     previewAreaLeft.redrawEdges();
     previewAreaRight.redrawEdges();
 };
 
-updateOpacity = function (opacity) {
+var updateOpacity = function (opacity) {
     previewAreaLeft.updateEdgeOpacity(opacity);
     previewAreaRight.updateEdgeOpacity(opacity);
 };
 
-removeEdgesGivenNodeFromScenes = function(nodeIndex) {
+var removeEdgesGivenNodeFromScenes = function(nodeIndex) {
     previewAreaLeft.removeEdgesGivenNode(nodeIndex);
     previewAreaRight.removeEdgesGivenNode(nodeIndex);
 
@@ -393,7 +487,7 @@ removeEdgesGivenNodeFromScenes = function(nodeIndex) {
 // get intersected object beneath the mouse pointer
 // detects which scene: left or right
 // return undefined if no object was found
-getIntersectedObject = function(event) {
+var getIntersectedObject = function(event) {
 
     var isLeft = event.clientX < window.innerWidth/2;
 
@@ -406,24 +500,44 @@ getIntersectedObject = function(event) {
     return isLeft ? previewAreaLeft.getIntersectedObject(vector) : previewAreaRight.getIntersectedObject(vector);
 };
 
-changeColorGroup = function (name) {
+// This now only changes the Right color group
+var changeColorGroup = function (name, side) {
+    if (side !== "Right") { modelLeft.setActiveGroup(name); }
+    if (side !== "Left") { modelRight.setActiveGroup(name); }
+
+    if (side !== "Right") { modelLeft.setAllRegionsActivated(); }
+    if (side !== "Left") { modelRight.setAllRegionsActivated(); }
+    setColorGroupScale(side);
+
+    if (side !== "Right") { previewAreaLeft.updateNodesVisibility(); }
+    if (side !== "Left") { previewAreaRight.updateNodesVisibility(); }
+    if (side !== "Right") { previewAreaLeft.updateNodesColor(); }
+    if (side !== "Left") { previewAreaRight.updateNodesColor(); }
+    redrawEdges();
+    if (side !== "Right") { createLegend(modelLeft,"Left"); }
+    if (side !== "Left") { createLegend(modelRight,"Right"); }
+};
+
+/* Instead of two functions just add an arguement to original one
+// This One now Does the Left Color Group
+var changeColorGroupLeft = function (name) {
     modelLeft.setActiveGroup(name);
-    modelRight.setActiveGroup(name);
+    //modelRight.setActiveGroup(name);
 
     modelLeft.setAllRegionsActivated();
-    modelRight.setAllRegionsActivated();
+    //modelRight.setAllRegionsActivated();
     setColorGroupScale();
 
     previewAreaLeft.updateNodesVisibility();
-    previewAreaRight.updateNodesVisibility();
+    //previewAreaRight.updateNodesVisibility();
     previewAreaLeft.updateNodesColor();
-    previewAreaRight.updateNodesColor();
+    //previewAreaRight.updateNodesColor();
     redrawEdges();
     createLegend(modelLeft);
-};
+};*/
 
-redrawScene = function (side) {
-    updateNeeded = true;
+var redrawScene = function (side) {
+    setUpdateNeeded(true);
     switch(side) {
         case 'Left':
         case 'left':
@@ -437,14 +551,14 @@ redrawScene = function (side) {
 };
 
 // change the active geometry
-changeActiveGeometry = function (model, side, type) {
+var changeActiveGeometry = function (model, side, type) {
     console.log("Change Active Geometry to: ", type);
     model.setActiveTopology(type);
     redrawScene(side);
 };
 
 // draw shortest path for the left and right scenes = prepare the edges and plot them
-updateShortestPathEdges = function (side) {
+var updateShortestPathEdges = function (side) {
     if (!spt)
         return;
     switch (side) {
@@ -462,7 +576,7 @@ updateShortestPathEdges = function (side) {
 };
 
 // change the subject in a specific scene
-changeSceneToSubject = function (subjectId, model, previewArea, side) {
+var changeSceneToSubject = function (subjectId, model, previewArea, side) {
     var fileNames = dataFiles[subjectId];
     removeGeometryButtons(side);
     var info = model.getCurrentRegionsInformation();
@@ -492,3 +606,45 @@ changeSceneToSubject = function (subjectId, model, previewArea, side) {
             ;
         });
 };
+
+var setRoot = function (rootNode) {
+    root = rootNode;
+}
+
+var getRoot = function () {
+    return root;
+}
+
+var getSpt = function () {
+    return spt;
+}
+
+var getNodesSelected = function () {
+    return nodesSelected;
+}
+
+var clrNodesSelected = function () {
+    nodesSelected = [];
+}
+
+var setNodesSelected = function (arrIndex, newNodeVal) {
+    nodesSelected[arrIndex] = newNodeVal;
+}
+
+var getEnableEB = function () { return enableEB };
+
+var getEnableIpsi = function () { return enableIpsi };
+
+var getEnableContra = function () { return enableContra };
+
+var getVisibleNodesLength = function (arrIndex) { return visibleNodes.length }
+
+var getVisibleNodes = function (arrIndex) { return visibleNodes[arrIndex] }
+
+var setVisibleNodes = function (arrIndex, arrValue) { visibleNodes[arrIndex] = arrValue }
+
+var getThresholdModality = function () { return thresholdModality }
+
+var setThresholdModality = function (modality) { thresholdModality = modality }
+
+export { changeSceneToSubject, initControls, initCanvas, changeActiveGeometry, changeColorGroup, setRoot, getRoot, getSpt, updateScenes, updateNodesVisiblity, redrawEdges, updateOpacity, glyphNodeDictionary, previewAreaLeft, previewAreaRight, getNodesSelected, setNodesSelected, clrNodesSelected, getVisibleNodes, getVisibleNodesLength, setVisibleNodes, enableEdgeBundling,  getEnableEB, getEnableIpsi, getEnableContra, enableIpsilaterality, enableContralaterality, getThresholdModality, setThresholdModality };

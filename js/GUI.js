@@ -2,19 +2,37 @@
  * Created by giorgioconte on 31/01/15.
  */
 // this file contains functions that create\delete GUI controlling elements
+//import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
+//import {dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
 
-var SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
+const SHORTEST_DISTANCE = 0, NUMBER_HOPS = 1; //enums
 var shortestPathVisMethod = SHORTEST_DISTANCE;
 var thresholdMultiplier = 1.0; // 100.0 for fMRI data of values (-1.0->1.0) and 1.0 if values > 1.0
+var lockLegend = true;
+var enableLeftDimLock = true;
+var enableRightDimLock = true;
+var enableSphereDimLock = true;
+var enableBoxDimLock = true;
+var rightSearching = false;
+var leftSearching = false;
 
 // initialize subject selection drop down menus
-initSubjectMenu = function (side) {
+import {getDataFile,setDataFile,atlas} from "./globals.js";
+import { changeSceneToSubject, changeActiveGeometry, changeColorGroup, updateScenes, redrawEdges, updateOpacity, updateNodesVisiblity, getSpt, getNodesSelected, previewAreaLeft, previewAreaRight, setThresholdModality, getEnableIpsi, getEnableContra, enableIpsilaterality, enableContralaterality, enableEdgeBundling } from './drawing'
+import {modelLeft,modelRight} from './model'
+import {setDimensionFactorLeftSphere,setDimensionFactorRightSphere,setDimensionFactorLeftBox,setDimensionFactorRightBox} from './graphicsUtils.js'
+import { scaleColorGroup } from "./utils/scale";
+import { PreviewArea }  from './previewArea.js';
+import { forEach } from "./external-libraries/gl-matrix/vec3.js";
+//import * as math from 'mathjs'
+
+var initSubjectMenu = function (side) {
 
     var select = document.getElementById("subjectMenu" + side);
-    for (var i = 0; i < dataFiles.length; ++i) {
+    for (var i = 0; i < getDataFile().length; ++i) {
         var el = document.createElement("option");
-        el.textContent = dataFiles[i].subjectID;
-        el.value = dataFiles[i].subjectID;
+        el.textContent = getDataFile()[i].subjectID;
+        el.value = getDataFile()[i].subjectID;
         el.selected = (i==0);
         select.appendChild(el);
     }
@@ -33,31 +51,171 @@ initSubjectMenu = function (side) {
 };
 
 /* Node stuff at nodeInfoPanel */
-// adds a slider to control glyphs size
-addDimensionFactorSlider = function () {
-    var panel = d3.select("#nodeInfoPanel");
+// adds a slider to control Left of Right Sphere glyphs size
+var addDimensionFactorSliderLeft = function (side) {
+    var panel = d3.select("#nodeInfoPanel"+side);
 
-    panel.append("input")
+	console.log("#nodeInfoPanel"+side);
+	//console.log(side);
+
+    if(side == 'Left') {
+      panel.append("input")
         .attr("type", "range")
         .attr("value", "1")
-        .attr("id", "dimensionSlider")
+        .attr("id", "dimensionSliderLeft"+side)
         .attr("min","0.2")
         .attr("max", "4")
         .attr("step","0.1")
         .on("change", function () {
-            setDimensionFactor(this.value);
+            setDimensionFactorLeftSphere(this.value);
+            if (enableLeftDimLock) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }
+            if (enableSphereDimLock) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+            }
+            if ((enableBoxDimLock && enableLeftDimLock) ||
+                (enableSphereDimLock && enableRightDimLock)) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }
         });
+    } else {
+        panel.append("label")
+            .attr("for", "enableSphereDimLock")
+            .attr("id", "enableSphereDimLockLabel")
+            .text('\u0020\uD83D\uDD12');
+
+        panel.append("input")
+            .attr("type", "checkbox")
+            .attr("checked", false)
+            .attr("id", "enableSphereDimLock")
+            .on("change", function () { enableSphereDimLock = this.checked });
+
+        panel.append("input")
+        .attr("type", "range")
+        .attr("value", "1")
+        .attr("id", "dimensionSliderLeft"+side)
+        .attr("min","0.2")
+        .attr("max", "4")
+        .attr("step","0.1")
+        .on("change", function () {
+            setDimensionFactorRightSphere(this.value);
+            if (enableRightDimLock) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }
+            if (enableSphereDimLock) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
+            if ((enableBoxDimLock && enableRightDimLock) ||
+                (enableSphereDimLock && enableLeftDimLock)) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }
+        });
+    }
 
     panel.append("label")
         .attr("for", "dimensionSlider")
-        .attr("id", "dimensionSliderLabel")
-        .text("Glyph Size");
+        .attr("id", "dimensionSliderLabel"+side)
+        .text(side+" Sphere Size");
 
     panel.append("br");
 };
 
+/* Node stuff at nodeInfoPanel */
+// adds a slider to control Left or Right Box glyphs size
+var addDimensionFactorSliderRight = function (side) {
+    var panel = d3.select("#nodeInfoPanel"+side);
+
+	console.log("#nodeInfoPanel"+side);
+	
+    if(side == 'Left') {
+      panel.append("input")
+        .attr("type", "range")
+        .attr("value", "1")
+        .attr("id", "dimensionSliderRight"+side)
+        .attr("min","0.2")
+        .attr("max", "4")
+        .attr("step","0.1")
+        .on("change", function () {
+            setDimensionFactorLeftBox(this.value);
+            if (enableLeftDimLock) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
+            if (enableBoxDimLock) {
+                setDimensionFactorRightBox(this.value);
+                document.getElementById("dimensionSliderRightRight").value = this.value;
+            }
+            if ((enableBoxDimLock && enableRightDimLock) ||
+                (enableSphereDimLock && enableLeftDimLock)) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+            }
+        });
+    } else {
+        panel.append("label")
+            .attr("for", "enableBoxDimLock")
+            .attr("id", "enableBoxDimLockLabel")
+            .text('\u0020\uD83D\uDD12');
+
+        panel.append("input")
+            .attr("type", "checkbox")
+            .attr("checked", false)
+            .attr("id", "enableBoxDimLock")
+            .on("change", function () { enableBoxDimLock = this.checked });
+
+        panel.append("input")
+        .attr("type", "range")
+        .attr("value", "1")
+        .attr("id", "dimensionSliderRight"+side)
+        .attr("min","0.2")
+        .attr("max", "4")
+        .attr("step","0.1")
+        .on("change", function () {
+            setDimensionFactorRightBox(this.value);
+            if (enableRightDimLock) {
+                setDimensionFactorRightSphere(this.value);
+                document.getElementById("dimensionSliderLeftRight").value = this.value;
+            }
+            if (enableBoxDimLock) {
+                setDimensionFactorLeftBox(this.value);
+                document.getElementById("dimensionSliderRightLeft").value = this.value;
+            }
+            if ((enableBoxDimLock && enableLeftDimLock) ||
+                (enableSphereDimLock && enableRightDimLock)) {
+                setDimensionFactorLeftSphere(this.value);
+                document.getElementById("dimensionSliderLeftLeft").value = this.value;
+            }
+
+        });
+    }
+
+    panel.append("label")
+        .attr("for", "dimensionSlider")
+        .attr("id", "dimensionSliderLabel"+side)
+        .text(side + " Box Size ");
+
+    panel.append("label")
+        .attr("for", "enable"+side+"DimLock")
+        .attr("id", "enable"+side+"DimLockLabel")
+        .text('\u0020\uD83D\uDD12');
+
+    panel.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enable"+side+"DimLock")
+        .on("change", (side == 'Left') ? function () { enableLeftDimLock = this.checked } : function () { enableRightDimLock = this.checked });
+    panel.append("br");
+};
+
 // adds a button to toggle skybox visibility
-addSkyboxButton = function () {
+var addSkyboxButton = function () {
 
     var menu = d3.select("#nodeInfoPanel");
     menu.append("button")
@@ -77,7 +235,7 @@ addSkyboxButton = function () {
 };
 
 // adds a text label showing: label - region name - nodal strength
-setNodeInfoPanel = function (region, index) {
+var setNodeInfoPanel = function (region, index) {
 
     var panel = d3.select('#nodeInfoPanel');
 
@@ -94,7 +252,7 @@ setNodeInfoPanel = function (region, index) {
 
 /* Edges stuff at edgeInfoPanel */
 // add a slider to threshold edges at specific values
-addThresholdSlider = function () {
+var addThresholdSlider = function () {
 
     var max = Math.max(modelLeft.getMaximumWeight(), modelRight.getMaximumWeight());
     var min = Math.min(modelLeft.getMinimumWeight(), modelRight.getMinimumWeight());
@@ -123,8 +281,39 @@ addThresholdSlider = function () {
     modelRight.setThreshold(max/2/thresholdMultiplier);
 };
 
+/* Edges stuff at edgeInfoPanel */
+// add a slider to threshold Contralateral edges at specific values
+var addConThresholdSlider = function () {
+
+    var max = Math.max(modelLeft.getMaximumWeight(), modelRight.getMaximumWeight());
+    var min = Math.min(modelLeft.getMinimumWeight(), modelRight.getMinimumWeight());
+    max = Math.max(Math.abs(max), Math.abs(min));
+    thresholdMultiplier = (max < 1.0) ? 100.0 : 1.0;
+    max *= thresholdMultiplier;
+    var menu = d3.select("#edgeInfoPanel");
+    menu.append("input")
+        .attr("type", "range")
+        .attr("value", max / 2)
+        .attr("id", "conThresholdSlider")
+        .attr("min", 0.)
+        .attr("max", max)
+        .attr("step", max / 20)
+        .on("change", function () {
+            modelLeft.setConThreshold(this.value / thresholdMultiplier);
+            modelRight.setConThreshold(this.value / thresholdMultiplier);
+            redrawEdges();
+            document.getElementById("conThresholdSliderLabel").innerHTML = "Contra Threshold @ " + this.value / thresholdMultiplier;
+        });
+    menu.append("label")
+        .attr("for", "conThresholdSlider")
+        .attr("id", "conThresholdSliderLabel")
+        .text("Contra Threshold @ " + max / 2 / thresholdMultiplier);
+    modelLeft.setConThreshold(max / 2 / thresholdMultiplier);
+    modelRight.setConThreshold(max / 2 / thresholdMultiplier);
+};
+
 // add opacity slider 0 to 1
-addOpacitySlider = function () {
+var addOpacitySlider = function () {
     var menu = d3.select("#edgeInfoPanel");
     menu.append("label")
         .attr("for", "opacitySlider")
@@ -143,7 +332,7 @@ addOpacitySlider = function () {
         });
 };
 
-addEdgeBundlingCheck = function () {
+var addEdgeBundlingCheck = function () {
     var menu = d3.select("#edgeInfoPanel");
     menu.append("br");
     menu.append("label")
@@ -160,20 +349,89 @@ addEdgeBundlingCheck = function () {
     menu.append("br");
 };
 
+// add laterality checkboxes
+var addLateralityCheck = function () {
+    var menu = d3.select("#edgeInfoPanel");
+    menu.append("br");
+    menu.append("label")
+        .attr("for", "enableIpsiCheck")
+        .attr("id", "enableIpsiCheckLabel")
+        .text("Ipsilateral");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enableIpsiCheck")
+        .on("change", function () {
+            enableIpsilaterality(this.checked);
+            var input = $('#changeModalityBtn');
+            var modChecked = input.data("checked");
+            var elem = document.getElementById('conThresholdSlider');
+
+            if (this.checked && getEnableContra() && !elem && modChecked) {
+                addConThresholdSlider();
+            } else {
+                removeConThresholdSlider();
+            }
+            updateScenes();
+        });
+    menu.append("br");
+    menu.append("label")
+        .attr("for", "enableContraCheck")
+        .attr("id", "enableContraCheckLabel")
+        .text("Contralateral");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("id", "enableContraCheck")
+        .on("change", function () {
+            enableContralaterality(this.checked);
+            var input = $('#changeModalityBtn');
+            var modChecked = input.data("checked");
+            var elem = document.getElementById('conThresholdSlider');
+
+            if (this.checked && getEnableIpsi() && !elem &&modChecked) {
+                addConThresholdSlider();
+            } else {
+                removeConThresholdSlider();
+            }
+            updateScenes();
+
+        });
+    //menu.append("br");
+    //menu.append("label")
+      //  .attr("for", "enableLateralityCheck")
+        //.attr("id", "enableLateralityCheckLabel")
+        //.text("laterality");
+};
+
 // remove threshold slider and its labels
-removeThresholdSlider = function () {
+var removeThresholdSlider = function () {
     var elem = document.getElementById('thresholdSlider');
-    if(elem) {
+    if (elem) {
         elem.parentNode.removeChild(elem);
     }
     elem = document.getElementById('thresholdSliderLabel');
-    if(elem) {
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    removeConThresholdSlider();
+}
+
+// remove threshold slider and its labels
+var removeConThresholdSlider = function () {
+
+    var elem = document.getElementById('conThresholdSlider');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    elem = document.getElementById('conThresholdSliderLabel');
+    if (elem) {
         elem.parentNode.removeChild(elem);
     }
 };
 
 // add slider to filter the top N edges in terms of value
-addTopNSlider = function () {
+var addTopNSlider = function () {
     var menu = d3.select("#edgeInfoPanel");
 
     menu.append("input")
@@ -196,7 +454,7 @@ addTopNSlider = function () {
 };
 
 // remove top N edges slider and its labels
-removeTopNSlider= function () {
+var removeTopNSlider= function () {
     var elem = document.getElementById('topNThresholdSlider');
     if(elem) {
         elem.parentNode.removeChild(elem);
@@ -205,17 +463,25 @@ removeTopNSlider= function () {
     if(elem) {
         elem.parentNode.removeChild(elem);
     }
+    var elem = document.getElementById('conTopNThresholdSlider');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
+    elem = document.getElementById('conTopNThresholdSliderLabel');
+    if (elem) {
+        elem.parentNode.removeChild(elem);
+    }
 };
 
 // remove all DOM elements from the edgeInfoPanel
-removeElementsFromEdgePanel = function () {
+var removeElementsFromEdgePanel = function () {
     removeThresholdSlider();
     removeTopNSlider();
 };
 
 // add "Change Modality" button to toggle between:
 // edge threshold and top N edges
-addModalityButton = function () {
+var addModalityButton = function () {
     var menu = d3.select("#edgeInfoPanel");
 
     menu.append("button")
@@ -235,14 +501,20 @@ addModalityButton = function () {
 };
 
 // change modality callback
-changeModality = function (modality) {
-    thresholdModality = modality;
+var changeModality = function (modality) {
+    if (modality !== undefined) {
+        setThresholdModality(modality);
+    }
 
     if(modality){
         //if it is thresholdModality
         removeTopNSlider();
         addThresholdSlider();
+        var elem = document.getElementById('conThresholdSlider');
 
+        if (getEnableIpsi() && getEnableContra() && !elem) {
+            addConThresholdSlider();
+        }
     } else{
         //top N modality
         removeThresholdSlider();
@@ -253,14 +525,29 @@ changeModality = function (modality) {
 /* Edges legend */
 // create legend panel containing different groups
 // the state of each group can be either: active, transparent or inactive
-createLegend = function(model) {
-    var legendMenu = document.getElementById("legend");
+var createLegend = function(model,side) {
+    //var legendMenu = document.getElementById("legend");
+    var legendMenu;
+    
+    if (side === "Left") {
+        legendMenu = document.getElementById("legendLeft");
+    } else {
+        legendMenu = document.getElementById("legend");
+    }
 
-    while(legendMenu.hasChildNodes()){
+    //if (model && modelLeft) { legendMenu = (model.getName() === "Left") ? document.getElementById("legendLeft") : document.getElementById("legend"); }
+
+    console.log(side, legendMenu, model.getName())
+
+    while (legendMenu.hasChildNodes()) {
         legendMenu.removeChild(legendMenu.childNodes[0]);
     }
 
-    legendMenu = d3.select("#legend");
+    var legendDocElmt = legendMenu;
+    legendMenu = (side === "Left") ? d3.select("#legendLeft") : d3.select("#legend");
+    //if (model && modelLeft) { legendMenu = (model.getName() === "Left") ? d3.select("#legendLeft") : d3.select("#legend"); }
+
+    console.log(side, legendMenu, model.name)
 
     if(model.getActiveGroupName() != 4) {
         var activeGroup = model.getActiveGroup();
@@ -271,12 +558,14 @@ createLegend = function(model) {
         }
 
         var l = activeGroup.length;
-        document.getElementById("legend").style.height = 25*l+"px";
+        //document.getElementById("legend").style.height = 25*l+"px";
+        legendDocElmt.style.height = 25 * l + "px";
 
-        for(var i=0; i < l; i++){
+        for (var i = 0; i < l; i++) {
             var opacity;
 
-            switch (modelLeft.getRegionState(activeGroup[i])){
+            //switch (modelLeft.getRegionState(activeGroup[i])) {
+            switch (model.getRegionState(activeGroup[i])) {
                 case 'active':
                     opacity = 1;
                     break;
@@ -288,19 +577,38 @@ createLegend = function(model) {
                     break;
             }
 
-            var elementGroup = legendMenu.append("g")
-                .attr("transform","translate(10,"+i*25+")")
-                .attr("id",activeGroup[i])
-                .style("cursor","pointer")
-                .on("click", function(){
-                    modelLeft.toggleRegion(this.id);
-                    modelRight.toggleRegion(this.id);
-                    if (modelLeft.getRegionState(this.id) == 'transparent')
-                        updateNodesVisiblity();
-                    else
-                        updateScenes();
-                });
+            var elementGroup;
+            if ((side === "Left")) { // || (model && modelLeft && (model.getName() === "Left")) ){
+                elementGroup = legendMenu.append("g")
+                    .attr("transform", "translate(10," + i * 25 + ")")
+                    .attr("id", activeGroup[i])
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        modelLeft.toggleRegion(this.id);//,"Left");
+                        console.log("LEFTmodel:"+side + model.getName());
+                        //model.toggleRegion(this.id);
+                        if (model.getRegionState(this.id) == 'transparent')
+                            updateNodesVisiblity("Left");
+                        else
+                            updateScenes("Left");
+                    });
+            } else { // if { (side === "Right") {
+                elementGroup = legendMenu.append("g")
+                    .attr("transform", "translate(10," + i * 25 + ")")
+                    .attr("id", activeGroup[i])
+                    .style("cursor", "pointer")
+                    .on("click", function () {
+                        if (lockLegend) { modelLeft.toggleRegion(this.id); }
+                        console.log("RIGHTmodel:" + side + model.getName());
+                        modelRight.toggleRegion(this.id);//,"Right");
+                        if (model.getRegionState(this.id) == 'transparent')
+                            updateNodesVisiblity(lockLegend?"Both":"Right");
+                        else
+                            updateScenes(lockLegend?"Both":"Right");
+                    });
 
+            }
+        
             if(typeof(activeGroup[i]) != 'number' && activeGroup[i].indexOf("right") > -1){
                 elementGroup.append("rect")
                     .attr("x",-5)
@@ -320,7 +628,8 @@ createLegend = function(model) {
 
             //choose color of the text
             var textColor;
-            if(modelLeft.getRegionActivation(activeGroup[i])){
+            //if (modelLeft.getRegionActivation(activeGroup[i])) {
+            if (model.getRegionActivation(activeGroup[i])) {
                 textColor = "rgb(191,191,191)";
             } else{
                 textColor = "rgb(0,0,0)";
@@ -345,7 +654,8 @@ createLegend = function(model) {
 
         console.log("custom group color");
         l = quantiles.length+1;
-        document.getElementById("legend").style.height =30*l+"px";
+        //document.getElementById("legend").style.height = 30 * l + "px";
+        legendDocElmt.style.height = 30 * l + "px";
 
         for(i = 0; i < quantiles.length + 1 ; i++){
             var elementGroup = legendMenu.append("g")
@@ -394,9 +704,9 @@ createLegend = function(model) {
 };
 
 
-/* Color coding area at upload */
+/* Color coding area for Right Viewport at upload */
 // add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
-addColorGroupList = function() {
+var addColorGroupList = function() {
 
     var select = document.getElementById("colorCodingMenu");
     var names = atlas.getGroupsNames();
@@ -411,7 +721,8 @@ addColorGroupList = function() {
 
     var hierarchicalClusteringExist = false;
     if (modelLeft.hasClusteringData() && modelRight.hasClusteringData()) {
-        var clusterNames = modelLeft.getClusteringTopologiesNames();
+        //var clusterNames = modelLeft.getClusteringTopologiesNames();
+        var clusterNames = modelRight.getClusteringTopologiesNames();
 
         for (var i = 0; i < clusterNames.length; ++i) {
             var name = clusterNames[i];
@@ -435,7 +746,7 @@ addColorGroupList = function() {
                     setColorClusteringSliderVisibility("hidden");
                     break;
             }
-            changeColorGroup(selection);
+            changeColorGroup(selection,lockLegend?"Both":"Right");
         };
 
         if (hierarchicalClusteringExist)
@@ -443,9 +754,123 @@ addColorGroupList = function() {
     }
 
     setColorClusteringSliderVisibility("hidden");
+
+
+    //document.getElementById("syncColorRight").hidden = true; //.onclick = function () {
+    document.getElementById("syncColorRight").onclick = function () {
+        //previewAreaRight.syncCameraWith(previewAreaLeft.getCamera());
+        if (this.innerHTML === "Unlock") {
+            document.getElementById("colorCodingLeft").hidden = false;
+            document.getElementById("colorCodingMenu").label = "Right ColorCoding:";
+            document.getElementById("legendLeft").hidden = false;
+            var selection = document.getElementById("colorCodingMenu");
+            var target = document.getElementById("colorCodingMenuLeft");
+            //modelRight.getActiveGroup();
+            target.value = selection.value;
+            this.value = 'Unlocked';
+            this.innerHTML = "Lock";
+            lockLegend = false;
+        } else {
+            document.getElementById("colorCodingLeft").hidden = true;
+            document.getElementById("colorCodingMenu").label = "ColorCoding:";
+            document.getElementById("legendLeft").hidden = true;
+            this.value = 'Locked';
+            this.innerHTML = "Unlock";
+            var selection = document.getElementById("colorCodingMenu");
+            var target = document.getElementById("colorCodingMenuLeft");
+            //modelRight.getActiveGroup();
+            target.value = selection.value;
+            changeColorGroup(selection.value, "Left");
+            modelLeft.setCurrentRegionsInformation(modelRight.getCurrentRegionsInformation());
+            updateNodesVisiblity("Left");
+            updateScenes("Left");
+            lockLegend = true;
+        }
+    };
 };
 
-addColorClusteringSlider = function () {
+
+/* Color coding area for Left Viewport at upload */
+// add "Color Coding" radio button group containing: Anatomy, Embeddedness ...
+var addColorGroupListLeft = function () {
+
+    var select = document.getElementById("colorCodingMenuLeft");
+    var names = atlas.getGroupsNames();
+
+    for (var i = 0; i < names.length; ++i) {
+        var el = document.createElement("option");
+        el.textContent = names[i];
+        el.value = names[i];
+        el.selected = (i == 0);
+        select.appendChild(el);
+    }
+
+    var hierarchicalClusteringExist = false;
+    if (modelLeft.hasClusteringData() && modelRight.hasClusteringData()) {
+        var clusterNames = modelLeft.getClusteringTopologiesNames();
+
+        for (var i = 0; i < clusterNames.length; ++i) {
+            var name = clusterNames[i];
+            var isHierarchical = false; // name == "PLACE" || name == "PACE"; // Todo: Enable later
+            hierarchicalClusteringExist |= isHierarchical;
+
+            var el = document.createElement("option");
+            el.textContent = name;
+            el.value = name;
+            select.appendChild(el);
+        }
+
+        select.onchange = function () {
+            var selection = this.options[this.selectedIndex].value;
+            switch (selection) {
+                case ("PLACE"):
+                case ("PACE"):
+                    //setColorClusteringSliderVisibility("visible"); // Todo: Let Main Color Menu Control Slider for now. Enable Later
+                    break;
+                default:
+                    setColorClusteringSliderVisibility("hidden");
+                    break;
+            }
+            changeColorGroup(selection, "Left");
+        };
+
+        if (false && hierarchicalClusteringExist) // Todo: Let Main Color Menu Control Slider for now. Enable Later
+            addColorClusteringSlider();
+    }
+
+    setColorClusteringSliderVisibility("hidden");
+
+    // Get the button, and when the user clicks on it, execute myFunction
+    document.getElementById("syncColorLeft").onclick = function () {
+        //previewAreaLeft.syncCameraWith(previewAreaRight.getCamera());
+        var selection = document.getElementById("colorCodingMenu");
+        var target = document.getElementById("colorCodingMenuLeft");
+        //modelRight.getActiveGroup();
+        target.value = selection.value;
+        changeColorGroup(selection.value, "Left");
+
+        modelLeft.setCurrentRegionsInformation(modelRight.getCurrentRegionsInformation());
+        updateNodesVisiblity("Left");
+        updateScenes("Left");
+        /*
+        var activeGroup = model.getActiveGroup();
+
+        var l = activeGroup.length;
+
+        for (var i = 0; i < l; i++) {
+            var opacity;
+
+            //switch (modelLeft.getRegionState(activeGroup[i])) {
+            var state = modelRight.getRegionState(activeGroup[i]);
+
+            modelLeft.toggleRegion(modelRight.getRegionByIndex[i], state);
+            */
+
+    };
+};
+
+
+var addColorClusteringSlider = function () {
     var menu = d3.select("#colorCoding");
     menu.append("br");
     menu.append("label")
@@ -467,7 +892,7 @@ addColorClusteringSlider = function () {
         });
 };
 
-setColorClusteringSliderVisibility = function (value) {
+var setColorClusteringSliderVisibility = function (value) {
     var elem = document.getElementById('colorClusteringSlider');
     if (elem)
         elem.style.visibility = value;
@@ -479,7 +904,7 @@ setColorClusteringSliderVisibility = function (value) {
 /* Topology options at viewLeft and viewRight */
 // add "Topological Spaces" menu for scene containing:
 // Isomap, MDS, tSNE and anatomy spaces
-addTopologyMenu = function (model, side) {
+var addTopologyMenu = function (model, side) {
 
     var topologies = model.getTopologies();
     var hierarchicalClusteringExist = false;
@@ -518,12 +943,12 @@ addTopologyMenu = function (model, side) {
 };
 
 // remove geometry buttons
-removeGeometryButtons = function (side) {
+var removeGeometryButtons = function (side) {
     document.getElementById("topologyMenu" + side).innerHTML = "";
 };
 
 // add clustering level slider
-addClusteringSlider = function (model, side) {
+var addClusteringSlider = function (model, side) {
     var menu = d3.select("#topology" + side);
 
     menu.append("br");
@@ -546,7 +971,7 @@ addClusteringSlider = function (model, side) {
 };
 
 // control clustering level slider visibility
-setClusteringSliderVisibility = function (side, value) {
+var setClusteringSliderVisibility = function (side, value) {
     var elem = document.getElementById('clusteringSlider' + side);
     if (elem)
         elem.style.visibility = value;
@@ -558,7 +983,7 @@ setClusteringSliderVisibility = function (side, value) {
 
 /*Shortest path stuff at shortestPathLeft and shortestPathRight */
 // add filter to shortest path by percentage
-addDistanceSlider = function () {
+var addDistanceSlider = function () {
     var menu = d3.select("#shortestPath");
     menu.append("br");
 
@@ -587,14 +1012,14 @@ addDistanceSlider = function () {
 };
 
 // remove shortest path percentage filter
-enableDistanceSlider = function (status) {
+var enableDistanceSlider = function (status) {
     var elem = document.getElementById('distanceThresholdSlider');
     if(elem)
         elem.disabled = !status;
 };
 
 // add a slider that filters shortest paths by the number of hops
-addShortestPathHopsSlider = function () {
+var addShortestPathHopsSlider = function () {
     var menu =  d3.select('#shortestPath');
     menu.append("br");
 
@@ -619,13 +1044,13 @@ addShortestPathHopsSlider = function () {
 };
 
 // remove the shortest path number of hops filter
-enableShortestPathHopsSlider = function (status) {
+var enableShortestPathHopsSlider = function (status) {
     var elem = document.getElementById('numberOfHopsSlider');
     if(elem)
         elem.disabled = !status;
 };
 
-addShortestPathFilterButton = function () {
+var addShortestPathFilterButton = function () {
     var menu = d3.select("#shortestPath");
         menu.append('button')
             .attr("id", "sptFilterBtn")
@@ -646,12 +1071,12 @@ addShortestPathFilterButton = function () {
                         document.getElementById("sptFilterBtn").innerHTML = "Number of Hops";
                         break;
                 }
-                if (spt)
+                if (getSpt())
                     updateScenes();
             });
 };
 
-enableShortestPathFilterButton = function (status) {
+var enableShortestPathFilterButton = function (status) {
     var elem = document.getElementById('sptFilterBtn');
     if(elem)
         elem.disabled = !status;
@@ -661,7 +1086,7 @@ enableShortestPathFilterButton = function (status) {
     enableShortestPathHopsSlider(status && shortestPathVisMethod == NUMBER_HOPS);
 };
 
-enableThresholdControls = function (status) {
+var enableThresholdControls = function (status) {
     var elem = document.getElementById('changeModalityBtn');
     if(elem)
         elem.disabled = !status;
@@ -673,14 +1098,15 @@ enableThresholdControls = function (status) {
         elem.disabled = !status;
 };
 
-hideVRMaximizeButtons = function () {
-    document.getElementById("magicWindowLeft").style.visibility = "hidden";
-    document.getElementById("magicWindowRight").style.visibility = "hidden";
-};
+// todo: this hides the Enter VR buttons I guess but not sure what its for or if required in webXR
+// var hideVRMaximizeButtons = function () {
+//     document.getElementById("magicWindowLeft").style.visibility = "hidden";
+//     document.getElementById("magicWindowRight").style.visibility = "hidden";
+// };
 
 
 // add labels check boxes, appear/disappear on right click
-addFslRadioButton = function() {
+var addFslRadioButton = function() {
     var rightMenu = d3.select("#rightFslLabels");
     var leftMenu = d3.select("#leftFslLabels");
 
@@ -718,7 +1144,7 @@ addFslRadioButton = function() {
 };
 
 // add search nodes by index panel, appear/disappear on right click
-addSearchPanel = function(){
+var addSearchPanel = function(){
     var menu = d3.select("#search");
 
     menu.append("text")
@@ -730,37 +1156,108 @@ addSearchPanel = function(){
         .attr("type", "text")
         .attr("id", "nodeSearch")
         .attr("name","nodeid");
+    menu.append("br");
 
+    menu.append("label")
+        .attr("for", "enableSearchLeftCheck")
+        .attr("id", "enableSearchLeftCheckLabel")
+        .attr("hidden", true)
+        .html("&larr;");
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("hidden", true)
+        .attr("id", "enableSearchLeftCheck")
+        .on("change", function () {
+            enableLeftSearching(this.checked);
+        });
     menu.append("button")
         .text("Search")
         .on("click",function(){
             var text = document.getElementById("nodeSearch");
-            searchElement(text.value);
+            if (leftSearching) { searchElement(text.value, 'Left'); }
+            if (rightSearching) { searchElement(text.value, 'Right'); }
+            if (!leftSearching && !rightSearching) { searchElement(text.value); }
         });
+    menu.append("input")
+        .attr("type", "checkbox")
+        .attr("checked", false)
+        .attr("hidden", true)
+        .attr("id", "enableSearchRightCheck")
+        .on("change", function () {
+            enableRightSearching(this.checked);
+        });
+    menu.append("label")
+        .attr("for", "enableSearchRightCheck")
+        .attr("id", "enableSearchRightCheckLabel")
+        .attr("hidden", true)
+        .html("&rarr;");
 };
 
+var enableLeftSearching = function (value) {
+    leftSearching = value;
+}
+
+var enableRightSearching = function (value) {
+    rightSearching = value;
+}
+
 // search by index callback
-searchElement = function(index) {
-    index = parseInt(index);
-    console.log(index);
-    if(typeof(index) != 'number' || isNaN(index)){
-        alert("The value inserted is not a number");
+var searchElement = function(intext,side) {
+    var index = -1;
+
+    console.log("Search Text" + intext);
+
+    if ((typeof (parseInt(intext)) != 'number') || isNaN(parseInt(intext))) {
+           // alert("The value inserted is not a number");
+        
+
+        // if search field is text search regions for match and continue with index
+        var glyphCountLeft = previewAreaLeft.getGlyphCount();
+        var glyphCountRight = previewAreaRight.getGlyphCount();
+                //max(previewAreaLeft.getGlyphCount(), previewAreaRight.getGlyphCount())); 
+        var glyphCount = ((side === 'Left') ? glyphCountLeft : (side === 'Right') ? glyphCountRight :
+            (glyphCountLeft > glyphCountRight) ? glyphCountLeft : glyphCountRight);
+                          //math.max((glyphCountLeft, glyphCountRight));
+        for (var i = 0; i < glyphCount; i++) {
+            //if (intext === modelRight.getRegionByIndex(i)) { index = i; break; }
+            var teststriLeft = modelLeft.getRegionByIndex(i);
+            var teststriRight = modelRight.getRegionByIndex(i);
+            if ((side !== 'Left') && teststriRight && teststriRight.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
+            if ((side !== 'Right') && teststriLeft && teststriLeft.name.includes(intext) && !getNodesSelected().includes(i)) { index = i; break; }
+        }
+    } else { // It is a number
+        index = parseInt(intext)-1;
     }
 
-    if(index < 0 || index > glyphs.length){
-        alert("Node not found");
+    //if (index < 0 || index > glyphs.length) {
+    if (index < 0 || index > glyphCount) {
+        //((side === 'Left') ? previewAreaLeft.getGlyphCount() :
+        //(side === 'Right') ? previewAreaRight.getGlyphCount() : 
+        //   max(previewAreaLeft.getGlyphCount() , previewAreaRight.getGlyphCount()) )) {
+            alert("Node not found");
     }
 
-    drawSelectedNode(index, glyphs[index]);
+    //drawSelectedNode(index, glyphs[index]);
+    if (side !== 'Right' || leftSearching) {
+        previewAreaLeft.drawSelectedNode(index, previewAreaLeft.getGlyph[index]);
+    }
+    if (side !== 'Left' || rightSearching) {
+        previewAreaRight.drawSelectedNode(index, previewAreaRight.getGlyph[index]);
+    }
+    redrawEdges();
+
+    var teststri = (side !== 'Left') ?   modelRight.getRegionByIndex(index) : modelLeft.getRegionByIndex(index) ;
+    setNodeInfoPanel(teststri,index);
 };
 
 // toggle labels check boxes on right click
-toggleMenus = function (e) {
+var toggleMenus = function (e) {
     $('#shortestPath').toggle();
     $('#viewLeft').toggle();
     $('#viewRight').toggle();
     $('#legend').toggle();
-    $('#nodeInfoPanel').toggle();
+    // $('#nodeInfoPanel').toggle();
     $('#colorCoding').toggle();
     $('#edgeInfoPanel').toggle();
     $('#search').toggle();
@@ -769,3 +1266,7 @@ toggleMenus = function (e) {
     $('#vrLeft').toggle();
     $('#vrRight').toggle();
 };
+
+var getShortestPathVisMethod = function () { return shortestPathVisMethod }
+
+export { toggleMenus, initSubjectMenu, removeGeometryButtons, addOpacitySlider, addModalityButton, addThresholdSlider, addLateralityCheck, addColorGroupList, addColorGroupListLeft, addTopologyMenu, addShortestPathFilterButton, addDistanceSlider, addShortestPathHopsSlider, enableShortestPathFilterButton, addDimensionFactorSliderLeft, addEdgeBundlingCheck, addDimensionFactorSliderRight, addSearchPanel, getShortestPathVisMethod, SHORTEST_DISTANCE, NUMBER_HOPS, setNodeInfoPanel, enableThresholdControls,createLegend} //hideVRMaximizeButtons

@@ -2,12 +2,16 @@
  * Created by giorgioconte on 31/01/15.
  */
 
-var folder;
+import {labelLUT, dataFiles, atlas, folder, setDataFile, setAtlas} from "../globals";
+import {Atlas} from "../atlas"
+import * as Papa from "papaparse";
+
+//var folder='Demo6';
 
 var setFolder = function (folderName, callback) {
     folder = folderName;
     console.log("Source folder set to: ", folder);
-    callback(null,null);
+    callback(null, null);
 };
 
 // it is assumed all data folder should have an index.txt file describing its contents
@@ -25,27 +29,28 @@ var scanFolder = function (callback) {
         },
         complete: function (results) {
             console.log("Loading subjects ...");
-            dataFiles = results.data;
+            setDataFile(results.data);
             console.log("Subjects loaded");
-            callback(null,null);
-        }
-    });
-};
-
-var loadIcColors = function (callback) {
-    Papa.parse("./data//WB2s1IC.csv", {
-        download: true,
-        delimiter: ",",
-        dynamicTyping: true,
-        error:"continue",
-        skipEmptyLines: true,
-        complete: function (results) {
-            modelLeft.setICColor(results);
-            modelRight.setICColor(results);
             callback(null, null);
         }
     });
 };
+
+//temporary disabled todo: fix this?
+// var loadIcColors = function (callback) {
+//     Papa.parse("./data//WB2s1IC.csv", {
+//         download: true,
+//         delimiter: ",",
+//         dynamicTyping: true,
+//         error: "continue",
+//         skipEmptyLines: true,
+//         complete: function (results) {
+//             modelLeft.setICColor(results);
+//             modelRight.setICColor(results);
+//             callback(null, null);
+//         }
+//     });
+// };
 
 // the look up table is common for all subjects of a dataset, provides information about a specific Atlas
 // for each label we have:
@@ -57,7 +62,7 @@ var loadIcColors = function (callback) {
 // rich_club: rich club affiliation: region name vs non-RichClub (optional)
 var loadLookUpTable = function (callback) {
     var labelsLUTFilename = "LookupTable_" + labelLUT + ".csv";
-    Papa.parse("data/"+labelsLUTFilename, {
+    Papa.parse("data/" + labelsLUTFilename, {
         download: true,
         delimiter: ";",
         dynamicTyping: true,
@@ -65,7 +70,7 @@ var loadLookUpTable = function (callback) {
         skipEmptyLines: true,
         complete: function (results) {
             console.log("Setting up Look-up Table");
-            atlas = new Atlas(results);
+            setAtlas(new Atlas(results));
             console.log("Look up table loaded ... ");
             callback(null, null);
         }
@@ -73,31 +78,31 @@ var loadLookUpTable = function (callback) {
 };
 
 var loadSubjectNetwork = function (fileNames, model, callback) {
-    Papa.parse("data/"+folder + "/" + fileNames.network,{
+    Papa.parse("data/" + folder + "/" + fileNames.network, {
         download: true,
         dynamicTyping: true,
         delimiter: ',',
         header: false,
         skipEmptyLines: true,
-        complete: function(results){
+        complete: function (results) {
             model.setConnectionMatrix(results);
             console.log("NW loaded ... ");
-            callback(null,null);
+            callback(null, null);
         }
     });
 };
 
 var loadSubjectTopology = function (fileNames, model, callback) {
-    Papa.parse("data/"+folder + "/" + fileNames.topology,{
+    Papa.parse("data/" + folder + "/" + fileNames.topology, {
         download: true,
         dynamicTyping: true,
         delimiter: ',',
         header: false,
         skipEmptyLines: true,
-        complete: function(results){
+        complete: function (results) {
             model.setTopology(results.data);
             console.log("Topology loaded ... ");
-            callback(null,null);
+            callback(null, null);
         }
     });
 };
@@ -118,18 +123,20 @@ var loadColorMap = function (callback) {
 };*/
 
 
-var loadMetricValues = function(callback){
+var loadMetricValues = function (callback) {
     console.log("Loading metric file");
-    Papa.parse("data/Anatomic/metric.csv",{
+    Papa.parse("data/Anatomic/metric.csv", {
         download: true,
         delimiter: ',',
         dynamicTyping: true,
         header: false,
         skipEmptyLines: true,
-        complete: function(results){
+        complete: function (results) {
             modelLeft.setMetricValues(results);
             modelRight.setMetricValues(results);
-            callback(null,null);
+            callback(null, null);
         }
     })
 };
+
+export {scanFolder, loadMetricValues, loadLookUpTable, loadSubjectTopology, loadSubjectNetwork}

@@ -114,6 +114,15 @@ button > input[type="checkbox"] {
     z-index: 2
 }
 
+#legendLeft {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    bottom: 10px;
+    left: 35%;
+    z-index: 2
+}
+
 
 
 #shortestPath {
@@ -131,6 +140,29 @@ button > input[type="checkbox"] {
     top: 400px;
     right: 30px;
     z-index: 3;
+}
+
+#colorCodingLeft {
+    position: absolute;
+    width: 175px;
+    height: 25px;
+    top: 400px;
+    left: 35%;
+    z-index: 3;
+}
+
+#syncColorLeft {
+    position: relative;
+    height: 25px;
+    top: 5px;
+    left: 20px;
+}
+
+#syncColorRight {
+    position: relative;
+    height: 25px;
+    top: 5px;
+    left: 20px;
 }
 
 #viewLeft {
@@ -226,7 +258,7 @@ button > input[type="checkbox"] {
 #nodeInfoPanel {
     position: absolute;
     width: 300px;
-    height: 130px;
+    height: 120px;
     bottom: 10px;
     left: 10px;
     z-index: 2;
@@ -238,10 +270,40 @@ button > input[type="checkbox"] {
     vertical-align: middle;
 }
 
+#nodeInfoPanelLeft {
+    position: absolute;
+    width: 300px;
+    height: 160px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 3;
+    color: antiquewhite;
+}
+
+#nodeInfoPanelLeft > p {
+    text-align:center;
+    vertical-align: middle;
+}
+
+#nodeInfoPanelRight {
+    position: absolute;
+    width: 360px;
+    height: 160px;
+    bottom: 10px;
+    right: 30%;
+    z-index: 3;
+    color: antiquewhite;
+}
+
+#nodeInfoPanelRight > p {
+    text-align:center;
+    vertical-align: middle;
+}
+
 #edgeInfoPanel {
     position: absolute;
     width: 200px;
-    height: 200px;
+    height: 360px;
     top: 10px;
     right: 10px;
     z-index: 2

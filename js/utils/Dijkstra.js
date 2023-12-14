@@ -3,6 +3,10 @@
 
 var updateNeeded = true;
 
+function setUpdateNeeded(value) {
+    updateNeeded = value;
+}
+
 function PriorityQueue () {
     this._nodes = [];
 
@@ -117,3 +121,5 @@ function Graph() {
         return (hierarchy) ? hierarchy.length : 0;
     }
 }
+
+export {Graph,setUpdateNeeded}

@@ -14,6 +14,8 @@
      place: embeddness (optional)
      rich_club: rich club affiliation: region name vs non-RichClub (optional)
  */
+import {sphereResolution,getSphereResolution,setSphereResolution} from "./graphicsUtils";
+
 function Atlas(data) {
 
     var lut = {};
@@ -31,10 +33,15 @@ function Atlas(data) {
         }
         colorCodingGroups = fields;
         // take out label, region_name and hemisphere
-        for (var i = colorCodingGroups.length-1; i > -1; --i) {
-            if (colorCodingGroups[i] == "label" || colorCodingGroups[i] == "region_name" || colorCodingGroups[i] ==  "hemisphere")
-                colorCodingGroups.remove(i);
-        }
+        // for (var i = colorCodingGroups.length-1; i > -1; --i) {
+        //     if (colorCodingGroups[i] == "label" || colorCodingGroups[i] == "region_name" || colorCodingGroups[i] ==  "hemisphere")
+        //         colorCodingGroups.remove(i);
+        // }
+
+        colorCodingGroups = colorCodingGroups.filter(val => val !== "label");
+        colorCodingGroups = colorCodingGroups.filter(val => val !== "region_name");
+        colorCodingGroups = colorCodingGroups.filter(val => val !== "hemisphere");
+
         // store data
         var el;
         for (var i = 0; i < d.data.length; ++i) {
@@ -42,7 +49,7 @@ function Atlas(data) {
             el.visibility = true;
             lut[d.data[i].label] = el;
         }
-        sphereResolution = (d.data.length < 1000) ? 12 : (d.data.length < 2000) ? 8 : 4;
+        setSphereResolution((d.data.length < 1000) ? 12 : (d.data.length < 2000) ? 8 : 4);
     };
 
 
@@ -77,3 +84,5 @@ function Atlas(data) {
     // constructor call
     setLut(data);
 }
+
+export {Atlas}
